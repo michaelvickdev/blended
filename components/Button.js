@@ -9,7 +9,8 @@ export const Button = ({
   activeOpacity = 0.3,
   borderless = false,
   title,
-  style
+  style,
+  borderlessTitleStyle,
 }) => {
   const _style = useCallback(({ pressed }) => [
     style,
@@ -19,7 +20,9 @@ export const Button = ({
   if (borderless) {
     return (
       <Pressable onPress={onPress} style={_style}>
-        <Text style={styles.borderlessButtonText}>{title}</Text>
+        <Text style={borderlessTitleStyle ? [styles.borderlessButtonText, borderlessTitleStyle] : styles.borderlessButtonText}>
+          {title}
+        </Text>
       </Pressable>
     );
   }
@@ -34,6 +37,7 @@ export const Button = ({
 const styles = StyleSheet.create({
   borderlessButtonText: {
     fontSize: 16,
-    color: Colors.primary
+    color: Colors.primary,
+    fontWeight: '700',
   }
 });

@@ -11,18 +11,19 @@ export const TextInput = ({
   leftIconName,
   rightIcon,
   handlePasswordVisibility,
+  textInputStyles,
   ...otherProps
 }) => {
   return (
     <View
       style={{
         backgroundColor: Colors.white,
-        borderRadius: 8,
+        // borderRadius: 8,
         flexDirection: 'row',
         padding: 12,
-        marginVertical: 12,
+        marginVertical: 8,
         width,
-        borderWidth: 1,
+        borderBottomWidth: 1,
         borderColor: Colors.mediumGray
       }}
     >
@@ -35,12 +36,12 @@ export const TextInput = ({
         />
       ) : null}
       <RNTextInput
-        style={{
+        style={[{
           flex: 1,
           width: '100%',
-          fontSize: 18,
+          fontSize: 16,
           color: Colors.black
-        }}
+        }, textInputStyles]}
         placeholderTextColor={Colors.mediumGray}
         {...otherProps}
       />
