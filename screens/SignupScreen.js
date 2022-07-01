@@ -8,6 +8,9 @@ import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
 import { Images, Colors, auth } from '../config';
 import { useTogglePasswordVisibility } from '../hooks';
 import { signupValidationSchema } from '../utils';
+import { SelectInput } from '../components/SelectInput';
+import { DateInput } from '../components/DateInput';
+import { ImageInput } from '../components/ImageInput';
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
@@ -18,13 +21,13 @@ export const SignupScreen = ({ navigation }) => {
     rightIcon,
     handleConfirmPasswordVisibility,
     confirmPasswordIcon,
-    confirmPasswordVisibility
+    confirmPasswordVisibility,
   } = useTogglePasswordVisibility();
 
-  const handleSignup = async values => {
+  const handleSignup = async (values) => {
     const { email, password } = values;
 
-    createUserWithEmailAndPassword(auth, email, password).catch(error =>
+    createUserWithEmailAndPassword(auth, email, password).catch((error) =>
       setErrorState(error.message)
     );
   };
@@ -48,12 +51,15 @@ export const SignupScreen = ({ navigation }) => {
             phone: '',
             city: '',
             about: '',
+            gender: '',
+            interested: '',
             password: '',
             confirmPassword: '',
             dateOfBirth: '',
+            image: '',
           }}
           validationSchema={signupValidationSchema}
-          onSubmit={values => handleSignup(values)}
+          onSubmit={(values) => handleSignup(values)}
         >
           {({
             values,
@@ -61,58 +67,62 @@ export const SignupScreen = ({ navigation }) => {
             errors,
             handleChange,
             handleSubmit,
-            handleBlur
+            handleBlur,
+            setFieldValue,
           }) => (
             <>
               {/* Input fields */}
               <TextInput
-                name='username'
-                leftIconName='account'
-                placeholder='*Username'
-                autoCapitalize='none'
+                name="username"
+                leftIconName="account"
+                placeholder="*Username"
+                autoCapitalize="none"
                 autoFocus={true}
                 value={values.username}
                 onChangeText={handleChange('username')}
                 onBlur={handleBlur('username')}
               />
-              <FormErrorMessage error={errors.username} visible={touched.username} />
+              <FormErrorMessage
+                error={errors.username}
+                visible={touched.username}
+              />
               <TextInput
-                name='email'
-                leftIconName='email'
-                placeholder='*Email Address'
-                autoCapitalize='none'
-                keyboardType='email-address'
-                textContentType='emailAddress'
+                name="email"
+                leftIconName="email"
+                placeholder="*Email Address"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                textContentType="emailAddress"
                 value={values.email}
                 onChangeText={handleChange('email')}
                 onBlur={handleBlur('email')}
               />
               <FormErrorMessage error={errors.email} visible={touched.email} />
               <TextInput
-                name='phone'
-                leftIconName='phone'
-                placeholder='*Phone Number'
-                autoCapitalize='none'
+                name="phone"
+                leftIconName="phone"
+                placeholder="*Enter Phone Number"
+                autoCapitalize="none"
                 value={values.phone}
                 onChangeText={handleChange('phone')}
                 onBlur={handleBlur('phone')}
               />
               <FormErrorMessage error={errors.phone} visible={touched.phone} />
               <TextInput
-                name='city'
-                leftIconName='city'
-                placeholder='*City'
-                autoCapitalize='words'
+                name="city"
+                leftIconName="flag"
+                placeholder="*City"
+                autoCapitalize="words"
                 value={values.city}
                 onChangeText={handleChange('city')}
                 onBlur={handleBlur('city')}
               />
               <FormErrorMessage error={errors.city} visible={touched.city} />
               <TextInput
-                name='about'
-                leftIconName='pencil'
-                placeholder='*About You'
-                autoCapitalize='sentences'
+                name="about"
+                leftIconName="pencil"
+                placeholder="*About You"
+                autoCapitalize="sentences"
                 value={values.about}
                 onChangeText={handleChange('about')}
                 onBlur={handleBlur('about')}
@@ -121,58 +131,71 @@ export const SignupScreen = ({ navigation }) => {
                 textInputStyles={{ minHeight: 44, maxHeight: 88 }}
               />
               <FormErrorMessage error={errors.about} visible={touched.about} />
-              <TextInput
-                name='password'
-                leftIconName='key-variant'
-                placeholder='*Password'
-                autoCapitalize='none'
-                autoCorrect={false}
-                secureTextEntry={passwordVisibility}
-                textContentType='newPassword'
-                rightIcon={rightIcon}
-                handlePasswordVisibility={handlePasswordVisibility}
-                value={values.password}
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
+
+              <SelectInput
+                name="gender"
+                options={[
+                  { name: 'Male', id: 0 },
+                  { name: 'Female', id: 1 },
+                ]}
+                value={values.gender}
+                label="*Gender"
+                onSelect={handleChange('gender')}
+                onBlur={handleBlur('gender')}
               />
               <FormErrorMessage
-                error={errors.password}
-                visible={touched.password}
+                error={errors.gender}
+                visible={touched.gender}
               />
-              <TextInput
-                name='confirmPassword'
-                leftIconName='key-variant'
-                placeholder='*Confirm Password'
-                autoCapitalize='none'
-                autoCorrect={false}
-                secureTextEntry={confirmPasswordVisibility}
-                textContentType='password'
-                rightIcon={confirmPasswordIcon}
-                handlePasswordVisibility={handleConfirmPasswordVisibility}
-                value={values.confirmPassword}
-                onChangeText={handleChange('confirmPassword')}
-                onBlur={handleBlur('confirmPassword')}
+
+              <SelectInput
+                name="interested"
+                options={[
+                  { name: 'Male', id: 0 },
+                  { name: 'Female', id: 1 },
+                ]}
+                value={values.interested}
+                label="*Interested"
+                onSelect={handleChange('interested')}
+                onBlur={handleBlur('interested')}
               />
               <FormErrorMessage
-                error={errors.confirmPassword}
-                visible={touched.confirmPassword}
+                error={errors.interested}
+                visible={touched.interested}
               />
-              <TextInput
-                name='dateOfBirth'
-                placeholder='*Date of Birth'
-                autoCapitalize='none'
+
+              <DateInput
+                name="dateOfBirth"
+                placeholder="*Date of Birth"
+                label="*Date of Birth"
                 value={values.dateOfBirth}
-                onChangeText={handleChange('dateOfBirth')}
+                onDateChange={(date) => setFieldValue('dateOfBirth', date)}
                 onBlur={handleBlur('dateOfBirth')}
               />
-              <FormErrorMessage error={errors.dateOfBirth} visible={touched.dateOfBirth} />
+              <FormErrorMessage
+                error={errors.dateOfBirth}
+                visible={touched.dateOfBirth}
+              />
+
+              <ImageInput
+                name="image"
+                leftIconName="attachment"
+                label="*Upload Pic"
+                handleChange={(url) => setFieldValue('image', url)}
+                onBlur={handleBlur('image')}
+              />
+              <FormErrorMessage
+                error={errors.dateOfBirth}
+                visible={touched.dateOfBirth}
+              />
+
               {/* Display Screen Error Mesages */}
               {errorState !== '' ? (
                 <FormErrorMessage error={errorState} visible={true} />
               ) : null}
               <Text style={styles.customText}>
-                By using our app you agree to our Terms and conditions
-                and Privacy Policy
+                By using our app you agree to our Terms and conditions and
+                Privacy Policy
               </Text>
               {/* Signup button */}
               <Button style={styles.button} onPress={handleSubmit}>
@@ -180,9 +203,9 @@ export const SignupScreen = ({ navigation }) => {
               </Button>
               <Text style={styles.customText}>
                 Please check Spam/Junk folder for login password. Add extra
-                social media and custom links including resume. Invite
-                friends to Join the Circle. Manage Privacy/Visibility in the
-                Inner Circle feature.
+                social media and custom links including resume. Invite friends
+                to Join the Circle. Manage Privacy/Visibility in the Inner
+                Circle feature.
               </Text>
             </>
           )}
@@ -213,7 +236,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   logoContainer: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   // screenTitle: {
   //   fontSize: 32,
@@ -233,7 +256,7 @@ const styles = StyleSheet.create({
     shadowColor: Colors.black,
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    shadowOffset: { width: 0, height: 2 }
+    shadowOffset: { width: 0, height: 2 },
   },
   buttonText: {
     fontSize: 16,
@@ -261,5 +284,5 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     fontSize: 13,
     color: Colors.black,
-  }
+  },
 });

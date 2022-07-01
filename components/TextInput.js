@@ -18,43 +18,54 @@ export const TextInput = ({
     <View
       style={{
         backgroundColor: Colors.white,
-        // borderRadius: 8,
         flexDirection: 'row',
         padding: 12,
-        marginVertical: 8,
+        marginVertical: 4,
         width,
-        borderBottomWidth: 1,
-        borderColor: Colors.mediumGray
       }}
     >
       {leftIconName ? (
         <Icon
           name={leftIconName}
           size={22}
-          color={Colors.mediumGray}
-          style={{ marginRight: 10 }}
+          color={Colors.black}
+          style={{ marginRight: 10, marginVertical: 4 }}
         />
       ) : null}
-      <RNTextInput
-        style={[{
+      <View
+        style={{
           flex: 1,
-          width: '100%',
-          fontSize: 16,
-          color: Colors.black
-        }, textInputStyles]}
-        placeholderTextColor={Colors.mediumGray}
-        {...otherProps}
-      />
-      {rightIcon ? (
-        <Button onPress={handlePasswordVisibility}>
-          <Icon
-            name={rightIcon}
-            size={22}
-            color={Colors.mediumGray}
-            style={{ marginRight: 10 }}
-          />
-        </Button>
-      ) : null}
+          flexDirection: 'row',
+          borderBottomWidth: 1,
+          borderColor: Colors.black,
+        }}
+      >
+        <RNTextInput
+          style={[
+            {
+              flex: 1,
+              fontSize: 16,
+              color: Colors.black,
+              paddingVertical: 4,
+              paddingHorizontal: 12,
+              textAlignVertical: 'top',
+            },
+            textInputStyles,
+          ]}
+          placeholderTextColor={Colors.mediumGray}
+          {...otherProps}
+        />
+        {rightIcon ? (
+          <Button onPress={handlePasswordVisibility}>
+            <Icon
+              name={rightIcon}
+              size={22}
+              color={Colors.black}
+              style={{ marginRight: 10 }}
+            />
+          </Button>
+        ) : null}
+      </View>
     </View>
   );
 };
