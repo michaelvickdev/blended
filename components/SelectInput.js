@@ -1,7 +1,7 @@
 import React from 'react';
 import { Picker } from '@react-native-picker/picker';
-import { Text } from 'react-native';
 
+import { Text } from './Text';
 import { View } from './View';
 import { Icon } from './Icon';
 import { Colors } from '../config';

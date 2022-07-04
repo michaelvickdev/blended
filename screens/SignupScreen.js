@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
+import { Text } from '../components/Text';
 import { Images, Colors, auth } from '../config';
 import { useTogglePasswordVisibility } from '../hooks';
 import { signupValidationSchema } from '../utils';
@@ -25,11 +26,13 @@ export const SignupScreen = ({ navigation }) => {
   } = useTogglePasswordVisibility();
 
   const handleSignup = async (values) => {
-    const { email, password } = values;
+    // const { email, password } = values;
 
-    createUserWithEmailAndPassword(auth, email, password).catch((error) =>
-      setErrorState(error.message)
-    );
+    // createUserWithEmailAndPassword(auth, email, password).catch((error) =>
+    //   setErrorState(error.message)
+    // );
+
+    console.log(values);
   };
 
   return (

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { DateTimePickerModal as DateTimePicker } from 'react-native-modal-datetime-picker';
-import { Text, TextInput, TouchableHighlight } from 'react-native';
+import { TextInput, TouchableHighlight } from 'react-native';
 
 import { View } from './View';
 import { Icon } from './Icon';
+import { Text } from './Text';
+
 import { Colors } from '../config';
 
 export const DateInput = ({

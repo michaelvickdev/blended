@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Text } from '../components/Text';
 import { Formik } from 'formik';
 import { sendPasswordResetEmail } from 'firebase/auth';
 
 import { passwordResetSchema } from '../utils';
-import { Colors, auth, Images } from '../config'
-import { View, TextInput, Button, FormErrorMessage, Logo } from '../components'
+import { Colors, auth, Images } from '../config';
+import { View, TextInput, Button, FormErrorMessage, Logo } from '../components';
 
 export const ForgotPasswordScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
 
-  const handleSendPasswordResetEmail = values => {
+  const handleSendPasswordResetEmail = (values) => {
     const { email } = values;
 
     sendPasswordResetEmail(auth, email)
@@ -18,7 +19,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
         console.log('Success: Password Reset Email sent.');
         navigation.navigate('Login');
       })
-      .catch(error => setErrorState(error.message));
+      .catch((error) => setErrorState(error.message));
   };
 
   return (
@@ -30,7 +31,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
       <Formik
         initialValues={{ email: '' }}
         validationSchema={passwordResetSchema}
-        onSubmit={values => handleSendPasswordResetEmail(values)}
+        onSubmit={(values) => handleSendPasswordResetEmail(values)}
       >
         {({
           values,
@@ -38,17 +39,17 @@ export const ForgotPasswordScreen = ({ navigation }) => {
           errors,
           handleChange,
           handleSubmit,
-          handleBlur
+          handleBlur,
         }) => (
           <>
             {/* Email input field */}
             <TextInput
-              name='email'
-              leftIconName='email'
-              placeholder='Email Address'
-              autoCapitalize='none'
-              keyboardType='email-address'
-              textContentType='emailAddress'
+              name="email"
+              leftIconName="email"
+              placeholder="Email Address"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              textContentType="emailAddress"
               value={values.email}
               onChangeText={handleChange('email')}
               onBlur={handleBlur('email')}
@@ -76,7 +77,6 @@ export const ForgotPasswordScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('Signup')}
         />
       </View>
-
     </View>
   );
 };
@@ -85,10 +85,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    paddingHorizontal: 15
+    paddingHorizontal: 15,
   },
   innerContainer: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   // screenTitle: {
   //   fontSize: 32,
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     shadowColor: Colors.black,
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    shadowOffset: { width: 0, height: 2 }
+    shadowOffset: { width: 0, height: 2 },
   },
   buttonText: {
     fontSize: 16,
@@ -129,5 +129,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     color: Colors.black,
-  }
+  },
 });

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Constants from 'expo-constants';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
+import { Text } from '../components/Text';
 import { Images, Colors, auth } from '../config';
 import { useTogglePasswordVisibility } from '../hooks';
 import { loginValidationSchema } from '../utils';
@@ -15,9 +16,9 @@ export const LoginScreen = ({ navigation }) => {
   const { passwordVisibility, handlePasswordVisibility, rightIcon } =
     useTogglePasswordVisibility();
 
-  const handleLogin = values => {
+  const handleLogin = (values) => {
     const { email, password } = values;
-    signInWithEmailAndPassword(auth, email, password).catch(error =>
+    signInWithEmailAndPassword(auth, email, password).catch((error) =>
       setErrorState(error.message)
     );
   };
@@ -32,10 +33,10 @@ export const LoginScreen = ({ navigation }) => {
         <Formik
           initialValues={{
             email: '',
-            password: ''
+            password: '',
           }}
           validationSchema={loginValidationSchema}
-          onSubmit={values => handleLogin(values)}
+          onSubmit={(values) => handleLogin(values)}
         >
           {({
             values,
@@ -43,34 +44,31 @@ export const LoginScreen = ({ navigation }) => {
             errors,
             handleChange,
             handleSubmit,
-            handleBlur
+            handleBlur,
           }) => (
             <>
               {/* Input fields */}
               <TextInput
-                name='email'
-                leftIconName='email'
-                placeholder='Email Address / Username'
-                autoCapitalize='none'
-                keyboardType='email-address'
-                textContentType='emailAddress'
+                name="email"
+                leftIconName="email"
+                placeholder="Email Address / Username"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                textContentType="emailAddress"
                 autoFocus={true}
                 value={values.email}
                 onChangeText={handleChange('email')}
                 onBlur={handleBlur('email')}
               />
-              <FormErrorMessage
-                error={errors.email}
-                visible={touched.email}
-              />
+              <FormErrorMessage error={errors.email} visible={touched.email} />
               <TextInput
-                name='password'
-                leftIconName='key-variant'
-                placeholder='Password'
-                autoCapitalize='none'
+                name="password"
+                leftIconName="key-variant"
+                placeholder="Password"
+                autoCapitalize="none"
                 autoCorrect={false}
                 secureTextEntry={passwordVisibility}
-                textContentType='password'
+                textContentType="password"
                 rightIcon={rightIcon}
                 handlePasswordVisibility={handlePasswordVisibility}
                 value={values.password}
@@ -130,10 +128,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
-    paddingHorizontal: 15
+    paddingHorizontal: 15,
   },
   logoContainer: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   // screenTitle: {
   //   fontSize: 32,
@@ -145,12 +143,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     paddingHorizontal: 15,
     paddingBottom: 48,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   footerText: {
     fontSize: 14,
     fontWeight: '700',
-    color: Colors.secondary
+    color: Colors.secondary,
   },
   button: {
     width: '50%',
@@ -164,7 +162,7 @@ const styles = StyleSheet.create({
     shadowColor: Colors.black,
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    shadowOffset: { width: 0, height: 2 }
+    shadowOffset: { width: 0, height: 2 },
   },
   buttonText: {
     fontSize: 16,
@@ -204,5 +202,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textAlign: 'center',
     color: Colors.black,
-  }
+  },
 });

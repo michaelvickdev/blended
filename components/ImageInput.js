@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImagePicker } from 'expo';
+import * as ImagePicker from 'expo-image-picker';
 import { Text, TouchableHighlight } from 'react-native';
 import { Icon } from './Icon';
 import { View } from './View';
@@ -11,11 +11,16 @@ export const ImageInput = ({
   handleChange,
   label,
 }) => {
-  const pickImage = (handleChange) => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
+  const pickImage = async (handleChange) => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert('Please allow permission to continue uploading the image.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync();
     console.log(result);
     if (!result.cancelled) {
       handleChange(result.uri);
