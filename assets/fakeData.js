@@ -5,6 +5,10 @@ export const fakeData = [
       name: 'John Doe',
       bio: 'I enjoy summer fishing and I am not afraid to hold my catch',
       avatar: 'https://randomuser.me/api/portraits/med/men/1.jpg',
+      username: 'john',
+      location: 'USA',
+      age: '53',
+      gender: 'Male',
     },
     post: {
       id: 234635,
@@ -19,6 +23,10 @@ export const fakeData = [
       name: 'Stan Lee',
       bio: 'Living the best life',
       avatar: 'https://randomuser.me/api/portraits/med/men/2.jpg',
+      username: 'stan',
+      location: 'USA',
+      age: '53',
+      gender: 'Male',
     },
     post: {
       id: 234425,
@@ -33,6 +41,10 @@ export const fakeData = [
       name: 'James Bond',
       bio: 'I am 007',
       avatar: 'https://randomuser.me/api/portraits/med/men/65.jpg',
+      username: 'james',
+      location: 'USA',
+      age: '53',
+      gender: 'Male',
     },
     post: {
       id: 234135,
@@ -47,6 +59,10 @@ export const fakeData = [
       name: 'Robert Downey Jr.',
       bio: 'You know who I am',
       avatar: 'https://randomuser.me/api/portraits/med/men/50.jpg',
+      username: 'rob',
+      location: 'USA',
+      age: '53',
+      gender: 'Male',
     },
     post: {
       id: 184432,

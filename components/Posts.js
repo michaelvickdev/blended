@@ -14,10 +14,7 @@ export const Posts = () => {
   }, []);
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        styles={styles.container}
-        contentContainerStyle={{ backgroundColor: Colors.white, padding: 16 }}
-      >
+      <ScrollView style={styles.container}>
         {posts.map((post) => (
           <Post key={post.post.id} user={post.user} post={post.post} />
         ))}
@@ -31,7 +28,7 @@ export const Posts = () => {
 };
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'transparent',
+    background: 'transparent',
     padding: 16,
   },
   gradient: {

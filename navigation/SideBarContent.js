@@ -59,11 +59,19 @@ export function SideBarContent(props) {
       <Drawer.Section style={styles.bottomDrawerSection}>
         <DrawerItem
           icon={({ color, size }) => (
-            <Icon name="exit-to-app" color={color} size={size} />
+            <Icon name="exit-to-app" color={Colors.darkRed} size={size} />
           )}
-          label="Sign Out"
+          label={() => (
+            <Text bold={true} style={{ color: Colors.darkRed, fontSize: 16 }}>
+              Sign Out
+            </Text>
+          )}
           onPress={() => {
             signOut();
+          }}
+          options={{
+            drawerActiveTintColor: Colors.darkRed,
+            drawerInactiveTintColor: Colors.darkRed,
           }}
         />
       </Drawer.Section>

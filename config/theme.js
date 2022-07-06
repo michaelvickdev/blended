@@ -11,4 +11,5 @@ export const Colors = {
   themeSecond: '#AB89C6',
   mainFirst: '#e9e9e9',
   mainSecond: '#e5dcfb',
+  darkRed: '#960300',
 };
