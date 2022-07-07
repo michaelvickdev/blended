@@ -11,7 +11,9 @@ export const Post = ({ user, post }) => {
       <View style={styles.userDetails}>
         <Image source={{ uri: user.avatar }} style={styles.avatar} />
         <View style={{ paddingHorizontal: 10, flex: 1 }}>
-          <Text bold={true}>{user.name}</Text>
+          <Text bold={true} heading={true}>
+            {user.name}
+          </Text>
           <Text>{user.bio}</Text>
         </View>
       </View>

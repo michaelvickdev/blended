@@ -4,7 +4,7 @@ export const Colors = {
   black: '#424242',
   white: '#ffffff',
   mediumGray: '#6e6869',
-  lightGray: '#e0e0e0',
+  lightGray: '#D3D3D3',
   red: '#fc5c65',
   trueBlack: '#000000',
   themeFirst: '#86B8BD',
@@ -12,4 +12,5 @@ export const Colors = {
   mainFirst: '#e9e9e9',
   mainSecond: '#e5dcfb',
   darkRed: '#960300',
+  skyBlue: '#17A9FD',
 };

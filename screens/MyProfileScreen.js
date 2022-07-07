@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
@@ -8,6 +8,11 @@ import PostCarouselItem from '../components/PostCarouselItem';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../components/View';
 import { Icon } from '../components';
+import { MaterialIcons } from '@expo/vector-icons';
+import { SocialIcon } from 'react-native-elements';
+import { Text } from '../components/Text';
+import { Button } from 'react-native-paper';
+
 const data = fakeData.map((post) => post.post);
 
 export const MyProfileScreen = () => {
@@ -30,11 +35,42 @@ export const MyProfileScreen = () => {
             marginTop: 16,
           }}
         >
-          <Icon name="facebook" size={54} />
-          <Icon name="twitter" size={54} />
-          <Icon name="linkedin" size={54} />
-          <Icon name="github" size={54} />
+          <SocialIcon type="facebook" />
+          <SocialIcon type="twitter" />
+          <SocialIcon type="instagram" />
+          <SocialIcon type="linkedin" />
         </View>
+
+        <View style={styles.action}>
+          <TouchableOpacity style={styles.item}>
+            <MaterialIcons name="person" size={12} color={Colors.black} />
+            <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.item}>
+            <Icon name="heart" size={12} color={Colors.black} />
+            <Text style={{ marginLeft: 5, fontSize: 12 }}>Add to Favorite</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.footer}>
+        <Button
+          mode="contained"
+          onPress={() => console.log('Pressed')}
+          style={styles.button}
+          color={Colors.white}
+          textColor={Colors.black}
+        >
+          Friend
+        </Button>
+        <Button
+          mode="contained"
+          onPress={() => console.log('Pressed')}
+          style={styles.button}
+          color={Colors.white}
+          textColor={Colors.black}
+        >
+          Send Message
+        </Button>
       </View>
     </LinearGradient>
   );
@@ -44,5 +80,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  action: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    paddingBottom: 16,
+    marginTop: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightGray,
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  footer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  button: {
+    width: 250,
+    marginBottom: 12,
+    padding: 4,
+    borderRadius: 12,
   },
 });

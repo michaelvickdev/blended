@@ -9,13 +9,13 @@ export const ProfileHeader = ({ user }) => {
       <View style={styles.top}>
         <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
         <View style={styles.userInfo}>
-          <Text bold={true} style={{ fontSize: 18 }}>
+          <Text bold={true} heading={true} style={{ fontSize: 18 }}>
             {user.username}
           </Text>
-          <Text style={{ fontSize: 18 }}>
+          <Text heading={true} style={{ fontSize: 18 }}>
             {user.name}, {user.location}
           </Text>
-          <Text style={{ fontSize: 18 }}>
+          <Text heading={true} style={{ fontSize: 18 }}>
             {user.age}, {user.gender}
           </Text>
         </View>

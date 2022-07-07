@@ -1,25 +1,21 @@
 import React from 'react';
 import { Text as RNText } from 'react-native';
-import AppLoading from 'expo-app-loading';
-import {
-  useFonts,
-  Poppins_400Regular,
-  Poppins_700Bold,
-} from '@expo-google-fonts/poppins';
+import { LoadingIndicator } from './LoadingIndicator';
 
-export const Text = ({ bold, style, children }) => {
-  let [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_700Bold,
-  });
-  if (!fontsLoaded) {
-    return <AppLoading />;
-  }
+export const Text = ({ bold, style, children, heading }) => {
+  const fontFamily = heading
+    ? bold
+      ? 'poppinsBold'
+      : 'poppinsLight'
+    : bold
+    ? 'futuraBold'
+    : 'futura';
+
   return (
     <RNText
       style={[
         {
-          fontFamily: bold ? 'Poppins_700Bold' : 'Poppins_400Regular',
+          fontFamily: fontFamily,
           fontWeight: bold ? 'bold' : 'normal',
         },
         style,

@@ -4,6 +4,7 @@ import { Text } from '../components/Text';
 import { Icon } from '../components/Icon';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Button } from 'react-native-paper';
 
 import { useTheme, Avatar, Drawer } from 'react-native-paper';
 import {
@@ -42,15 +43,26 @@ export function SideBarContent(props) {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Text
                   bold={true}
+                  heading={true}
                   style={{ fontSize: 16, marginVertical: 12, marginRight: 6 }}
                 >
                   j_doe
                 </Text>
                 <MaterialIcons name="verified" size={24} color="blue" />
               </View>
-              <Text bold={true} style={{ fontSize: 14 }}>
+              <Text bold={true} heading={true} style={{ fontSize: 14 }}>
                 Monthly Plan
               </Text>
+              <Button
+                color={Colors.white}
+                textColor={Colors.black}
+                mode="contained"
+                uppercase={false}
+                compact
+                style={{ marginTop: 16, alignSelf: 'center', borderRadius: 10 }}
+              >
+                Cancel Subscription
+              </Button>
             </View>
           </View>
           <DrawerItemList {...props} />
@@ -62,7 +74,11 @@ export function SideBarContent(props) {
             <Icon name="exit-to-app" color={Colors.darkRed} size={size} />
           )}
           label={() => (
-            <Text bold={true} style={{ color: Colors.darkRed, fontSize: 16 }}>
+            <Text
+              heading={true}
+              bold={true}
+              style={{ color: Colors.darkRed, fontSize: 16 }}
+            >
               Sign Out
             </Text>
           )}
