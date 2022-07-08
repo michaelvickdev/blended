@@ -17,7 +17,6 @@ export const TextInput = ({
   return (
     <View
       style={{
-        backgroundColor: Colors.white,
         flexDirection: 'row',
         padding: 12,
         marginVertical: 4,

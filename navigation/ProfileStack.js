@@ -1,11 +1,8 @@
 import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Colors } from '../config';
-import { Text } from '../components/Text';
+import { StyleSheet } from 'react-native';
 import { MyProfileScreen } from '../screens/MyProfileScreen';
 import { EditProfileScreen } from '../screens/EditProfileScreen';
-import { Header } from '../components/Header';
 
 const Stack = createStackNavigator();
 

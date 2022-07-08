@@ -7,11 +7,8 @@ import { SideBarContent } from './SideBarContent';
 import { ProfileStack } from '../navigation/ProfileStack';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../config';
-import { Text } from '../components/Text';
-import { View } from '../components/View';
-import { TouchableOpacity } from 'react-native';
-import { Icon } from '../components/Icon';
 import { Header } from '../components/Header';
+import { SearchScreen } from '../screens/SearchScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -40,19 +37,28 @@ export const AppStack = () => {
           drawerIcon: () => (
             <MaterialIcons name="rss-feed" size={24} color={Colors.black} />
           ),
-          headerTitle: () => <Header {...props} name="Feed" icon={true} />,
+          headerTitle: () => <Header {...props} />,
         })}
       />
       <Drawer.Screen
         name="ProfileStack"
         component={ProfileStack}
         options={(props) => ({
+          drawerLabel: 'View Profile',
           drawerIcon: () => (
             <MaterialIcons name="person" size={24} color={Colors.black} />
           ),
-          headerTitle: () => (
-            <Header {...props} {...props} name="Profile" icon={true} />
+          headerTitle: () => <Header {...props} {...props} />,
+        })}
+      />
+      <Drawer.Screen
+        name="Search"
+        component={SearchScreen}
+        options={(props) => ({
+          drawerIcon: () => (
+            <MaterialIcons name="search" size={24} color={Colors.black} />
           ),
+          headerTitle: () => <Header {...props} />,
         })}
       />
     </Drawer.Navigator>

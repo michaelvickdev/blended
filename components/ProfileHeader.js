@@ -3,7 +3,7 @@ import { StyleSheet, Image } from 'react-native';
 import { View } from './View';
 import { Text } from './Text';
 
-export const ProfileHeader = ({ user }) => {
+export const ProfileHeader = ({ user, noBio }) => {
   return (
     <View style={styles.container}>
       <View style={styles.top}>
@@ -20,9 +20,11 @@ export const ProfileHeader = ({ user }) => {
           </Text>
         </View>
       </View>
-      <View style={styles.status}>
-        <Text style={{ fontSize: 16, textAlign: 'center' }}>{user.bio}</Text>
-      </View>
+      {!noBio && (
+        <View style={styles.status}>
+          <Text style={{ fontSize: 16, textAlign: 'center' }}>{user.bio}</Text>
+        </View>
+      )}
     </View>
   );
 };

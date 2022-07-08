@@ -58,7 +58,7 @@ export const MyProfileScreen = () => {
           onPress={() => console.log('Pressed')}
           style={styles.button}
           color={Colors.white}
-          textColor={Colors.black}
+          labelStyle={{ color: Colors.black }}
         >
           Friend
         </Button>

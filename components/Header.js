@@ -7,35 +7,32 @@ import { TouchableOpacity } from 'react-native';
 import { Icon } from '../components/Icon';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-export const Header = ({ name, icon, navigation, route }) => {
+export const Header = ({ navigation, route }) => {
   return (
     <View style={styles.Header}>
       <Text heading={true} style={styles.headerTitle} bold={true}>
-        {name}
+        {getTitle(route)}
       </Text>
-      {!!icon && (
-        <TouchableOpacity
-          onPress={() => {
-            if (getRoute(route)) {
-              navigation.navigate(getRoute(route));
-            }
-          }}
-        >
-          <Icon
-            name={getIcon(route)}
-            size={24}
-            color={Colors.black}
-            style={styles.Icon}
-          />
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity
+        onPress={() => {
+          if (getRoute(route)) {
+            navigation.navigate(getRoute(route));
+          }
+        }}
+      >
+        <Icon
+          name={getIcon(route)}
+          size={24}
+          color={Colors.black}
+          style={styles.Icon}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   headerTitle: {
-    flex: 1,
     color: Colors.skyBlue,
     fontSize: 18,
     fontWeight: '200',
@@ -47,6 +44,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
+
+const getTitle = (route) => {
+  const current = !!getFocusedRouteNameFromRoute(route)
+    ? getFocusedRouteNameFromRoute(route)
+    : route.name;
+
+  switch (current) {
+    case 'Feed':
+      return 'Feed';
+    case 'EditProfile':
+      return 'Edit Profile';
+    case 'Profile':
+    case 'ProfileStack':
+      return 'My Profile';
+    case 'Search':
+      return 'Search';
+    default:
+      return false;
+  }
+};
 
 const getIcon = (route) => {
   const current = !!getFocusedRouteNameFromRoute(route)
@@ -60,7 +77,7 @@ const getIcon = (route) => {
       return 'close';
     case 'Profile':
     case 'ProfileStack':
-      return 'square-edit-outline';
+      return 'account-edit';
     default:
       return false;
   }

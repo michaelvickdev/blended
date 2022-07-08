@@ -21,7 +21,6 @@ export const DateInput = ({
   return (
     <View
       style={{
-        backgroundColor: Colors.white,
         flexWrap: 'wrap',
         borderBottomWidth: 1,
         borderColor: Colors.black,

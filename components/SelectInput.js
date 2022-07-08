@@ -18,7 +18,6 @@ export const SelectInput = ({
     return (
       <View
         style={{
-          backgroundColor: Colors.white,
           flexWrap: 'wrap',
           borderBottomWidth: 1,
           borderColor: Colors.black,

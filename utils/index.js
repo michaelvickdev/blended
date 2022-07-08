@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 export const loginValidationSchema = Yup.object().shape({
   email: Yup.string().required().email().label('Email Address'),
-  password: Yup.string().required().min(6).label('Password')
+  password: Yup.string().required().min(6).label('Password'),
 });
 
 export const signupValidationSchema = Yup.object().shape({
@@ -11,10 +11,6 @@ export const signupValidationSchema = Yup.object().shape({
   phone: Yup.string().required().label('Phone Number'),
   city: Yup.string().required().label('City'),
   about: Yup.string().required().label('About You'),
-  password: Yup.string().required().min(6).label('Password'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password')], 'Confirm Password must match password.')
-    .required('Confirm Password is required.'),
   dateOfBirth: Yup.string().required().label('Date of Birth'),
 });
 
@@ -22,5 +18,13 @@ export const passwordResetSchema = Yup.object().shape({
   email: Yup.string()
     .required('Please enter a registered email address')
     .label('Email')
-    .email('Enter a valid email address')
+    .email('Enter a valid email address'),
+});
+
+export const personalInfoValidationSchema = Yup.object().shape({
+  email: Yup.string().required().email().label('Email Address'),
+  phone: Yup.string().required().label('Phone Number'),
+  city: Yup.string().required().label('City'),
+  about: Yup.string().required().label('About You'),
+  dateOfBirth: Yup.string().required().label('Date of Birth'),
 });
