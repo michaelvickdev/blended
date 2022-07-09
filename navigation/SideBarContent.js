@@ -26,7 +26,6 @@ export function SideBarContent(props) {
               marginTop: 10,
               marginBottom: 20,
               alignItems: 'stretch',
-              justifyContent: 'stretch',
             }}
           >
             <View style={{ alignItems: 'center' }}>

@@ -9,6 +9,7 @@ import { BlankScreen } from './BlankScreen';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../config';
 import { Header } from '../components/Header';
+import { HeaderRight } from '../components/HeaderRight';
 import { SearchScreen } from '../screens/SearchScreen';
 
 const Drawer = createDrawerNavigator();
@@ -22,6 +23,7 @@ export const AppStack = () => {
         headerStyle: {
           backgroundColor: Colors.mainFirst,
         },
+        headerTitleAlign: 'left',
         drawerActiveTintColor: Colors.black,
         drawerInactiveTintColor: Colors.black,
         drawerLabelStyle: {
@@ -47,6 +49,7 @@ export const AppStack = () => {
         options={(props) => ({
           drawerIcon: () => <MaterialIcons name="rss-feed" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -56,6 +59,7 @@ export const AppStack = () => {
           drawerLabel: 'Events',
           drawerIcon: () => <MaterialIcons name="timer" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -65,6 +69,7 @@ export const AppStack = () => {
           drawerLabel: 'View Profile',
           drawerIcon: () => <MaterialIcons name="person" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -73,6 +78,7 @@ export const AppStack = () => {
         options={(props) => ({
           drawerIcon: () => <MaterialIcons name="search" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -82,6 +88,7 @@ export const AppStack = () => {
           drawerLabel: 'Near By',
           drawerIcon: () => <MaterialIcons name="location-pin" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -98,6 +105,7 @@ export const AppStack = () => {
             />
           ),
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -114,6 +122,7 @@ export const AppStack = () => {
             />
           ),
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -125,6 +134,7 @@ export const AppStack = () => {
             <MaterialCommunityIcons name="android-messages" size={24} color={Colors.black} />
           ),
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
       <Drawer.Screen
@@ -134,6 +144,7 @@ export const AppStack = () => {
           drawerLabel: 'Settings',
           drawerIcon: () => <MaterialIcons name="settings" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
         })}
       />
     </Drawer.Navigator>

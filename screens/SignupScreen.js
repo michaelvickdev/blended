@@ -127,8 +127,8 @@ export const SignupScreen = ({ navigation }) => {
               <SelectInput
                 name="gender"
                 options={[
-                  { name: 'Male', id: 0 },
-                  { name: 'Female', id: 1 },
+                  { name: 'Male', id: 'male' },
+                  { name: 'Female', id: 'female' },
                 ]}
                 value={values.gender}
                 label="*Gender"
@@ -140,8 +140,8 @@ export const SignupScreen = ({ navigation }) => {
               <SelectInput
                 name="interested"
                 options={[
-                  { name: 'Male', id: 0 },
-                  { name: 'Female', id: 1 },
+                  { name: 'Male', id: 'male' },
+                  { name: 'Female', id: 'female' },
                 ]}
                 value={values.interested}
                 label="*Interested"
