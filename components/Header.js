@@ -20,12 +20,7 @@ export const Header = ({ navigation, route }) => {
           }
         }}
       >
-        <Icon
-          name={getIcon(route)}
-          size={24}
-          color={Colors.black}
-          style={styles.Icon}
-        />
+        <Icon name={getIcon(route)} size={24} color={Colors.black} style={styles.Icon} />
       </TouchableOpacity>
     </View>
   );

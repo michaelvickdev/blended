@@ -90,10 +90,7 @@ export const EditProfileScreen = () => {
                           onChangeText={handleChange('email')}
                           onBlur={handleBlur('email')}
                         />
-                        <FormErrorMessage
-                          error={errors.email}
-                          visible={touched.email}
-                        />
+                        <FormErrorMessage error={errors.email} visible={touched.email} />
                         <TextInput
                           name="phone"
                           leftIconName="phone"
@@ -103,10 +100,7 @@ export const EditProfileScreen = () => {
                           onChangeText={handleChange('phone')}
                           onBlur={handleBlur('phone')}
                         />
-                        <FormErrorMessage
-                          error={errors.phone}
-                          visible={touched.phone}
-                        />
+                        <FormErrorMessage error={errors.phone} visible={touched.phone} />
                         <TextInput
                           name="city"
                           leftIconName="flag"
@@ -116,10 +110,7 @@ export const EditProfileScreen = () => {
                           onChangeText={handleChange('city')}
                           onBlur={handleBlur('city')}
                         />
-                        <FormErrorMessage
-                          error={errors.city}
-                          visible={touched.city}
-                        />
+                        <FormErrorMessage error={errors.city} visible={touched.city} />
                         <TextInput
                           name="about"
                           leftIconName="pencil"
@@ -132,10 +123,7 @@ export const EditProfileScreen = () => {
                           numberOfLines={3}
                           textInputStyles={{ minHeight: 44, maxHeight: 88 }}
                         />
-                        <FormErrorMessage
-                          error={errors.about}
-                          visible={touched.about}
-                        />
+                        <FormErrorMessage error={errors.about} visible={touched.about} />
 
                         <SelectInput
                           name="gender"
@@ -148,10 +136,7 @@ export const EditProfileScreen = () => {
                           onSelect={handleChange('gender')}
                           onBlur={handleBlur('gender')}
                         />
-                        <FormErrorMessage
-                          error={errors.gender}
-                          visible={touched.gender}
-                        />
+                        <FormErrorMessage error={errors.gender} visible={touched.gender} />
 
                         <SelectInput
                           name="interested"
@@ -164,19 +149,14 @@ export const EditProfileScreen = () => {
                           onSelect={handleChange('interested')}
                           onBlur={handleBlur('interested')}
                         />
-                        <FormErrorMessage
-                          error={errors.interested}
-                          visible={touched.interested}
-                        />
+                        <FormErrorMessage error={errors.interested} visible={touched.interested} />
 
                         <DateInput
                           name="dateOfBirth"
                           placeholder="*Date of Birth"
                           label="*Date of Birth"
                           value={values.dateOfBirth}
-                          onDateChange={(date) =>
-                            setFieldValue('dateOfBirth', date)
-                          }
+                          onDateChange={(date) => setFieldValue('dateOfBirth', date)}
                           onBlur={handleBlur('dateOfBirth')}
                         />
                         <FormErrorMessage
@@ -215,14 +195,7 @@ export const EditProfileScreen = () => {
                     validationSchema={personalInfoValidationSchema}
                     onSubmit={(values) => handleSignup(values)}
                   >
-                    {({
-                      values,
-                      touched,
-                      errors,
-                      handleChange,
-                      handleSubmit,
-                      handleBlur,
-                    }) => (
+                    {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
                       <>
                         {/* Input fields */}
                         <TextInput
@@ -234,10 +207,7 @@ export const EditProfileScreen = () => {
                           onChangeText={handleChange('facebook')}
                           onBlur={handleBlur('facebook')}
                         />
-                        <FormErrorMessage
-                          error={errors.facebook}
-                          visible={touched.facebook}
-                        />
+                        <FormErrorMessage error={errors.facebook} visible={touched.facebook} />
 
                         <TextInput
                           name="instagram"
@@ -248,10 +218,7 @@ export const EditProfileScreen = () => {
                           onChangeText={handleChange('instagram')}
                           onBlur={handleBlur('instagram')}
                         />
-                        <FormErrorMessage
-                          error={errors.instagram}
-                          visible={touched.instagram}
-                        />
+                        <FormErrorMessage error={errors.instagram} visible={touched.instagram} />
 
                         <TextInput
                           name="linkedin"
@@ -262,10 +229,7 @@ export const EditProfileScreen = () => {
                           onChangeText={handleChange('linkedin')}
                           onBlur={handleBlur('linkedin')}
                         />
-                        <FormErrorMessage
-                          error={errors.linkedin}
-                          visible={touched.linkedin}
-                        />
+                        <FormErrorMessage error={errors.linkedin} visible={touched.linkedin} />
 
                         <TextInput
                           name="twitter"
@@ -276,10 +240,7 @@ export const EditProfileScreen = () => {
                           onChangeText={handleChange('twitter')}
                           onBlur={handleBlur('twitter')}
                         />
-                        <FormErrorMessage
-                          error={errors.twitter}
-                          visible={touched.twitter}
-                        />
+                        <FormErrorMessage error={errors.twitter} visible={touched.twitter} />
 
                         {/* Display Screen Error Mesages */}
                         {errorState !== '' ? (

@@ -17,10 +17,7 @@ const data = fakeData.map((post) => post.post);
 
 export const MyProfileScreen = () => {
   return (
-    <LinearGradient
-      style={styles.container}
-      colors={[Colors.mainFirst, Colors.mainSecond]}
-    >
+    <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
       <ProfileHeader user={fakeData[0].user} />
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>

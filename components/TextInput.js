@@ -56,12 +56,7 @@ export const TextInput = ({
         />
         {rightIcon ? (
           <Button onPress={handlePasswordVisibility}>
-            <Icon
-              name={rightIcon}
-              size={22}
-              color={Colors.black}
-              style={{ marginRight: 10 }}
-            />
+            <Icon name={rightIcon} size={22} color={Colors.black} style={{ marginRight: 10 }} />
           </Button>
         ) : null}
       </View>

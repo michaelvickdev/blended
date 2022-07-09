@@ -64,15 +64,7 @@ export const SignupScreen = ({ navigation }) => {
           validationSchema={signupValidationSchema}
           onSubmit={(values) => handleSignup(values)}
         >
-          {({
-            values,
-            touched,
-            errors,
-            handleChange,
-            handleSubmit,
-            handleBlur,
-            setFieldValue,
-          }) => (
+          {({ values, touched, errors, handleChange, handleSubmit, handleBlur, setFieldValue }) => (
             <>
               {/* Input fields */}
               <TextInput
@@ -85,10 +77,7 @@ export const SignupScreen = ({ navigation }) => {
                 onChangeText={handleChange('username')}
                 onBlur={handleBlur('username')}
               />
-              <FormErrorMessage
-                error={errors.username}
-                visible={touched.username}
-              />
+              <FormErrorMessage error={errors.username} visible={touched.username} />
               <TextInput
                 name="email"
                 leftIconName="email"
@@ -146,10 +135,7 @@ export const SignupScreen = ({ navigation }) => {
                 onSelect={handleChange('gender')}
                 onBlur={handleBlur('gender')}
               />
-              <FormErrorMessage
-                error={errors.gender}
-                visible={touched.gender}
-              />
+              <FormErrorMessage error={errors.gender} visible={touched.gender} />
 
               <SelectInput
                 name="interested"
@@ -162,10 +148,7 @@ export const SignupScreen = ({ navigation }) => {
                 onSelect={handleChange('interested')}
                 onBlur={handleBlur('interested')}
               />
-              <FormErrorMessage
-                error={errors.interested}
-                visible={touched.interested}
-              />
+              <FormErrorMessage error={errors.interested} visible={touched.interested} />
 
               <DateInput
                 name="dateOfBirth"
@@ -175,10 +158,7 @@ export const SignupScreen = ({ navigation }) => {
                 onDateChange={(date) => setFieldValue('dateOfBirth', date)}
                 onBlur={handleBlur('dateOfBirth')}
               />
-              <FormErrorMessage
-                error={errors.dateOfBirth}
-                visible={touched.dateOfBirth}
-              />
+              <FormErrorMessage error={errors.dateOfBirth} visible={touched.dateOfBirth} />
 
               <ImageInput
                 name="image"
@@ -187,28 +167,21 @@ export const SignupScreen = ({ navigation }) => {
                 handleChange={(url) => setFieldValue('image', url)}
                 onBlur={handleBlur('image')}
               />
-              <FormErrorMessage
-                error={errors.dateOfBirth}
-                visible={touched.dateOfBirth}
-              />
+              <FormErrorMessage error={errors.dateOfBirth} visible={touched.dateOfBirth} />
 
               {/* Display Screen Error Mesages */}
-              {errorState !== '' ? (
-                <FormErrorMessage error={errorState} visible={true} />
-              ) : null}
+              {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
               <Text style={styles.customText}>
-                By using our app you agree to our Terms and conditions and
-                Privacy Policy
+                By using our app you agree to our Terms and conditions and Privacy Policy
               </Text>
               {/* Signup button */}
               <Button style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Signup</Text>
               </Button>
               <Text style={styles.customText}>
-                Please check Spam/Junk folder for login password. Add extra
-                social media and custom links including resume. Invite friends
-                to Join the Circle. Manage Privacy/Visibility in the Inner
-                Circle feature.
+                Please check Spam/Junk folder for login password. Add extra social media and custom
+                links including resume. Invite friends to Join the Circle. Manage Privacy/Visibility
+                in the Inner Circle feature.
               </Text>
             </>
           )}

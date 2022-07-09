@@ -6,7 +6,7 @@ import { HomeScreen } from '../screens';
 import { SideBarContent } from './SideBarContent';
 import { ProfileStack } from './ProfileStack';
 import { BlankScreen } from './BlankScreen';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../config';
 import { Header } from '../components/Header';
 import { SearchScreen } from '../screens/SearchScreen';
@@ -45,9 +45,7 @@ export const AppStack = () => {
         name="Feeds"
         component={HomeScreen}
         options={(props) => ({
-          drawerIcon: () => (
-            <MaterialIcons name="rss-feed" size={24} color={Colors.black} />
-          ),
+          drawerIcon: () => <MaterialIcons name="rss-feed" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
         })}
       />
@@ -56,9 +54,7 @@ export const AppStack = () => {
         component={BlankScreen}
         options={(props) => ({
           drawerLabel: 'Events',
-          drawerIcon: () => (
-            <MaterialIcons name="timer" size={24} color={Colors.black} />
-          ),
+          drawerIcon: () => <MaterialIcons name="timer" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
         })}
       />
@@ -67,9 +63,7 @@ export const AppStack = () => {
         component={ProfileStack}
         options={(props) => ({
           drawerLabel: 'View Profile',
-          drawerIcon: () => (
-            <MaterialIcons name="person" size={24} color={Colors.black} />
-          ),
+          drawerIcon: () => <MaterialIcons name="person" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
         })}
       />
@@ -77,9 +71,7 @@ export const AppStack = () => {
         name="Search"
         component={SearchScreen}
         options={(props) => ({
-          drawerIcon: () => (
-            <MaterialIcons name="search" size={24} color={Colors.black} />
-          ),
+          drawerIcon: () => <MaterialIcons name="search" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
         })}
       />
@@ -88,9 +80,7 @@ export const AppStack = () => {
         component={BlankScreen}
         options={(props) => ({
           drawerLabel: 'Near By',
-          drawerIcon: () => (
-            <MaterialIcons name="location-pin" size={24} color={Colors.black} />
-          ),
+          drawerIcon: () => <MaterialIcons name="location-pin" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
         })}
       />
@@ -100,7 +90,12 @@ export const AppStack = () => {
         options={(props) => ({
           drawerLabel: 'My Friends',
           drawerIcon: () => (
-            <MaterialCommunityIcons name="dots-circle" size={22} color={Colors.black} style={{ marginLeft: 1 }} />
+            <MaterialCommunityIcons
+              name="dots-circle"
+              size={22}
+              color={Colors.black}
+              style={{ marginLeft: 1 }}
+            />
           ),
           headerTitle: () => <Header {...props} />,
         })}
@@ -111,7 +106,12 @@ export const AppStack = () => {
         options={(props) => ({
           drawerLabel: 'My Feeds',
           drawerIcon: () => (
-            <MaterialCommunityIcons name="image-multiple" size={22} color={Colors.black} style={{ marginLeft: 1 }} />
+            <MaterialCommunityIcons
+              name="image-multiple"
+              size={22}
+              color={Colors.black}
+              style={{ marginLeft: 1 }}
+            />
           ),
           headerTitle: () => <Header {...props} />,
         })}
@@ -132,9 +132,7 @@ export const AppStack = () => {
         component={BlankScreen}
         options={(props) => ({
           drawerLabel: 'Settings',
-          drawerIcon: () => (
-            <MaterialIcons name="settings" size={24} color={Colors.black} />
-          ),
+          drawerIcon: () => <MaterialIcons name="settings" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
         })}
       />

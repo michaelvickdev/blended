@@ -33,14 +33,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
         validationSchema={passwordResetSchema}
         onSubmit={(values) => handleSendPasswordResetEmail(values)}
       >
-        {({
-          values,
-          touched,
-          errors,
-          handleChange,
-          handleSubmit,
-          handleBlur,
-        }) => (
+        {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
           <>
             {/* Email input field */}
             <TextInput
@@ -56,9 +49,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
             />
             <FormErrorMessage error={errors.email} visible={touched.email} />
             {/* Display Screen Error Mesages */}
-            {errorState !== '' ? (
-              <FormErrorMessage error={errorState} visible={true} />
-            ) : null}
+            {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
             {/* Password Reset Send Email  button */}
             <Button style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Reset Password</Text>

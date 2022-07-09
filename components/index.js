@@ -6,12 +6,4 @@ import { Button } from './Button';
 import { FormErrorMessage } from './FormErrorMessage';
 import { LoadingIndicator } from './LoadingIndicator';
 
-export {
-  View,
-  TextInput,
-  Logo,
-  Icon,
-  Button,
-  FormErrorMessage,
-  LoadingIndicator
-};
+export { View, TextInput, Logo, Icon, Button, FormErrorMessage, LoadingIndicator };

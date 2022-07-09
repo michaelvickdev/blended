@@ -5,8 +5,7 @@ export const useTogglePasswordVisibility = () => {
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const [rightIcon, setRightIcon] = useState('eye');
   const [confirmPasswordIcon, setConfirmPasswordIcon] = useState('eye');
-  const [confirmPasswordVisibility, setConfirmPasswordVisibility] =
-    useState(true);
+  const [confirmPasswordVisibility, setConfirmPasswordVisibility] = useState(true);
 
   // function that toggles password visibility on a TextInput component on a password field
   const handlePasswordVisibility = () => {
@@ -36,6 +35,6 @@ export const useTogglePasswordVisibility = () => {
     rightIcon,
     confirmPasswordVisibility,
     handleConfirmPasswordVisibility,
-    confirmPasswordIcon
+    confirmPasswordIcon,
   };
 };

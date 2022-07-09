@@ -42,12 +42,7 @@ export const DateInput = ({
         </Text>
       )}
       {leftIconName ? (
-        <Icon
-          name={leftIconName}
-          size={22}
-          color={Colors.black}
-          style={{ marginRight: 10 }}
-        />
+        <Icon name={leftIconName} size={22} color={Colors.black} style={{ marginRight: 10 }} />
       ) : null}
 
       <TouchableHighlight

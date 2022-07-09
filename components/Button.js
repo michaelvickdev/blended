@@ -13,10 +13,7 @@ export const Button = ({
   style,
   borderlessTitleStyle,
 }) => {
-  const _style = useCallback(({ pressed }) => [
-    style,
-    { opacity: pressed ? activeOpacity : 1 },
-  ]);
+  const _style = useCallback(({ pressed }) => [style, { opacity: pressed ? activeOpacity : 1 }]);
 
   if (borderless) {
     return (

@@ -5,15 +5,9 @@ import { Icon } from './Icon';
 import { View } from './View';
 import { Colors } from '../config';
 
-export const ImageInput = ({
-  width = '100%',
-  leftIconName,
-  handleChange,
-  label,
-}) => {
+export const ImageInput = ({ width = '100%', leftIconName, handleChange, label }) => {
   const pickImage = async (handleChange) => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {
       alert('Please allow permission to continue uploading the image.');

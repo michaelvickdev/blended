@@ -7,23 +7,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from 'react-native-paper';
 
 import { useTheme, Avatar, Drawer } from 'react-native-paper';
-import {
-  DrawerContentScrollView,
-  DrawerItemList,
-  DrawerItem,
-} from '@react-navigation/drawer';
+import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { signOut } from 'firebase/auth';
 import { MaterialIcons } from '@expo/vector-icons';
-import Constants from 'expo-constants'
+import Constants from 'expo-constants';
 
 export function SideBarContent(props) {
   const paperTheme = useTheme();
 
   return (
-    <LinearGradient
-      style={{ flex: 1 }}
-      colors={[Colors.themeFirst, Colors.themeSecond]}
-    >
+    <LinearGradient style={{ flex: 1 }} colors={[Colors.themeFirst, Colors.themeSecond]}>
       <DrawerContentScrollView {...props}>
         <View style={styles.drawerContent}>
           <View
@@ -31,7 +24,7 @@ export function SideBarContent(props) {
               flex: 1,
               flexDirection: 'column',
               marginTop: 10,
-              marginBottom: 15,
+              marginBottom: 20,
               alignItems: 'stretch',
               justifyContent: 'stretch',
             }}
@@ -45,12 +38,8 @@ export function SideBarContent(props) {
               />
             </View>
             <View style={{ flexDirection: 'column' }}>
-              <View style={{  alignItems: 'center', justifyContent: 'center', marginVertical: 15 }}>
-                <Text
-                  bold={true}
-                  heading={true}
-                  style={{ fontSize: 16,  marginRight: 6 }}
-                >
+              <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 15 }}>
+                <Text bold={true} heading={true} style={{ fontSize: 16, marginRight: 6 }}>
                   John Doe
                 </Text>
               </View>
@@ -82,15 +71,9 @@ export function SideBarContent(props) {
       </DrawerContentScrollView>
       <Drawer.Section style={styles.bottomDrawerSection}>
         <DrawerItem
-          icon={() => (
-            <Icon name="logout" color={Colors.darkRed} size={24} />
-          )}
+          icon={() => <Icon name="logout" color={Colors.darkRed} size={24} />}
           label={() => (
-            <Text
-              style={{ color: Colors.darkRed, fontSize: 16, marginLeft: -15 }}
-            >
-              Sign Out
-            </Text>
+            <Text style={{ color: Colors.darkRed, fontSize: 16, marginLeft: -15 }}>Sign Out</Text>
           )}
           onPress={() => signOut(auth)}
           options={{

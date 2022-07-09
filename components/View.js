@@ -6,9 +6,7 @@ export const View = ({ isSafe, style, children }) => {
   const insets = useSafeAreaInsets();
 
   if (isSafe) {
-    return (
-      <RNView style={{ paddingTop: insets.top, ...style }}>{children}</RNView>
-    );
+    return <RNView style={{ paddingTop: insets.top, ...style }}>{children}</RNView>;
   }
 
   return <RNView style={StyleSheet.flatten(style)}>{children}</RNView>;

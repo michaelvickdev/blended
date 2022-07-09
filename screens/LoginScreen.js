@@ -12,8 +12,7 @@ import { loginValidationSchema } from '../utils';
 
 export const LoginScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
-  const { passwordVisibility, handlePasswordVisibility, rightIcon } =
-    useTogglePasswordVisibility();
+  const { passwordVisibility, handlePasswordVisibility, rightIcon } = useTogglePasswordVisibility();
 
   const handleLogin = (values) => {
     const { email, password } = values;
@@ -37,14 +36,7 @@ export const LoginScreen = ({ navigation }) => {
           validationSchema={loginValidationSchema}
           onSubmit={(values) => handleLogin(values)}
         >
-          {({
-            values,
-            touched,
-            errors,
-            handleChange,
-            handleSubmit,
-            handleBlur,
-          }) => (
+          {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
             <>
               {/* Input fields */}
               <TextInput
@@ -74,14 +66,9 @@ export const LoginScreen = ({ navigation }) => {
                 onChangeText={handleChange('password')}
                 onBlur={handleBlur('password')}
               />
-              <FormErrorMessage
-                error={errors.password}
-                visible={touched.password}
-              />
+              <FormErrorMessage error={errors.password} visible={touched.password} />
               {/* Display Screen Error Mesages */}
-              {errorState !== '' ? (
-                <FormErrorMessage error={errorState} visible={true} />
-              ) : null}
+              {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
               {/* Login button */}
               <Button style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Login</Text>

@@ -5,9 +5,7 @@ import { StyleSheet } from 'react-native';
 export const BlankScreen = ({ route }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>
-        {route.name}
-      </Text>
+      <Text style={styles.text}>{route.name}</Text>
     </View>
   );
 };
