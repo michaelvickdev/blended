@@ -51,8 +51,8 @@ const getTitle = (route) => {
     : route.name;
 
   switch (current) {
-    case 'Feed':
-      return 'Feed';
+    case 'Feeds':
+      return 'Feeds';
     case 'EditProfile':
       return 'Edit Profile';
     case 'Profile':
@@ -71,7 +71,7 @@ const getIcon = (route) => {
     : route.name;
 
   switch (current) {
-    case 'Feed':
+    case 'Feeds':
       return 'reload';
     case 'EditProfile':
       return 'close';

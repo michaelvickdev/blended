@@ -26,11 +26,15 @@ export const Post = ({ user, post }) => {
         <View style={styles.postInfo}>
           <View style={styles.likes}>
             <Icon name="heart" size={20} color={Colors.trueBlack} />
-            <Text style={{ paddingLeft: 10 }}>{post.likes} Likes</Text>
+            <Text style={{ paddingLeft: 7 }}>{post.likes} Likes</Text>
           </View>
           <View style={styles.comments}>
             <Icon name="comment-multiple" size={20} color={Colors.trueBlack} />
-            <Text style={{ paddingLeft: 10 }}>{post.comments} Comments</Text>
+            <Text style={{ paddingLeft: 7 }}>{post.comments} Comments</Text>
+          </View>
+          <View style={styles.report}>
+            <Icon name="alert-circle" size={20} color={Colors.trueBlack} />
+            <Text style={{ paddingLeft: 7 }}>Report Abuse</Text>
           </View>
         </View>
       </View>
@@ -86,13 +90,17 @@ const styles = StyleSheet.create({
     alignItems: 'space-between',
     justifyContent: 'space-between',
     paddingTop: 10,
-    paddingHorizontal: 30,
+    paddingHorizontal: 5,
   },
   likes: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   comments: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  report: {
     flexDirection: 'row',
     alignItems: 'center',
   },

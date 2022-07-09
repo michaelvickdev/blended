@@ -7,8 +7,9 @@ import { AppStack } from './AppStack';
 import { AuthenticatedUserContext } from '../providers';
 import { LoadingIndicator } from '../components';
 import { auth } from '../config';
-import * as Font from 'expo-font';
 import { useFonts } from 'expo-font';
+import { StatusBar } from 'expo-status-bar';
+
 const customFonts = {
   poppinsLight: require('../assets/fonts/Poppins-Light.ttf'),
   poppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
@@ -41,6 +42,7 @@ export const RootNavigator = () => {
 
   return (
     <NavigationContainer>
+      <StatusBar style="dark" />
       {user ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );

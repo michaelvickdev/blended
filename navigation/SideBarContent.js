@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '../components/Text';
 import { Icon } from '../components/Icon';
-import { Colors } from '../config';
+import { auth, Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from 'react-native-paper';
 
@@ -14,6 +14,7 @@ import {
 } from '@react-navigation/drawer';
 import { signOut } from 'firebase/auth';
 import { MaterialIcons } from '@expo/vector-icons';
+import Constants from 'expo-constants'
 
 export function SideBarContent(props) {
   const paperTheme = useTheme();
@@ -29,40 +30,51 @@ export function SideBarContent(props) {
             style={{
               flex: 1,
               flexDirection: 'column',
-              margin: 20,
-              marginBottom: 30,
+              marginTop: 10,
+              marginBottom: 15,
+              alignItems: 'stretch',
+              justifyContent: 'stretch',
             }}
           >
-            <Avatar.Image
-              source={{
-                uri: 'https://randomuser.me/api/portraits/med/men/65.jpg',
-              }}
-              size={65}
-            />
+            <View style={{ alignItems: 'center' }}>
+              <Avatar.Image
+                source={{
+                  uri: 'https://randomuser.me/api/portraits/med/men/65.jpg',
+                }}
+                size={65}
+              />
+            </View>
             <View style={{ flexDirection: 'column' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{  alignItems: 'center', justifyContent: 'center', marginVertical: 15 }}>
                 <Text
                   bold={true}
                   heading={true}
-                  style={{ fontSize: 16, marginVertical: 12, marginRight: 6 }}
+                  style={{ fontSize: 16,  marginRight: 6 }}
                 >
-                  j_doe
+                  John Doe
                 </Text>
-                <MaterialIcons name="verified" size={24} color="blue" />
               </View>
-              <Text bold={true} heading={true} style={{ fontSize: 14 }}>
-                Monthly Plan
-              </Text>
-              <Button
-                color={Colors.white}
-                textColor={Colors.black}
-                mode="contained"
-                uppercase={false}
-                compact
-                style={{ marginTop: 16, alignSelf: 'center', borderRadius: 10 }}
-              >
-                Cancel Subscription
-              </Button>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                <View style={{ justifyContent: 'center' }}>
+                  <MaterialIcons name="verified" size={34} color="blue" />
+                </View>
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                  <Text bold={true} heading={true} style={{ fontSize: 14 }}>
+                    Yearly Plan
+                  </Text>
+                  <Button
+                    color={Colors.white}
+                    textColor={Colors.black}
+                    mode="contained"
+                    uppercase={false}
+                    compact
+                    style={{ marginTop: 10, alignSelf: 'center', borderRadius: 10 }}
+                    labelStyle={{ marginVertical: 5, marginHorizontal: 6 }}
+                  >
+                    Cancel Subscription
+                  </Button>
+                </View>
+              </View>
             </View>
           </View>
           <DrawerItemList {...props} />
@@ -70,26 +82,27 @@ export function SideBarContent(props) {
       </DrawerContentScrollView>
       <Drawer.Section style={styles.bottomDrawerSection}>
         <DrawerItem
-          icon={({ color, size }) => (
-            <Icon name="exit-to-app" color={Colors.darkRed} size={size} />
+          icon={() => (
+            <Icon name="logout" color={Colors.darkRed} size={24} />
           )}
           label={() => (
             <Text
-              heading={true}
-              bold={true}
-              style={{ color: Colors.darkRed, fontSize: 16 }}
+              style={{ color: Colors.darkRed, fontSize: 16, marginLeft: -15 }}
             >
               Sign Out
             </Text>
           )}
-          onPress={() => {
-            signOut();
-          }}
+          onPress={() => signOut(auth)}
           options={{
             drawerActiveTintColor: Colors.darkRed,
             drawerInactiveTintColor: Colors.darkRed,
           }}
         />
+        <View style={{ marginLeft: 20 }}>
+          <Text style={{ color: Colors.black, fontFamily: 'futura', fontSize: 14 }}>
+            v{Constants.manifest.version}
+          </Text>
+        </View>
       </Drawer.Section>
     </LinearGradient>
   );

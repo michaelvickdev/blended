@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Constants from 'expo-constants';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
