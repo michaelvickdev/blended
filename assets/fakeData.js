@@ -9,6 +9,10 @@ export const fakeData = [
       location: 'USA',
       age: '53',
       gender: 'Male',
+      coordinate: {
+        latitude: 40.72371,
+        longitude: -73.95097,
+      },
     },
     post: {
       id: 234635,
@@ -27,6 +31,10 @@ export const fakeData = [
       location: 'USA',
       age: '53',
       gender: 'Male',
+      coordinate: {
+        latitude: 41.48199,
+        longitude: -81.79819,
+      },
     },
     post: {
       id: 234425,
@@ -45,6 +53,10 @@ export const fakeData = [
       location: 'USA',
       age: '53',
       gender: 'Male',
+      coordinate: {
+        latitude: 30.17746,
+        longitude: -81.38758,
+      },
     },
     post: {
       id: 234135,
@@ -63,6 +75,10 @@ export const fakeData = [
       location: 'USA',
       age: '53',
       gender: 'Male',
+      coordinate: {
+        latitude: 41.72059,
+        longitude: -87.70172,
+      },
     },
     post: {
       id: 184432,

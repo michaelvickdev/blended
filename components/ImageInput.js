@@ -23,7 +23,6 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label }
   return (
     <View
       style={{
-        backgroundColor: Colors.white,
         flexDirection: 'row',
         padding: 12,
         marginVertical: 4,

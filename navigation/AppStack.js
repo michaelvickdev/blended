@@ -11,6 +11,9 @@ import { Colors } from '../config';
 import { Header } from '../components/Header';
 import { HeaderRight } from '../components/HeaderRight';
 import { SearchScreen } from '../screens/SearchScreen';
+import { MyFeedsScreen } from '../screens/MyFeedsScreen';
+import { NearByScreen } from '../screens/NearByScreen';
+import { MyFriendsScreen } from '../screens/MyFriendsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -83,7 +86,7 @@ export const AppStack = () => {
       />
       <Drawer.Screen
         name="Near By"
-        component={BlankScreen}
+        component={NearByScreen}
         options={(props) => ({
           drawerLabel: 'Near By',
           drawerIcon: () => <MaterialIcons name="location-pin" size={24} color={Colors.black} />,
@@ -93,7 +96,7 @@ export const AppStack = () => {
       />
       <Drawer.Screen
         name="My Friends"
-        component={BlankScreen}
+        component={MyFriendsScreen}
         options={(props) => ({
           drawerLabel: 'My Friends',
           drawerIcon: () => (
@@ -109,8 +112,8 @@ export const AppStack = () => {
         })}
       />
       <Drawer.Screen
-        name="My Feeds"
-        component={BlankScreen}
+        name="MyFeedsStack"
+        component={MyFeedsScreen}
         options={(props) => ({
           drawerLabel: 'My Feeds',
           drawerIcon: () => (

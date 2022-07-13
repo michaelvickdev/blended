@@ -42,6 +42,11 @@ const getIcon = (route) => {
     case 'Profile':
     case 'ProfileStack':
       return 'account-edit';
+    case 'MyFeedsStack':
+    case 'MyFeeds':
+      return 'pencil-plus';
+    case 'AddFeed':
+      return 'close';
     default:
       return false;
   }
@@ -58,6 +63,11 @@ const getRoute = (route) => {
       return 'EditProfile';
     case 'EditProfile':
       return 'Profile';
+    case 'MyFeedsStack':
+    case 'MyFeeds':
+      return 'AddFeed';
+    case 'AddFeed':
+      return 'MyFeeds';
     default:
       return false;
   }
