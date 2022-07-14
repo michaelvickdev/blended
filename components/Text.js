@@ -1,8 +1,7 @@
 import React from 'react';
 import { Text as RNText } from 'react-native';
-import { LoadingIndicator } from './LoadingIndicator';
 
-export const Text = ({ bold, style, children, heading }) => {
+export const Text = ({ bold, style, children, heading, ...props }) => {
   const fontFamily = heading
     ? bold
       ? 'poppinsBold'
@@ -20,6 +19,7 @@ export const Text = ({ bold, style, children, heading }) => {
         },
         style,
       ]}
+      {...props}
     >
       {children}
     </RNText>

@@ -30,7 +30,7 @@ export const MyFeedsScreen = () => {
 };
 
 const MyFeeds = () => {
-  const [posts, setPosts] = useState(currentPosts);
+  const [posts] = useState(currentPosts);
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -44,6 +44,10 @@ const MyFeeds = () => {
       ></LinearGradient>
     </View>
   );
+};
+
+const handleSignup = (values) => {
+  console.log(values);
 };
 
 const AddFeed = () => {

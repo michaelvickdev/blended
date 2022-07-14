@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import { HomeScreen } from '../screens';
 import { SideBarContent } from './SideBarContent';
@@ -14,6 +15,7 @@ import { SearchScreen } from '../screens/SearchScreen';
 import { MyFeedsScreen } from '../screens/MyFeedsScreen';
 import { NearByScreen } from '../screens/NearByScreen';
 import { MyFriendsScreen } from '../screens/MyFriendsScreen';
+import { MessagesStack } from '../screens/MessagesScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -129,8 +131,8 @@ export const AppStack = () => {
         })}
       />
       <Drawer.Screen
-        name="Messages"
-        component={BlankScreen}
+        name="MessagesStack"
+        component={MessagesStack}
         options={(props) => ({
           drawerLabel: 'Messages',
           drawerIcon: () => (
@@ -138,6 +140,7 @@ export const AppStack = () => {
           ),
           headerTitle: () => <Header {...props} />,
           headerRight: () => <HeaderRight {...props} />,
+          headerShown: getFocusedRouteNameFromRoute(props.route) === 'Chats' ? false : true,
         })}
       />
       <Drawer.Screen
@@ -153,17 +156,3 @@ export const AppStack = () => {
     </Drawer.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  headerTitle: {
-    flex: 1,
-    color: Colors.skyBlue,
-    fontSize: 20,
-  },
-  Header: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-});
