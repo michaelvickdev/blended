@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
+import { firebase } from '../config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
@@ -26,13 +27,29 @@ export const SignupScreen = ({ navigation }) => {
   } = useTogglePasswordVisibility();
 
   const handleSignup = async (values) => {
-    // const { email, password } = values;
+    const { email, password } = values;
 
-    // createUserWithEmailAndPassword(auth, email, password).catch((error) =>
-    //   setErrorState(error.message)
-    // );
+    ['password', 'confirmPassword'].forEach((key) => delete values[key]);
 
-    console.log(values);
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((response) => {
+        const uid = response.user.uid;
+        const data = {
+          ...values,
+        };
+        console.log(data);
+        firebase
+          .firestore()
+          .collection('users')
+          .add(data)
+          .then(() => {
+            navigation.navigate('Home', { user: data });
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      })
+      .catch((error) => setErrorState(error.message));
   };
 
   return (
@@ -100,6 +117,36 @@ export const SignupScreen = ({ navigation }) => {
                 onBlur={handleBlur('phone')}
               />
               <FormErrorMessage error={errors.phone} visible={touched.phone} />
+              <TextInput
+                name="password"
+                leftIconName="key-variant"
+                placeholder="*Password"
+                autoCapitalize="none"
+                autoCorrect={false}
+                secureTextEntry={passwordVisibility}
+                textContentType="newPassword"
+                rightIcon={rightIcon}
+                handlePasswordVisibility={handlePasswordVisibility}
+                value={values.password}
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+              />
+              <FormErrorMessage error={errors.password} visible={touched.password} />
+              <TextInput
+                name="confirmPassword"
+                leftIconName="key-variant"
+                placeholder="*Confirm Password"
+                autoCapitalize="none"
+                autoCorrect={false}
+                secureTextEntry={confirmPasswordVisibility}
+                textContentType="password"
+                rightIcon={confirmPasswordIcon}
+                handlePasswordVisibility={handleConfirmPasswordVisibility}
+                value={values.confirmPassword}
+                onChangeText={handleChange('confirmPassword')}
+                onBlur={handleBlur('confirmPassword')}
+              />
+              <FormErrorMessage error={errors.confirmPassword} visible={touched.confirmPassword} />
               <TextInput
                 name="city"
                 leftIconName="flag"

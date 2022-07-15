@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   chatBubble: {
-    flexDirection: 'row',
     width: '70%',
     padding: 16,
     marginVertical: 8,

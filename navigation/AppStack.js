@@ -16,6 +16,7 @@ import { MyFeedsScreen } from '../screens/MyFeedsScreen';
 import { NearByScreen } from '../screens/NearByScreen';
 import { MyFriendsScreen } from '../screens/MyFriendsScreen';
 import { MessagesStack } from '../screens/MessagesScreen';
+import { EventsScreen } from '../screens/EventsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -59,7 +60,7 @@ export const AppStack = () => {
       />
       <Drawer.Screen
         name="Events"
-        component={BlankScreen}
+        component={EventsScreen}
         options={(props) => ({
           drawerLabel: 'Events',
           drawerIcon: () => <MaterialIcons name="timer" size={24} color={Colors.black} />,

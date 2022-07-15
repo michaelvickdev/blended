@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 export default {
   expo: {
+    userInterfaceStyle: 'automatic',
     name: 'Blended Mates',
     slug: 'blended-mates',
     privacy: 'unlisted',

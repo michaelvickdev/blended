@@ -8,14 +8,7 @@ import { Text } from './Text';
 
 import { Colors } from '../config';
 
-export const DateInput = ({
-  width = '100%',
-  leftIconName,
-  selectInputStyles,
-  options,
-  label,
-  ...otherProps
-}) => {
+export const DateInput = ({ leftIconName, label, ...otherProps }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   return (
@@ -80,7 +73,6 @@ export const DateInput = ({
             (e.getMonth() + 1).toString().padStart(2, '0') +
             '-' +
             e.getFullYear();
-          console.log(date);
           setShowDatePicker(false);
           otherProps.onDateChange(date);
         }}
