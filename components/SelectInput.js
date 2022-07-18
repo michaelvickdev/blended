@@ -8,14 +8,7 @@ import { View } from './View';
 import { Icon } from './Icon';
 import { Colors } from '../config';
 
-export const SelectInput = ({
-  width = '100%',
-  leftIconName,
-  selectInputStyles,
-  options,
-  label,
-  ...otherProps
-}) => {
+export const SelectInput = ({ leftIconName, options, label, ...otherProps }) => {
   if (!options || !options.length) return null;
   return (
     <View

@@ -15,7 +15,6 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label }
     }
 
     let result = await ImagePicker.launchImageLibraryAsync();
-    console.log(result);
     if (!result.cancelled) {
       handleChange(result.uri);
     }

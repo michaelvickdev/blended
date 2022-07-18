@@ -1,8 +1,9 @@
-import * as firebase from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
-import firestore from 'firebase/firestore';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getStorage } from 'firebase/storage';
 
 // add firebase config
 const firebaseConfig = {
@@ -15,11 +16,17 @@ const firebaseConfig = {
 };
 
 // initialize firebase
-const app = firebase.initializeApp(firebaseConfig);
-firebase.firestore();
+const app = initializeApp(firebaseConfig);
+
 // initialize auth
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 
-export { auth, firebase };
+//initialize firestore
+const db = getFirestore(app);
+
+// Initialize Cloud Storage and get a reference to the service
+const storage = getStorage(app);
+
+export { auth, db, app, storage };

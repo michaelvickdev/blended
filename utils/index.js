@@ -11,6 +11,8 @@ export const signupValidationSchema = Yup.object().shape({
   phone: Yup.string().required().label('Phone Number'),
   city: Yup.string().required().label('City'),
   about: Yup.string().required().label('About You'),
+  gender: Yup.string().required(),
+  interested: Yup.string().required(),
   password: Yup.string().required().min(6).label('Password'),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Confirm Password must match password.')

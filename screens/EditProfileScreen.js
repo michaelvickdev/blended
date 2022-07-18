@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -6,14 +6,56 @@ import { Colors } from '../config';
 import { fakeData } from '../assets/fakeData';
 import { Button } from 'react-native-paper';
 import { Formik } from 'formik';
-import { View, TextInput, Logo, FormErrorMessage } from '../components';
+import { View, TextInput, FormErrorMessage } from '../components';
 import { SelectInput } from '../components/SelectInput';
 import { personalInfoValidationSchema } from '../utils';
 import { DateInput } from '../components/DateInput';
+import * as ImagePicker from 'expo-image-picker';
+import { AuthenticatedUserContext } from '../providers';
+import { uploadImage } from '../hooks/uploadImage';
+
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../config';
 
 export const EditProfileScreen = () => {
-  const [errorState, setErrorState] = useState('');
+  const [errorState] = useState('');
   const [toggleTab, setToggle] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useContext(AuthenticatedUserContext);
+
+  const handleSignup = async (values) => {
+    setIsLoading(true);
+    try {
+      const docRef = doc(db, 'users', user.uid);
+
+      await setDoc(docRef, {
+        ...values,
+      });
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+      setIsLoading(false);
+    }
+  };
+
+  const pickImage = async () => {
+    setIsLoading(true);
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert('Please allow permission to continue uploading the image.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync();
+    if (!result.cancelled) {
+      const image = result.uri;
+      const imageName = user.uid;
+      await uploadImage(image, imageName);
+    }
+    setIsLoading(false);
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -21,12 +63,12 @@ export const EditProfileScreen = () => {
         <View style={styles.edit}>
           <Button
             mode="contained"
-            onPress={() => console.log('Pressed')}
+            onPress={pickImage}
             style={styles.button}
             color={Colors.secondary}
-            labelStyle={{ color: Colors.white }}
+            labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
           >
-            Upload Photo
+            {isLoading ? 'Uploading...' : 'Upload Photo'}
           </Button>
           <View style={styles.tabs}>
             <View style={styles.buttonTab}>
@@ -252,9 +294,9 @@ export const EditProfileScreen = () => {
                           style={styles.button}
                           onPress={handleSubmit}
                           color={Colors.secondary}
-                          labelStyle={{ color: Colors.white }}
+                          labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
                         >
-                          Update
+                          {isLoading ? 'Updating...' : 'Update'}
                         </Button>
                       </>
                     )}

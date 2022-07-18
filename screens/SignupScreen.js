@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
-import { firebase } from '../config';
+import { db, auth } from '../config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { doc, setDoc } from 'firebase/firestore';
+import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
 import { Text } from '../components/Text';
-import { Images, Colors, auth } from '../config';
+import { Images, Colors } from '../config';
 import { useTogglePasswordVisibility } from '../hooks';
 import { signupValidationSchema } from '../utils';
 import { SelectInput } from '../components/SelectInput';
 import { DateInput } from '../components/DateInput';
 import { ImageInput } from '../components/ImageInput';
+import { uploadImage } from '../hooks/uploadImage';
 
 export const SignupScreen = ({ navigation }) => {
-  const [errorState, setErrorState] = useState('');
+  const [errorState] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { setUser } = useContext(AuthenticatedUserContext);
 
   const {
     passwordVisibility,
@@ -27,29 +33,33 @@ export const SignupScreen = ({ navigation }) => {
   } = useTogglePasswordVisibility();
 
   const handleSignup = async (values) => {
-    const { email, password } = values;
+    setIsLoading(true);
+    const { email, password, image } = values;
 
-    ['password', 'confirmPassword'].forEach((key) => delete values[key]);
+    ['password', 'confirmPassword', 'image'].forEach((key) => delete values[key]);
+    try {
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+      const user = res.user;
+      const docRef = doc(db, 'users', user.uid);
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((response) => {
-        const uid = response.user.uid;
-        const data = {
-          ...values,
-        };
-        console.log(data);
-        firebase
-          .firestore()
-          .collection('users')
-          .add(data)
-          .then(() => {
-            navigation.navigate('Home', { user: data });
-          })
-          .catch((error) => {
-            alert(error);
-          });
-      })
-      .catch((error) => setErrorState(error.message));
+      await setDoc(docRef, {
+        ...values,
+      });
+
+      if (image) {
+        const imageName = user.uid;
+        await uploadImage(image, imageName);
+        await setDoc(docRef, {
+          avatar: imageName,
+        });
+      }
+
+      setUser(user);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -174,6 +184,7 @@ export const SignupScreen = ({ navigation }) => {
               <SelectInput
                 name="gender"
                 options={[
+                  { name: 'Select Gender', id: '' },
                   { name: 'Male', id: 'male' },
                   { name: 'Female', id: 'female' },
                 ]}
@@ -187,6 +198,7 @@ export const SignupScreen = ({ navigation }) => {
               <SelectInput
                 name="interested"
                 options={[
+                  { name: 'Select Interest', id: '' },
                   { name: 'Male', id: 'male' },
                   { name: 'Female', id: 'female' },
                 ]}
@@ -222,8 +234,15 @@ export const SignupScreen = ({ navigation }) => {
                 By using our app you agree to our Terms and conditions and Privacy Policy
               </Text>
               {/* Signup button */}
-              <Button style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Signup</Text>
+              <Button disabled={isLoading} style={styles.button} onPress={handleSubmit}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    { color: isLoading ? Colors.lightGray : Colors.white },
+                  ]}
+                >
+                  {isLoading ? 'Loading...' : 'Signup'}
+                </Text>
               </Button>
               <Text style={styles.customText}>
                 Please check Spam/Junk folder for login password. Add extra social media and custom
@@ -283,7 +302,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    color: Colors.white,
     fontWeight: '700',
     textTransform: 'uppercase',
   },
