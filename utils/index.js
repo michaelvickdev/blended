@@ -34,3 +34,7 @@ export const personalInfoValidationSchema = Yup.object().shape({
   about: Yup.string().required().label('About You'),
   dateOfBirth: Yup.string().required().label('Date of Birth'),
 });
+
+export const uploadFeedsSchema = Yup.object().shape({
+  image: Yup.string(),
+});

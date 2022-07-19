@@ -18,22 +18,22 @@ const customFonts = {
 };
 
 export const RootNavigator = () => {
-  const { user } = useContext(AuthenticatedUserContext);
-  // const [isLoading, setIsLoading] = useState(true);
+  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const [isLoading, setIsLoading] = useState(true);
   const [fontLoaded] = useFonts(customFonts);
 
-  // useEffect(() => {
-  //   // onAuthStateChanged returns an unsubscriber
-  //   const unsubscribeAuthStateChanged = onAuthStateChanged(auth, (authenticatedUser) => {
-  //     authenticatedUser ? setUser(authenticatedUser) : setUser(null);
-  //     setIsLoading(false);
-  //   });
+  useEffect(() => {
+    // onAuthStateChanged returns an unsubscriber
+    const unsubscribeAuthStateChanged = onAuthStateChanged(auth, (authenticatedUser) => {
+      authenticatedUser ? setUser(authenticatedUser) : setUser(null);
+      setIsLoading(false);
+    });
 
-  //   // unsubscribe auth listener on unmount
-  //   return unsubscribeAuthStateChanged;
-  // }, [user]);
+    // unsubscribe auth listener on unmount
+    return unsubscribeAuthStateChanged;
+  }, [user]);
 
-  if (!fontLoaded) {
+  if (!fontLoaded || isLoading) {
     return <LoadingIndicator />;
   }
 

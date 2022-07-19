@@ -2,8 +2,11 @@ import React from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { View } from './View';
 import { Text } from './Text';
+import { storage } from '../config';
+import { ref } from 'firebase/storage';
 
 export const ProfileHeader = ({ user, noBio }) => {
+  getImage();
   return (
     <View style={styles.container}>
       <View style={styles.top}>
@@ -13,20 +16,37 @@ export const ProfileHeader = ({ user, noBio }) => {
             {user.username}
           </Text>
           <Text heading={true} style={{ fontSize: 18 }}>
-            {user.name}, {user.location}
+            {user.username}, {user.city}
           </Text>
           <Text heading={true} style={{ fontSize: 18 }}>
-            {user.age}, {user.gender}
+            {getAge(user.dateOfBirth)}, {user.gender}
           </Text>
         </View>
       </View>
       {!noBio && (
         <View style={styles.status}>
-          <Text style={{ fontSize: 16, textAlign: 'center' }}>{user.bio}</Text>
+          <Text style={{ fontSize: 16, textAlign: 'center' }}>{user.about}</Text>
         </View>
       )}
     </View>
   );
+};
+
+const getImage = async (url) => {
+  const image = ref(storage, url);
+  console.log(image);
+};
+
+const getAge = (dateString) => {
+  const date = dateString.split('-');
+  const today = new Date();
+  const birthDate = new Date(date[2], date[1], date[0]);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
 };
 
 const styles = StyleSheet.create({

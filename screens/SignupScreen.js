@@ -1,11 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import { db, auth } from '../config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { doc, setDoc } from 'firebase/firestore';
-import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
 import { Text } from '../components/Text';
@@ -20,8 +19,6 @@ import { uploadImage } from '../hooks/uploadImage';
 export const SignupScreen = ({ navigation }) => {
   const [errorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const { setUser } = useContext(AuthenticatedUserContext);
 
   const {
     passwordVisibility,
@@ -44,17 +41,21 @@ export const SignupScreen = ({ navigation }) => {
 
       await setDoc(docRef, {
         ...values,
+        follows: [],
+        followers: [],
       });
 
       if (image) {
         const imageName = user.uid;
-        await uploadImage(image, imageName);
-        await setDoc(docRef, {
-          avatar: imageName,
-        });
+        await uploadImage(image, `dp/${imageName}`);
+        await setDoc(
+          docRef,
+          {
+            avatar: imageName,
+          },
+          { merge: true }
+        );
       }
-
-      setUser(user);
     } catch (err) {
       console.error(err);
       alert(err.message);

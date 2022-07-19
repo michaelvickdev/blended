@@ -1,9 +1,8 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
-import { fakeData } from '../assets/fakeData';
 import { Button } from 'react-native-paper';
 import { Formik } from 'formik';
 import { View, TextInput, FormErrorMessage } from '../components';
@@ -14,14 +13,32 @@ import * as ImagePicker from 'expo-image-picker';
 import { AuthenticatedUserContext } from '../providers';
 import { uploadImage } from '../hooks/uploadImage';
 
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '../config';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { db, storage } from '../config';
+import { ref } from 'firebase/storage';
 
 export const EditProfileScreen = () => {
   const [errorState] = useState('');
   const [toggleTab, setToggle] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
   const { user } = useContext(AuthenticatedUserContext);
+
+  useEffect(() => {
+    (async () => {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const image = ref(storage, docSnap.data().image);
+        console.log(image);
+        setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
+        console.log(docSnap.data());
+      } else {
+        console.log('No such document!');
+      }
+    })();
+  }, []);
 
   const handleSignup = async (values) => {
     setIsLoading(true);
@@ -51,7 +68,16 @@ export const EditProfileScreen = () => {
     if (!result.cancelled) {
       const image = result.uri;
       const imageName = user.uid;
-      await uploadImage(image, imageName);
+      const imageRef = await uploadImage(image, `dp/${imageName}`);
+      console.log(imageRef);
+      const docRef = doc(db, 'users', user.uid);
+      await setDoc(
+        docRef,
+        {
+          avatar: `dp/${imageName}`,
+        },
+        { merge: true }
+      );
     }
     setIsLoading(false);
   };
@@ -59,7 +85,7 @@ export const EditProfileScreen = () => {
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
-        <ProfileHeader user={fakeData[0].user} noBio={true} />
+        {userData && <ProfileHeader user={userData} noBio={true} />}
         <View style={styles.edit}>
           <Button
             mode="contained"

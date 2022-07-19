@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -13,12 +13,36 @@ import { SocialIcon } from 'react-native-elements';
 import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
 
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config';
+import { AuthenticatedUserContext } from '../providers';
+import { storage } from '../config';
+import { ref } from 'firebase/storage';
+
 const data = fakeData.map((post) => post.post);
 
 export const MyProfileScreen = () => {
+  const { user } = useContext(AuthenticatedUserContext);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const image = ref(storage, docSnap.data().image);
+        console.log(image);
+        setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
+      } else {
+        console.log('No such document!');
+      }
+    })();
+  }, []);
+
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      <ProfileHeader user={fakeData[0].user} />
+      {userData && <ProfileHeader user={{ ...userData, uid: '' }} />}
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {data.map((post, index) => (

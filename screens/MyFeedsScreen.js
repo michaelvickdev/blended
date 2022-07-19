@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { fakeData } from '../assets/fakeData';
@@ -10,6 +10,12 @@ import { TextInput, Button } from '../components';
 import { ImageInput } from '../components/ImageInput';
 import { Formik } from 'formik';
 import { Text } from '../components/Text';
+
+import { addDoc, collection, setDoc } from 'firebase/firestore';
+import { db } from '../config/';
+import { uploadImage } from '../hooks/uploadImage';
+import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
+import { uploadFeedsSchema } from '../utils';
 
 const CURRENT_USER = 123456;
 const currentPosts = fakeData.filter((single) => single.user.id == CURRENT_USER);
@@ -46,11 +52,40 @@ const MyFeeds = () => {
   );
 };
 
-const handleSignup = (values) => {
-  console.log(values);
-};
-
 const AddFeed = () => {
+  const { user } = useContext(AuthenticatedUserContext);
+  const [isLoading, setIsLoading] = useState(false);
+  const uploadFeed = async (values, resetForm) => {
+    setIsLoading(true);
+    try {
+      const docRef = collection(db, 'feeds', user.uid, 'userFeeds');
+
+      const feedRef = await addDoc(docRef, {
+        title: values.title,
+        likes: 0,
+        comments: 0,
+        uploadDate: new Date(),
+      });
+
+      if (values.image) {
+        const imageName = user.uid + '_' + feedRef.id;
+        await uploadImage(values.image, `feeds/${imageName}`);
+        await setDoc(
+          feedRef,
+          {
+            url: 'feeds/' + imageName,
+          },
+          { merge: true }
+        );
+      }
+      resetForm();
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+    setIsLoading(false);
+  };
+
   return (
     <LinearGradient style={{ flex: 1, padding: 16 }} colors={[Colors.mainFirst, Colors.mainSecond]}>
       <Formik
@@ -58,7 +93,8 @@ const AddFeed = () => {
           title: '',
           image: '',
         }}
-        onSubmit={(values) => handleSignup(values)}
+        onSubmit={(values, { resetForm }) => uploadFeed(values, resetForm)}
+        validationSchema={uploadFeedsSchema}
       >
         {({ values, handleChange, handleSubmit, handleBlur, setFieldValue }) => (
           <>
@@ -76,8 +112,12 @@ const AddFeed = () => {
               handleChange={(url) => setFieldValue('image', url)}
               onBlur={handleBlur('image')}
             />
-            <Button style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Submit</Text>
+            <Button style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+              <Text
+                style={[styles.buttonText, { color: isLoading ? Colors.mediumGray : Colors.black }]}
+              >
+                {isLoading ? 'Submitting' : 'Submit'}
+              </Text>
             </Button>
           </>
         )}
@@ -115,7 +155,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    color: Colors.black,
     fontWeight: '700',
     textTransform: 'uppercase',
   },
