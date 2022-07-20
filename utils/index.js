@@ -6,6 +6,7 @@ export const loginValidationSchema = Yup.object().shape({
 });
 
 export const signupValidationSchema = Yup.object().shape({
+  fullname: Yup.string().required().label('Full Name'),
   username: Yup.string().required().label('Username'),
   email: Yup.string().required().email().label('Email Address'),
   phone: Yup.string().required().label('Phone Number'),
@@ -28,6 +29,7 @@ export const passwordResetSchema = Yup.object().shape({
 });
 
 export const personalInfoValidationSchema = Yup.object().shape({
+  fullname: Yup.string().required().label('Full Name'),
   email: Yup.string().required().email().label('Email Address'),
   phone: Yup.string().required().label('Phone Number'),
   city: Yup.string().required().label('City'),

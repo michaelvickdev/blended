@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -12,23 +12,40 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { SocialIcon } from 'react-native-elements';
 import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
-
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
+
+import { doc, getDoc, setDoc, arrayUnion, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../config';
 
 const data = fakeData.map((post) => post.post);
 
-export const MyProfileScreen = () => {
-  const { user } = useContext(AuthenticatedUserContext);
+export const UserProfile = ({ route }) => {
   const [userData, setUserData] = useState(null);
+  const { user } = useContext(AuthenticatedUserContext);
+  const [reqSent, setReqSent] = useState(false);
+
+  const addFriend = async () => {
+    const requester = doc(db, 'users', user.uid);
+    const requestee = doc(db, 'users', userData.uid);
+
+    await setDoc(
+      requestee,
+      {
+        requests: arrayUnion(requester.id),
+      },
+      { merge: true }
+    );
+  };
 
   useEffect(() => {
     (async () => {
-      const docRef = doc(db, 'users', user.uid);
+      const docRef = doc(db, 'users', route.params.uid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
+        if (docSnap.data().requests.length && docSnap.data().requests.includes(user.uid)) {
+          setReqSent(true);
+        }
         setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
       } else {
         console.log('No such document!');
@@ -72,12 +89,13 @@ export const MyProfileScreen = () => {
       <View style={styles.footer}>
         <Button
           mode="contained"
-          onPress={() => console.log('Pressed')}
+          onPress={reqSent ? '' : addFriend}
+          disabled={reqSent}
           style={styles.button}
           color={Colors.white}
           labelStyle={{ color: Colors.black }}
         >
-          Friend
+          {reqSent ? 'Request Sent' : 'Add Friend'}
         </Button>
         <Button
           mode="contained"

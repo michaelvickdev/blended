@@ -11,7 +11,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../config';
 import { Header } from '../components/Header';
 import { HeaderRight } from '../components/HeaderRight';
-import { SearchScreen } from '../screens/SearchScreen';
+import { SearchStack } from './SearchStack';
 import { MyFeedsScreen } from '../screens/MyFeedsScreen';
 import { NearByScreen } from '../screens/NearByScreen';
 import { MyFriendsScreen } from '../screens/MyFriendsScreen';
@@ -79,9 +79,10 @@ export const AppStack = () => {
         })}
       />
       <Drawer.Screen
-        name="Search"
-        component={SearchScreen}
+        name="SearchStack"
+        component={SearchStack}
         options={(props) => ({
+          drawerLabel: 'Search',
           drawerIcon: () => <MaterialIcons name="search" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
           headerRight: () => <HeaderRight {...props} />,

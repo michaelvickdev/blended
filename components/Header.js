@@ -5,7 +5,7 @@ import { Text } from './Text';
 import { View } from './View';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
-export const Header = ({ navigation, route }) => {
+export const Header = ({ route }) => {
   return (
     <View>
       <Text heading={true} style={styles.headerTitle} bold={true}>
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
 });
 
 const getTitle = (route) => {
-  const current = !!getFocusedRouteNameFromRoute(route)
+  const current = getFocusedRouteNameFromRoute(route)
     ? getFocusedRouteNameFromRoute(route)
     : route.name;
 
@@ -36,8 +36,11 @@ const getTitle = (route) => {
     case 'Profile':
     case 'ProfileStack':
       return 'My Profile';
+    case 'SearchStack':
     case 'Search':
       return 'Search';
+    case 'OtherProfile':
+      return 'User Profile';
     case 'MyFeedsStack':
     case 'MyFeeds':
       return 'My Feeds';

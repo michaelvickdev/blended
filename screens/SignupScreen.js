@@ -41,8 +41,9 @@ export const SignupScreen = ({ navigation }) => {
 
       await setDoc(docRef, {
         ...values,
-        follows: [],
-        followers: [],
+        friends: [],
+        requests: [],
+        uid: user.uid,
       });
 
       if (image) {
@@ -51,7 +52,7 @@ export const SignupScreen = ({ navigation }) => {
         await setDoc(
           docRef,
           {
-            avatar: imageName,
+            avatar: `dp/${imageName}`,
           },
           { merge: true }
         );
@@ -77,6 +78,7 @@ export const SignupScreen = ({ navigation }) => {
         {/* Formik Wrapper */}
         <Formik
           initialValues={{
+            fullname: '',
             username: '',
             email: '',
             phone: '',
@@ -95,6 +97,18 @@ export const SignupScreen = ({ navigation }) => {
           {({ values, touched, errors, handleChange, handleSubmit, handleBlur, setFieldValue }) => (
             <>
               {/* Input fields */}
+              <TextInput
+                name="fullname"
+                leftIconName="information"
+                placeholder="*Full Name"
+                autoCapitalize="none"
+                autoFocus={true}
+                value={values.fullname}
+                onChangeText={handleChange('fullname')}
+                onBlur={handleBlur('fullname')}
+              />
+              <FormErrorMessage error={errors.fullname} visible={touched.fullname} />
+
               <TextInput
                 name="username"
                 leftIconName="account"

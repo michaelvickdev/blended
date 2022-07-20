@@ -14,8 +14,7 @@ import { AuthenticatedUserContext } from '../providers';
 import { uploadImage } from '../hooks/uploadImage';
 
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db, storage } from '../config';
-import { ref } from 'firebase/storage';
+import { db } from '../config';
 
 export const EditProfileScreen = () => {
   const [errorState] = useState('');
@@ -30,10 +29,7 @@ export const EditProfileScreen = () => {
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const image = ref(storage, docSnap.data().image);
-        console.log(image);
         setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
-        console.log(docSnap.data());
       } else {
         console.log('No such document!');
       }
@@ -69,7 +65,7 @@ export const EditProfileScreen = () => {
       const image = result.uri;
       const imageName = user.uid;
       const imageRef = await uploadImage(image, `dp/${imageName}`);
-      console.log(imageRef);
+      console.log('eps', imageRef);
       const docRef = doc(db, 'users', user.uid);
       await setDoc(
         docRef,
@@ -147,6 +143,18 @@ export const EditProfileScreen = () => {
                     }) => (
                       <>
                         {/* Input fields */}
+                        <TextInput
+                          name="fullname"
+                          leftIconName="information"
+                          placeholder="*Full Name"
+                          autoCapitalize="none"
+                          autoFocus={true}
+                          value={values.fullname}
+                          onChangeText={handleChange('fullname')}
+                          onBlur={handleBlur('fullname')}
+                        />
+                        <FormErrorMessage error={errors.fullname} visible={touched.fullname} />
+
                         <TextInput
                           name="email"
                           leftIconName="email"

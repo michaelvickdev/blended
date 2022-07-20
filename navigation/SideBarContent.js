@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '../components/Text';
 import { Icon } from '../components/Icon';
@@ -6,15 +6,35 @@ import { auth, Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from 'react-native-paper';
 
-import { useTheme, Avatar, Drawer } from 'react-native-paper';
+import { getImage } from '../hooks/getImage';
+import { Avatar, Drawer } from 'react-native-paper';
 import { DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { signOut } from 'firebase/auth';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { AuthenticatedUserContext } from '../providers';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config';
 
 export function SideBarContent(props) {
-  const paperTheme = useTheme();
+  const { user } = useContext(AuthenticatedUserContext);
+  const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
+  const [userDetails, setUserDetails] = useState(null);
 
+  useEffect(() => {
+    (async () => {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setUserDetails({ ...docSnap.data() });
+        const image = await getImage(docSnap.data().avatar);
+        if (image) {
+          setImgUrl(image);
+        }
+      }
+    })();
+  }, []);
   return (
     <LinearGradient style={{ flex: 1 }} colors={[Colors.themeFirst, Colors.themeSecond]}>
       <DrawerContentScrollView {...props}>
@@ -29,17 +49,12 @@ export function SideBarContent(props) {
             }}
           >
             <View style={{ alignItems: 'center' }}>
-              <Avatar.Image
-                source={{
-                  uri: 'https://randomuser.me/api/portraits/med/men/65.jpg',
-                }}
-                size={65}
-              />
+              <Avatar.Image source={imgUrl} size={65} />
             </View>
             <View style={{ flexDirection: 'column' }}>
               <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 15 }}>
                 <Text bold={true} heading={true} style={{ fontSize: 16, marginRight: 6 }}>
-                  John Doe
+                  {userDetails?.fullname}
                 </Text>
               </View>
               <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>

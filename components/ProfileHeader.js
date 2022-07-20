@@ -1,19 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { View } from './View';
 import { Text } from './Text';
-import { storage } from '../config';
-import { ref } from 'firebase/storage';
+import { getImage } from '../hooks/getImage';
 
 export const ProfileHeader = ({ user, noBio }) => {
-  getImage();
+  const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
+
+  useEffect(() => {
+    (async () => {
+      const image = await getImage(user.avatar);
+      if (image) {
+        setImgUrl(image);
+      }
+    })();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.top}>
-        <Image source={{ uri: user.avatar }} style={styles.avatarImage} />
+        <Image source={imgUrl} style={styles.avatarImage} />
         <View style={styles.userInfo}>
           <Text bold={true} heading={true} style={{ fontSize: 18 }}>
-            {user.username}
+            {user.fullname}
           </Text>
           <Text heading={true} style={{ fontSize: 18 }}>
             {user.username}, {user.city}
@@ -30,11 +39,6 @@ export const ProfileHeader = ({ user, noBio }) => {
       )}
     </View>
   );
-};
-
-const getImage = async (url) => {
-  const image = ref(storage, url);
-  console.log(image);
 };
 
 const getAge = (dateString) => {

@@ -1,21 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView, Image } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TextInput } from 'react-native-paper';
 import { Text } from '../components/Text';
-import { fakeData } from '../assets/fakeData';
 
-const allUsers = fakeData.map((single) => single.user);
+import { collection, query, getDocs, where } from 'firebase/firestore';
+import { db } from '../config';
+import { AuthenticatedUserContext } from '../providers';
+import { getImage } from '../hooks/getImage';
 
-export const SearchScreen = () => {
-  const [users, setUsers] = useState(allUsers);
+export const SearchScreen = ({ navigation }) => {
+  const { user } = useContext(AuthenticatedUserContext);
+  const [users, setUsers] = useState([]);
   const [text, setText] = React.useState('');
 
+  const goToProfile = (uid) => {
+    console.log(navigation);
+    navigation.navigate('UserProfile', { uid: uid });
+  };
+
   useEffect(() => {
-    console.log(text);
-    setUsers(allUsers.filter((single) => single.name.includes(text)));
-  }, [text]);
+    (async () => {
+      const usersQuery = query(collection(db, 'users'), where('uid', '!=', user.uid));
+      const usersSnapshot = await getDocs(usersQuery);
+      const usersData = usersSnapshot.docs.map((doc) => doc.data());
+
+      setUsers(usersData);
+    })();
+  }, []);
 
   return (
     <View style={{ flex: 1, paddingHorizontal: 16 }}>
@@ -33,7 +46,10 @@ export const SearchScreen = () => {
             key={index}
             name={user.username}
             url={user.avatar}
-            country={user.location}
+            location={user.city}
+            navigation={navigation}
+            uid={user.uid}
+            goToProfile={goToProfile}
           />
         ))}
       </ScrollView>
@@ -45,17 +61,30 @@ export const SearchScreen = () => {
   );
 };
 
-const SingleProfile = ({ name, url, country }) => {
+const SingleProfile = ({ name, url, location, goToProfile, uid }) => {
+  console.log('id', uid);
+  const [image, setImage] = useState(require('../assets/default-image.png'));
+
+  useEffect(() => {
+    (async () => {
+      const image = await getImage(url);
+      if (image) {
+        setImage(image);
+      }
+    })();
+  }, []);
   return (
-    <View style={styles.profile}>
-      <Image source={{ uri: url }} style={styles.image} />
-      <View style={styles.textGrp}>
-        <Text bold={true} heading={true} style={{ fontSize: 18 }}>
-          {name}
-        </Text>
-        <Text heading={true}>{country}</Text>
+    <TouchableOpacity onPress={() => goToProfile(uid)}>
+      <View style={styles.profile}>
+        <Image source={image} style={styles.image} />
+        <View style={styles.textGrp}>
+          <Text bold={true} heading={true} style={{ fontSize: 18 }}>
+            {name}
+          </Text>
+          <Text heading={true}>{location}</Text>
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
