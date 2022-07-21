@@ -1,7 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { fakeData } from '../assets/fakeData';
 import { View } from '../components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../config';
@@ -10,15 +9,12 @@ import { TextInput, Button } from '../components';
 import { ImageInput } from '../components/ImageInput';
 import { Formik } from 'formik';
 import { Text } from '../components/Text';
+import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
-import { addDoc, collection, setDoc } from 'firebase/firestore';
+import { addDoc, collection, setDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../config/';
 import { uploadImage } from '../hooks/uploadImage';
-import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 import { uploadFeedsSchema } from '../utils';
-
-const CURRENT_USER = 123456;
-const currentPosts = fakeData.filter((single) => single.user.id == CURRENT_USER);
 
 const Stack = createStackNavigator();
 export const MyFeedsScreen = () => {
@@ -36,12 +32,28 @@ export const MyFeedsScreen = () => {
 };
 
 const MyFeeds = () => {
-  const [posts] = useState(currentPosts);
+  const { user } = useContext(AuthenticatedUserContext);
+  const [posts, setPosts] = useState([]);
+
+  const getPosts = async () => {
+    const docRef = collection(db, 'feeds', user.uid, 'userFeeds');
+    const q = query(docRef, orderBy('uploadDate', 'desc'));
+    const docSnap = await getDocs(q);
+
+    const feedData = docSnap.docs.map((doc) => doc.data());
+
+    setPosts(feedData);
+  };
+
+  useEffect(() => {
+    getPosts();
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
-        {posts.map((post) => (
-          <Post key={post.post.id} user={post.user} post={post.post} />
+        {posts.map((post, index) => (
+          <Post key={index} user={user} post={post} />
         ))}
       </ScrollView>
       <LinearGradient

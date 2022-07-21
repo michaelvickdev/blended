@@ -39,13 +39,16 @@ const getTitle = (route) => {
     case 'SearchStack':
     case 'Search':
       return 'Search';
-    case 'OtherProfile':
+    case 'UserProfile':
       return 'User Profile';
     case 'MyFeedsStack':
     case 'MyFeeds':
       return 'My Feeds';
     case 'AddFeed':
       return 'Add Feed';
+    case 'FriendsStack':
+    case 'Friends':
+      return 'My Friends';
     default:
       return current;
   }

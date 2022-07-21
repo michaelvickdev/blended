@@ -12,13 +12,16 @@ import { loginValidationSchema } from '../utils';
 
 export const LoginScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { passwordVisibility, handlePasswordVisibility, rightIcon } = useTogglePasswordVisibility();
 
   const handleLogin = (values) => {
+    setIsLoading(true);
     const { email, password } = values;
-    signInWithEmailAndPassword(auth, email, password).catch((error) =>
-      setErrorState(error.message)
-    );
+    signInWithEmailAndPassword(auth, email, password).catch((error) => {
+      setErrorState(error.message);
+      setIsLoading(false);
+    });
   };
   return (
     <>
@@ -70,8 +73,15 @@ export const LoginScreen = ({ navigation }) => {
               {/* Display Screen Error Mesages */}
               {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
               {/* Login button */}
-              <Button style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Login</Text>
+              <Button style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+                <Text
+                  style={[
+                    styles.buttonText,
+                    { color: isLoading ? Colors.mediumGray : Colors.white },
+                  ]}
+                >
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </Text>
               </Button>
             </>
           )}
@@ -152,7 +162,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    color: Colors.white,
     fontWeight: '700',
     textTransform: 'uppercase',
   },

@@ -1,26 +1,64 @@
-import React from 'react';
-import { StyleSheet, Image, Dimensions, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Image, View } from 'react-native';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config';
 
 import { Text } from './Text';
 import { Colors } from '../config';
 import { Icon } from './Icon';
+import { getImage } from '../hooks/getImage';
 
 export const Post = ({ user, post }) => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [postImage, setPostImage] = useState(require('../assets/default-post.jpg'));
+  const [profileImage, setprofileImage] = useState(require('../assets/default-image.png'));
+
+  useEffect(() => {
+    (async () => {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setUserInfo({ ...docSnap.data() });
+        const image = await getImage(docSnap.data().avatar);
+        if (image) {
+          setprofileImage(image);
+        }
+      } else {
+        console.log('No such document!');
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const image = await getImage(post.url);
+      if (image) {
+        setPostImage(image);
+      }
+    })();
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.userDetails}>
-        <Image source={{ uri: user.avatar }} style={styles.avatar} />
+        <Image source={profileImage} style={styles.avatar} />
         <View style={{ paddingHorizontal: 10, flex: 1 }}>
           <Text bold={true} heading={true}>
-            {user.name}
+            {userInfo?.username}
           </Text>
-          <Text>{user.bio}</Text>
+          <Text>{userInfo?.about}</Text>
         </View>
       </View>
+      {post.title && (
+        <Text heading={true} style={{ marginBottom: 4, paddingHorizontal: 8 }}>
+          {post.title}
+        </Text>
+      )}
       <View style={styles.postDetails}>
         <View style={styles.imgContainer}>
           <View style={styles.image}>
-            <Image source={{ uri: post.url }} style={styles.postImg} />
+            <Image source={postImage} style={styles.postImg} />
           </View>
         </View>
         <View style={styles.postInfo}>
@@ -71,6 +109,7 @@ const styles = StyleSheet.create({
     paddingBottom: '100%',
     height: null,
     borderRadius: 15,
+    overflow: 'hidden',
   },
   image: {
     position: 'absolute',

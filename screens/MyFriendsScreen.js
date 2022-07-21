@@ -1,18 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { View } from '../components';
 import { Text } from '../components/Text';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
-import { fakeData } from '../assets/fakeData';
 import { Button } from 'react-native-paper';
 
-const Users = fakeData.map((single) => single.user);
-const Friends = Users.splice(0, Math.ceil(Users.length / 2));
-const Pending = Users.splice(-Math.ceil(Users.length / 2));
+import { AuthenticatedUserContext } from '../providers';
+import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
+import { db } from '../config';
+import { getImage } from '../hooks/getImage';
 
-export const MyFriendsScreen = () => {
+export const MyFriendsScreen = ({ navigation }) => {
   const [toggleTab, setToggle] = useState(true);
+  const [friends, setFriends] = useState([]);
+  const [pending, setPending] = useState([]);
+  const { user } = useContext(AuthenticatedUserContext);
+
+  useEffect(() => {
+    (async () => {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        if (docSnap.data().friends.length) {
+          console.log('Friends', docSnap.data().friends);
+          setFriends(docSnap.data().friends);
+        }
+        if (docSnap.data().requests.length) {
+          setPending(docSnap.data().requests);
+        }
+      }
+    })();
+  }, []);
+
+  const goToProfile = (uid) => {
+    console.log(navigation);
+    navigation.navigate('UserProfile', { uid: uid });
+  };
+
+  const approveReq = async (uid) => {
+    const requester = doc(db, 'users', user.uid);
+    const requestee = doc(db, 'users', uid);
+
+    await updateDoc(requester, {
+      friends: arrayUnion(requestee.id),
+      requests: arrayRemove(requestee.id),
+    });
+    await updateDoc(requestee, {
+      friends: arrayUnion(requester.id),
+    });
+
+    setPending(pending.filter((id) => id !== uid));
+    setFriends(friends.concat(uid));
+  };
+
+  const cancelReq = async (uid) => {
+    const requester = doc(db, 'users', user.uid);
+    const requestee = doc(db, 'users', uid);
+
+    await updateDoc(requestee, {
+      requests: arrayRemove(requester.id),
+    });
+    setPending(pending.filter((id) => id !== uid));
+  };
+
   return (
     <View style={{ flex: 1, padding: 16 }}>
       <View style={styles.tabBar}>
@@ -26,7 +78,7 @@ export const MyFriendsScreen = () => {
               fontSize: 16,
             }}
           >
-            {`Inner Circle \t (${Friends.length})`}
+            {`Inner Circle \t (${friends.length})`}
           </Text>
         </TouchableOpacity>
 
@@ -42,28 +94,24 @@ export const MyFriendsScreen = () => {
               fontSize: 16,
             }}
           >
-            {`Pending \t (${Pending.length})`}
+            {`Pending \t (${pending.length})`}
           </Text>
         </TouchableOpacity>
       </View>
       <ScrollView style={styles.container}>
         {!toggleTab &&
-          Friends.map((user, index) => (
-            <SingleProfile
-              key={index}
-              name={user.username}
-              url={user.avatar}
-              country={user.location}
-            />
+          friends.map((user, index) => (
+            <SingleProfile key={index} uid={user} goToProfile={goToProfile} />
           ))}
         {toggleTab &&
-          Pending.map((user, index) => (
+          pending.map((user, index) => (
             <SingleProfile
               key={index}
-              name={user.username}
-              url={user.avatar}
-              country={user.location}
+              uid={user}
               pending={true}
+              goToProfile={goToProfile}
+              cancelReq={cancelReq}
+              approveReq={approveReq}
             />
           ))}
       </ScrollView>
@@ -75,29 +123,57 @@ export const MyFriendsScreen = () => {
   );
 };
 
-const SingleProfile = ({ name, url, country, pending }) => {
+const SingleProfile = ({ uid, pending, goToProfile, cancelReq, approveReq }) => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [image, setImage] = useState(require('../assets/default-image.png'));
+
+  useEffect(() => {
+    (async () => {
+      const docRef = doc(db, 'users', uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setUserInfo(docSnap.data());
+        const imgRes = await getImage(docSnap.data().avatar);
+        if (imgRes) {
+          setImage(imgRes);
+        }
+      }
+    })();
+  }, []);
+
   return (
-    <View style={styles.profileContainer}>
+    <TouchableOpacity style={styles.profileContainer} onPress={() => goToProfile(uid)}>
       <View style={styles.profile}>
-        <Image source={{ uri: url }} style={styles.image} />
+        <Image source={image} style={styles.image} />
         <View style={styles.textGrp}>
           <Text bold={true} heading={true} style={{ fontSize: 18 }}>
-            {name}
+            {userInfo?.username}
           </Text>
-          <Text heading={true}>{country}</Text>
+          <Text heading={true}>{userInfo?.city}</Text>
         </View>
       </View>
       {pending && (
         <View style={styles.actionBtn}>
-          <Button mode="contained" color={Colors.white} style={styles.button}>
+          <Button
+            mode="contained"
+            color={Colors.white}
+            style={styles.button}
+            onPress={() => approveReq(uid)}
+          >
             Approve
           </Button>
-          <Button mode="contained" color={Colors.white} style={styles.button}>
+          <Button
+            mode="contained"
+            color={Colors.white}
+            style={styles.button}
+            onPress={() => cancelReq(uid)}
+          >
             Cancel
           </Button>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 
