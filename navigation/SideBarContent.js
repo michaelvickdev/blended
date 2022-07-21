@@ -17,7 +17,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
 
 export function SideBarContent(props) {
-  const { user } = useContext(AuthenticatedUserContext);
+  const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
   const [userDetails, setUserDetails] = useState(null);
 
@@ -34,7 +34,7 @@ export function SideBarContent(props) {
         }
       }
     })();
-  }, []);
+  }, [changeCounter]);
   return (
     <LinearGradient style={{ flex: 1 }} colors={[Colors.themeFirst, Colors.themeSecond]}>
       <DrawerContentScrollView {...props}>

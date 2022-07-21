@@ -49,6 +49,10 @@ const getTitle = (route) => {
     case 'FriendsStack':
     case 'Friends':
       return 'My Friends';
+    case 'MessagesStack':
+    case 'Messages':
+      return 'Messages';
+
     default:
       return current;
   }

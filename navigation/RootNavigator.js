@@ -18,7 +18,7 @@ const customFonts = {
 };
 
 export const RootNavigator = () => {
-  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { user, setUser, regCompleted } = useContext(AuthenticatedUserContext);
   const [isLoading, setIsLoading] = useState(true);
   const [fontLoaded] = useFonts(customFonts);
 
@@ -40,7 +40,7 @@ export const RootNavigator = () => {
   return (
     <NavigationContainer>
       <StatusBar style="dark" />
-      {user ? <AppStack /> : <AuthStack />}
+      {user && regCompleted ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );
 };

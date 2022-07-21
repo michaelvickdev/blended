@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import { db, auth } from '../config';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { AuthenticatedUserContext } from '../providers';
 import { doc, setDoc } from 'firebase/firestore';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
@@ -19,6 +20,7 @@ import { uploadImage } from '../hooks/uploadImage';
 export const SignupScreen = ({ navigation }) => {
   const [errorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { setRegCompleted } = useContext(AuthenticatedUserContext);
 
   const {
     passwordVisibility,
@@ -31,6 +33,7 @@ export const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async (values) => {
     setIsLoading(true);
+    setRegCompleted(false);
     const { email, password, image } = values;
 
     ['password', 'confirmPassword', 'image'].forEach((key) => delete values[key]);
@@ -62,6 +65,7 @@ export const SignupScreen = ({ navigation }) => {
       alert(err.message);
       setIsLoading(false);
     }
+    setRegCompleted(true);
   };
 
   return (

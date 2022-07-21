@@ -21,7 +21,7 @@ export const EditProfileScreen = () => {
   const [toggleTab, setToggle] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState(null);
-  const { user } = useContext(AuthenticatedUserContext);
+  const { user, changeCounter, setChangeCounter } = useContext(AuthenticatedUserContext);
 
   useEffect(() => {
     (async () => {
@@ -41,14 +41,19 @@ export const EditProfileScreen = () => {
     try {
       const docRef = doc(db, 'users', user.uid);
 
-      await setDoc(docRef, {
-        ...values,
-      });
+      await setDoc(
+        docRef,
+        {
+          ...values,
+        },
+        { merge: true }
+      );
+      setChangeCounter(!changeCounter);
     } catch (err) {
       console.error(err);
       alert(err.message);
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   const pickImage = async () => {
@@ -74,6 +79,7 @@ export const EditProfileScreen = () => {
         },
         { merge: true }
       );
+      setChangeCounter(!changeCounter);
     }
     setIsLoading(false);
   };
@@ -255,9 +261,9 @@ export const EditProfileScreen = () => {
                             style={styles.button}
                             onPress={handleSubmit}
                             color={Colors.secondary}
-                            labelStyle={{ color: Colors.white }}
+                            labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
                           >
-                            Update
+                            {isLoading ? 'Updating...' : 'Update'}
                           </Button>
                         </>
                       )}
