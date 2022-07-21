@@ -58,7 +58,7 @@ export const MyProfileScreen = () => {
           <SocialIcon type="linkedin" />
         </View>
 
-        <View style={styles.action}>
+        {/* <View style={styles.action}>
           <TouchableOpacity style={styles.item}>
             <MaterialIcons name="person" size={12} color={Colors.black} />
             <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
@@ -67,9 +67,9 @@ export const MyProfileScreen = () => {
             <Icon name="heart" size={12} color={Colors.black} />
             <Text style={{ marginLeft: 5, fontSize: 12 }}>Add to Favorite</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
-      <View style={styles.footer}>
+      {/* <View style={styles.footer}>
         <Button
           mode="contained"
           onPress={() => console.log('Pressed')}
@@ -88,7 +88,7 @@ export const MyProfileScreen = () => {
         >
           Send Message
         </Button>
-      </View>
+      </View> */}
     </LinearGradient>
   );
 };

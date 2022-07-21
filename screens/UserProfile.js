@@ -14,7 +14,7 @@ import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
 import { AuthenticatedUserContext } from '../providers';
 
-import { doc, getDoc, setDoc, arrayUnion, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, arrayUnion, updateDoc, arrayRemove } from 'firebase/firestore';
 import { db } from '../config';
 
 const data = fakeData.map((post) => post.post);
@@ -23,19 +23,77 @@ export const UserProfile = ({ route }) => {
   const [userData, setUserData] = useState(null);
   const { user } = useContext(AuthenticatedUserContext);
   const [reqSent, setReqSent] = useState(false);
+  const [reqRcvd, setReqRcvd] = useState(false);
+  const [friend, setFriend] = useState(false);
+
+  const removeFriend = async () => {
+    const requester = doc(db, 'users', user.uid);
+    const requestee = doc(db, 'users', userData.uid);
+
+    await updateDoc(requester, {
+      friends: arrayRemove(requestee.id),
+    });
+    await updateDoc(requestee, {
+      friends: arrayRemove(requester.id),
+    });
+
+    setFriend(false);
+  };
 
   const addFriend = async () => {
     const requester = doc(db, 'users', user.uid);
     const requestee = doc(db, 'users', userData.uid);
 
-    await setDoc(
-      requestee,
-      {
-        requests: arrayUnion(requester.id),
-      },
-      { merge: true }
-    );
+    await updateDoc(requestee, {
+      requests: arrayUnion(requester.id),
+    });
+
+    setReqSent(true);
   };
+
+  const approveReq = async () => {
+    const requester = doc(db, 'users', user.uid);
+    const requestee = doc(db, 'users', userData.uid);
+
+    await updateDoc(requester, {
+      friends: arrayUnion(requestee.id),
+      requests: arrayRemove(requestee.id),
+    });
+    await updateDoc(requestee, {
+      friends: arrayUnion(requester.id),
+    });
+
+    setFriend(true);
+  };
+
+  const cancelReq = async () => {
+    const requester = doc(db, 'users', user.uid);
+    const requestee = doc(db, 'users', userData.uid);
+
+    await updateDoc(requestee, {
+      requests: arrayRemove(requester.id),
+    });
+
+    setReqSent(false);
+  };
+
+  useEffect(() => {
+    (async () => {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        if (docSnap.data().friends.length && docSnap.data().friends.includes(route.params.uid)) {
+          setFriend(true);
+        } else if (
+          docSnap.data().requests.length &&
+          docSnap.data().requests.includes(route.params.uid)
+        ) {
+          setReqRcvd(true);
+        }
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -47,8 +105,6 @@ export const UserProfile = ({ route }) => {
           setReqSent(true);
         }
         setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
-      } else {
-        console.log('No such document!');
       }
     })();
   }, []);
@@ -89,13 +145,18 @@ export const UserProfile = ({ route }) => {
       <View style={styles.footer}>
         <Button
           mode="contained"
-          onPress={reqSent ? '' : addFriend}
-          disabled={reqSent}
+          onPress={friend ? removeFriend : reqRcvd ? approveReq : reqSent ? cancelReq : addFriend}
           style={styles.button}
           color={Colors.white}
           labelStyle={{ color: Colors.black }}
         >
-          {reqSent ? 'Request Sent' : 'Add Friend'}
+          {friend
+            ? 'Remove Friend'
+            : reqRcvd
+            ? 'Approve'
+            : reqSent
+            ? 'Cancel Request'
+            : 'Add Friend'}
         </Button>
         <Button
           mode="contained"

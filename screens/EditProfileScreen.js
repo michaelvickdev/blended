@@ -119,144 +119,150 @@ export const EditProfileScreen = () => {
             <View style={styles.contentTab}>
               {toggleTab && (
                 <View style={styles.personalInfo}>
-                  <Formik
-                    initialValues={{
-                      email: '',
-                      phone: '',
-                      city: '',
-                      about: '',
-                      gender: '',
-                      interested: '',
-                      dateOfBirth: '',
-                    }}
-                    validationSchema={personalInfoValidationSchema}
-                    onSubmit={(values) => handleSignup(values)}
-                  >
-                    {({
-                      values,
-                      touched,
-                      errors,
-                      handleChange,
-                      handleSubmit,
-                      handleBlur,
-                      setFieldValue,
-                    }) => (
-                      <>
-                        {/* Input fields */}
-                        <TextInput
-                          name="fullname"
-                          leftIconName="information"
-                          placeholder="*Full Name"
-                          autoCapitalize="none"
-                          autoFocus={true}
-                          value={values.fullname}
-                          onChangeText={handleChange('fullname')}
-                          onBlur={handleBlur('fullname')}
-                        />
-                        <FormErrorMessage error={errors.fullname} visible={touched.fullname} />
+                  {userData && (
+                    <Formik
+                      initialValues={{
+                        fullname: userData.fullname,
+                        email: userData.email,
+                        phone: userData.phone,
+                        city: userData.city,
+                        about: userData.about,
+                        gender: userData.gender,
+                        interested: userData.interested,
+                        dateOfBirth: userData.dateOfBirth,
+                      }}
+                      validationSchema={personalInfoValidationSchema}
+                      onSubmit={(values) => handleSignup(values)}
+                    >
+                      {({
+                        values,
+                        touched,
+                        errors,
+                        handleChange,
+                        handleSubmit,
+                        handleBlur,
+                        setFieldValue,
+                      }) => (
+                        <>
+                          {/* Input fields */}
+                          <TextInput
+                            name="fullname"
+                            leftIconName="information"
+                            placeholder="*Full Name"
+                            autoCapitalize="none"
+                            autoFocus={true}
+                            value={values.fullname}
+                            onChangeText={handleChange('fullname')}
+                            onBlur={handleBlur('fullname')}
+                          />
+                          <FormErrorMessage error={errors.fullname} visible={touched.fullname} />
 
-                        <TextInput
-                          name="email"
-                          leftIconName="email"
-                          placeholder="*Email Address"
-                          autoCapitalize="none"
-                          keyboardType="email-address"
-                          textContentType="emailAddress"
-                          value={values.email}
-                          onChangeText={handleChange('email')}
-                          onBlur={handleBlur('email')}
-                        />
-                        <FormErrorMessage error={errors.email} visible={touched.email} />
-                        <TextInput
-                          name="phone"
-                          leftIconName="phone"
-                          placeholder="*Enter Phone Number"
-                          autoCapitalize="none"
-                          value={values.phone}
-                          onChangeText={handleChange('phone')}
-                          onBlur={handleBlur('phone')}
-                        />
-                        <FormErrorMessage error={errors.phone} visible={touched.phone} />
-                        <TextInput
-                          name="city"
-                          leftIconName="flag"
-                          placeholder="*City"
-                          autoCapitalize="words"
-                          value={values.city}
-                          onChangeText={handleChange('city')}
-                          onBlur={handleBlur('city')}
-                        />
-                        <FormErrorMessage error={errors.city} visible={touched.city} />
-                        <TextInput
-                          name="about"
-                          leftIconName="pencil"
-                          placeholder="*About You"
-                          autoCapitalize="sentences"
-                          value={values.about}
-                          onChangeText={handleChange('about')}
-                          onBlur={handleBlur('about')}
-                          multiline
-                          numberOfLines={3}
-                          textInputStyles={{ minHeight: 44, maxHeight: 88 }}
-                        />
-                        <FormErrorMessage error={errors.about} visible={touched.about} />
+                          <TextInput
+                            name="email"
+                            leftIconName="email"
+                            placeholder="*Email Address"
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            textContentType="emailAddress"
+                            value={values.email}
+                            onChangeText={handleChange('email')}
+                            onBlur={handleBlur('email')}
+                          />
+                          <FormErrorMessage error={errors.email} visible={touched.email} />
+                          <TextInput
+                            name="phone"
+                            leftIconName="phone"
+                            placeholder="*Enter Phone Number"
+                            autoCapitalize="none"
+                            value={values.phone}
+                            onChangeText={handleChange('phone')}
+                            onBlur={handleBlur('phone')}
+                          />
+                          <FormErrorMessage error={errors.phone} visible={touched.phone} />
+                          <TextInput
+                            name="city"
+                            leftIconName="flag"
+                            placeholder="*City"
+                            autoCapitalize="words"
+                            value={values.city}
+                            onChangeText={handleChange('city')}
+                            onBlur={handleBlur('city')}
+                          />
+                          <FormErrorMessage error={errors.city} visible={touched.city} />
+                          <TextInput
+                            name="about"
+                            leftIconName="pencil"
+                            placeholder="*About You"
+                            autoCapitalize="sentences"
+                            value={values.about}
+                            onChangeText={handleChange('about')}
+                            onBlur={handleBlur('about')}
+                            multiline
+                            numberOfLines={3}
+                            textInputStyles={{ minHeight: 44, maxHeight: 88 }}
+                          />
+                          <FormErrorMessage error={errors.about} visible={touched.about} />
 
-                        <SelectInput
-                          name="gender"
-                          options={[
-                            { name: 'Male', id: 0 },
-                            { name: 'Female', id: 1 },
-                          ]}
-                          value={values.gender}
-                          label="*Gender"
-                          onSelect={handleChange('gender')}
-                          onBlur={handleBlur('gender')}
-                        />
-                        <FormErrorMessage error={errors.gender} visible={touched.gender} />
+                          <SelectInput
+                            name="gender"
+                            options={[
+                              { name: 'Male', id: 0 },
+                              { name: 'Female', id: 1 },
+                            ]}
+                            value={values.gender}
+                            label="*Gender"
+                            onSelect={handleChange('gender')}
+                            onBlur={handleBlur('gender')}
+                          />
+                          <FormErrorMessage error={errors.gender} visible={touched.gender} />
 
-                        <SelectInput
-                          name="interested"
-                          options={[
-                            { name: 'Male', id: 0 },
-                            { name: 'Female', id: 1 },
-                          ]}
-                          value={values.interested}
-                          label="*Interested"
-                          onSelect={handleChange('interested')}
-                          onBlur={handleBlur('interested')}
-                        />
-                        <FormErrorMessage error={errors.interested} visible={touched.interested} />
+                          <SelectInput
+                            name="interested"
+                            options={[
+                              { name: 'Male', id: 0 },
+                              { name: 'Female', id: 1 },
+                            ]}
+                            value={values.interested}
+                            label="*Interested"
+                            onSelect={handleChange('interested')}
+                            onBlur={handleBlur('interested')}
+                          />
+                          <FormErrorMessage
+                            error={errors.interested}
+                            visible={touched.interested}
+                          />
 
-                        <DateInput
-                          name="dateOfBirth"
-                          placeholder="*Date of Birth"
-                          label="*Date of Birth"
-                          value={values.dateOfBirth}
-                          onDateChange={(date) => setFieldValue('dateOfBirth', date)}
-                          onBlur={handleBlur('dateOfBirth')}
-                        />
-                        <FormErrorMessage
-                          error={errors.dateOfBirth}
-                          visible={touched.dateOfBirth}
-                        />
+                          <DateInput
+                            name="dateOfBirth"
+                            placeholder="*Date of Birth"
+                            label="*Date of Birth"
+                            value={values.dateOfBirth}
+                            onDateChange={(date) => setFieldValue('dateOfBirth', date)}
+                            onBlur={handleBlur('dateOfBirth')}
+                          />
+                          <FormErrorMessage
+                            error={errors.dateOfBirth}
+                            visible={touched.dateOfBirth}
+                          />
 
-                        {/* Display Screen Error Mesages */}
-                        {errorState !== '' ? (
-                          <FormErrorMessage error={errorState} visible={true} />
-                        ) : null}
-                        {/* Signup button */}
-                        <Button
-                          mode="contained"
-                          style={styles.button}
-                          onPress={handleSubmit}
-                          color={Colors.secondary}
-                          labelStyle={{ color: Colors.white }}
-                        >
-                          Update
-                        </Button>
-                      </>
-                    )}
-                  </Formik>
+                          {/* Display Screen Error Mesages */}
+                          {errorState !== '' ? (
+                            <FormErrorMessage error={errorState} visible={true} />
+                          ) : null}
+                          {/* Signup button */}
+                          <Button
+                            mode="contained"
+                            style={styles.button}
+                            onPress={handleSubmit}
+                            color={Colors.secondary}
+                            labelStyle={{ color: Colors.white }}
+                          >
+                            Update
+                          </Button>
+                        </>
+                      )}
+                    </Formik>
+                  )}
                 </View>
               )}
               {!toggleTab && (

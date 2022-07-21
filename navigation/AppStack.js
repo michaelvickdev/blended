@@ -17,6 +17,7 @@ import { NearByScreen } from '../screens/NearByScreen';
 import { MyFriendsScreen } from '../screens/MyFriendsScreen';
 import { MessagesStack } from '../screens/MessagesScreen';
 import { EventsScreen } from '../screens/EventsScreen';
+import { FriendsStack } from './FriendsStack';
 
 const Drawer = createDrawerNavigator();
 
@@ -99,8 +100,8 @@ export const AppStack = () => {
         })}
       />
       <Drawer.Screen
-        name="My Friends"
-        component={MyFriendsScreen}
+        name="FriendsStack"
+        component={FriendsStack}
         options={(props) => ({
           drawerLabel: 'My Friends',
           drawerIcon: () => (
