@@ -27,6 +27,7 @@ export const MessagesStack = () => {
           headerStyle: {
             backgroundColor: Colors.mainFirst,
           },
+          headerShown: false,
           headerTitle: () => <ChatHeader {...props} name="michaelvick" />,
           headerLeft: () => null,
         })}

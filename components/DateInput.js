@@ -46,9 +46,9 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
       >
         <TextInput
           editable={false}
+          pointerEvents="none"
           style={[
             {
-              flex: 1,
               fontSize: 16,
               color: Colors.black,
               padding: 12,

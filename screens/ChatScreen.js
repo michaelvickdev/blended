@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Icon, View } from '../components';
 import { Text } from '../components/Text';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -7,12 +7,41 @@ import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Button, TextInput } from 'react-native-paper';
+import Constants from 'expo-constants';
 
-export const ChatScreen = () => {
+import { collection, doc, getDoc, arrayUnion, addDoc, arrayRemove } from 'firebase/firestore';
+import { db } from '../config';
+import { AuthenticatedUserContext } from '../providers';
+
+export const ChatScreen = ({ navigation, route }) => {
+  const { user } = useContext(AuthenticatedUserContext);
   const [text, setText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const sendText = async () => {
+    if (!text) return;
+    setIsLoading(true);
+    try {
+      const msgId =
+        user.uid > route.params.uid
+          ? `${user.uid}-${route.params.uid}`
+          : `${route.params.uid}-${user.uid}`;
+      const msgRef = collection(db, 'messages', msgId, 'thread');
+      await addDoc(msgRef, {
+        text: text,
+        timestamp: Date.now(),
+        sentBy: user.uid,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    setIsLoading(false);
+    setText('');
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
+        <ChatHeader name="vick" navigation={navigation} />
         <ScrollView style={{ background: 'transparent' }}>
           <ChatBubble />
           <ChatBubble self={true} />
@@ -28,8 +57,13 @@ export const ChatScreen = () => {
             value={text}
             onChangeText={(text) => setText(text)}
           />
-          <Button mode="contained" color={Colors.white}>
-            Send
+          <Button
+            mode="contained"
+            color={isLoading ? Colors.lightGray : Colors.white}
+            onPress={sendText}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Sending...' : 'Send'}
           </Button>
         </View>
       </View>
@@ -70,7 +104,7 @@ export const ChatHeader = ({ name, navigation }) => {
   return (
     <View style={styles.headerContainer}>
       <View style={styles.back}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate('Messages')}>
           <Icon name="keyboard-backspace" size={32} />
         </TouchableOpacity>
       </View>
@@ -104,13 +138,11 @@ export const ChatHeader = ({ name, navigation }) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    flex: 1,
+    marginTop: Constants.statusBarHeight,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: Dimensions.get('window').width,
-    backgroundColor: Colors.mainFirst,
-    padding: 16,
   },
   header: {
     flex: 1,
@@ -143,7 +175,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: Dimensions.get('window').width,
-    height: Dimensions.get('window').height,
+    height: '100%',
     zIndex: -1,
   },
   chatBubble: {

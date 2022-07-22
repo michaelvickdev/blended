@@ -78,7 +78,7 @@ export const UserProfile = ({ route, navigation }) => {
   };
 
   const goToChats = async () => {
-    navigation.navigate('MessagesStack', { screen: 'Chats' });
+    navigation.navigate('MessagesStack', { screen: 'Chats', params: { uid: userData.uid } });
   };
 
   useEffect(() => {

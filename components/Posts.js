@@ -13,7 +13,6 @@ import { db } from '../config/';
 export const Posts = () => {
   const { user } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
-  console.log(posts);
 
   const getPosts = async () => {
     const userRef = doc(db, 'users', user.uid);

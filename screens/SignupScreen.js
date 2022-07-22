@@ -245,7 +245,7 @@ export const SignupScreen = ({ navigation }) => {
                 handleChange={(url) => setFieldValue('image', url)}
                 onBlur={handleBlur('image')}
               />
-              <FormErrorMessage error={errors.dateOfBirth} visible={touched.dateOfBirth} />
+              <FormErrorMessage error={errors.image} visible={touched.image} />
 
               {/* Display Screen Error Mesages */}
               {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
