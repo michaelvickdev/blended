@@ -16,7 +16,6 @@ export const SearchScreen = ({ navigation }) => {
   const [text, setText] = React.useState('');
 
   const goToProfile = (uid) => {
-    console.log(navigation);
     navigation.navigate('UserProfile', { uid: uid });
   };
 
@@ -62,7 +61,6 @@ export const SearchScreen = ({ navigation }) => {
 };
 
 const SingleProfile = ({ name, url, location, goToProfile, uid }) => {
-  console.log('id', uid);
   const [image, setImage] = useState(require('../assets/default-image.png'));
 
   useEffect(() => {

@@ -58,19 +58,16 @@ export const EditProfileScreen = () => {
 
   const pickImage = async () => {
     setIsLoading(true);
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { granted } = await ImagePicker.requestCameraPermissionsAsync();
 
-    if (permissionResult.granted === false) {
+    if (!granted) {
       alert('Please allow permission to continue uploading the image.');
       return;
     }
 
     let result = await ImagePicker.launchImageLibraryAsync();
     if (!result.cancelled) {
-      const image = result.uri;
       const imageName = user.uid;
-      const imageRef = await uploadImage(image, `dp/${imageName}`);
-      console.log('eps', imageRef);
       const docRef = doc(db, 'users', user.uid);
       await setDoc(
         docRef,

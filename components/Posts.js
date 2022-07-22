@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { fakeData } from '../assets/fakeData';
 import { Post } from './Post';
 import { View } from './View';
 import { Colors } from '../config';
@@ -8,18 +7,28 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions } from 'react-native';
 import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../config/';
 
 export const Posts = () => {
   const { user } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
+  console.log(posts);
 
   const getPosts = async () => {
-    const docRef = collection(db, 'feeds', user.uid, 'userFeeds');
-    const q = query(docRef, orderBy('uploadDate', 'desc'));
-    const docSnap = await getDocs(q);
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    const reqProfiles = [user.uid];
+    if (userSnap.exists()) {
+      if (userSnap.data().friends.length) {
+        reqProfiles.push(...userSnap.data().friends);
+      }
+    }
 
+    const docRef = collection(db, 'feeds');
+    const q = query(docRef, where('uid', 'in', reqProfiles), orderBy('uploadDate', 'desc'));
+
+    const docSnap = await getDocs(q);
     const feedData = docSnap.docs.map((doc) => doc.data());
     setPosts(feedData);
   };
@@ -32,7 +41,7 @@ export const Posts = () => {
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         {posts.map((post, index) => (
-          <Post key={index} user={user} post={post} />
+          <Post key={index} user={post.uid} post={post} />
         ))}
       </ScrollView>
       <LinearGradient

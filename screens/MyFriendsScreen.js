@@ -24,7 +24,6 @@ export const MyFriendsScreen = ({ navigation }) => {
 
       if (docSnap.exists()) {
         if (docSnap.data().friends.length) {
-          console.log('Friends', docSnap.data().friends);
           setFriends(docSnap.data().friends);
         }
         if (docSnap.data().requests.length) {

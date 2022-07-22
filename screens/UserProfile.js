@@ -19,7 +19,7 @@ import { db } from '../config';
 
 const data = fakeData.map((post) => post.post);
 
-export const UserProfile = ({ route }) => {
+export const UserProfile = ({ route, navigation }) => {
   const [userData, setUserData] = useState(null);
   const { user } = useContext(AuthenticatedUserContext);
   const [reqSent, setReqSent] = useState(false);
@@ -77,6 +77,10 @@ export const UserProfile = ({ route }) => {
     setReqSent(false);
   };
 
+  const goToChats = async () => {
+    navigation.navigate('MessagesStack', { screen: 'Chats' });
+  };
+
   useEffect(() => {
     (async () => {
       const docRef = doc(db, 'users', user.uid);
@@ -111,7 +115,7 @@ export const UserProfile = ({ route }) => {
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      {userData && <ProfileHeader user={{ ...userData, uid: '' }} />}
+      {userData && <ProfileHeader user={{ ...userData }} />}
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {data.map((post, index) => (
@@ -160,7 +164,7 @@ export const UserProfile = ({ route }) => {
         </Button>
         <Button
           mode="contained"
-          onPress={() => console.log('Pressed')}
+          onPress={userData && goToChats}
           style={styles.button}
           color={Colors.white}
           textColor={Colors.black}

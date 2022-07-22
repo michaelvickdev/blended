@@ -8,14 +8,14 @@ import { Colors } from '../config';
 import { Icon } from './Icon';
 import { getImage } from '../hooks/getImage';
 
-export const Post = ({ user, post }) => {
+export const Post = ({ post }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [postImage, setPostImage] = useState(require('../assets/default-post.jpg'));
   const [profileImage, setprofileImage] = useState(require('../assets/default-image.png'));
 
   useEffect(() => {
     (async () => {
-      const docRef = doc(db, 'users', user.uid);
+      const docRef = doc(db, 'users', post.uid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {

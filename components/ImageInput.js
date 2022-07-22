@@ -7,14 +7,17 @@ import { Colors } from '../config';
 
 export const ImageInput = ({ width = '100%', leftIconName, handleChange, label }) => {
   const pickImage = async (handleChange) => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { granted } = await ImagePicker.requestCameraPermissionsAsync();
 
-    if (permissionResult.granted === false) {
+    if (!granted) {
       alert('Please allow permission to continue uploading the image.');
       return;
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync();
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 4],
+    });
     if (!result.cancelled) {
       handleChange(result.uri);
     }

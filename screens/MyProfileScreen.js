@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
@@ -7,11 +7,7 @@ import { fakeData } from '../assets/fakeData';
 import PostCarouselItem from '../components/PostCarouselItem';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../components/View';
-import { Icon } from '../components';
-import { MaterialIcons } from '@expo/vector-icons';
 import { SocialIcon } from 'react-native-elements';
-import { Text } from '../components/Text';
-import { Button } from 'react-native-paper';
 
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';

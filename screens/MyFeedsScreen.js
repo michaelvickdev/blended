@@ -11,7 +11,7 @@ import { Formik } from 'formik';
 import { Text } from '../components/Text';
 import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
-import { addDoc, collection, setDoc, getDocs, query, orderBy } from 'firebase/firestore';
+import { addDoc, collection, setDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../config/';
 import { uploadImage } from '../hooks/uploadImage';
 import { uploadFeedsSchema } from '../utils';
@@ -36,8 +36,8 @@ const MyFeeds = () => {
   const [posts, setPosts] = useState([]);
 
   const getPosts = async () => {
-    const docRef = collection(db, 'feeds', user.uid, 'userFeeds');
-    const q = query(docRef, orderBy('uploadDate', 'desc'));
+    const docRef = collection(db, 'feeds');
+    const q = query(docRef, where('uid', '==', user.uid), orderBy('uploadDate', 'desc'));
     const docSnap = await getDocs(q);
 
     const feedData = docSnap.docs.map((doc) => doc.data());
@@ -53,7 +53,7 @@ const MyFeeds = () => {
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         {posts.map((post, index) => (
-          <Post key={index} user={user} post={post} />
+          <Post key={index} post={post} />
         ))}
       </ScrollView>
       <LinearGradient
@@ -70,9 +70,10 @@ const AddFeed = () => {
   const uploadFeed = async (values, resetForm) => {
     setIsLoading(true);
     try {
-      const docRef = collection(db, 'feeds', user.uid, 'userFeeds');
+      const docRef = collection(db, 'feeds');
 
       const feedRef = await addDoc(docRef, {
+        uid: user.uid,
         title: values.title,
         likes: 0,
         comments: 0,
