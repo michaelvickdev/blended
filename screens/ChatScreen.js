@@ -75,7 +75,11 @@ export const ChatHeader = ({ name, navigation }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.header}>
-        <Text heading={true} bold={true} style={{ fontSize: 16 }}>
+        <Text
+          heading={true}
+          bold={true}
+          style={{ fontSize: 16, alignSelf: 'stretch', textAlign: 'center' }}
+        >
           {name}
         </Text>
         <View style={styles.action}>
@@ -110,16 +114,17 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    alignItems: 'center',
   },
   action: {
+    felx: 1,
     flexDirection: 'row',
-    alignItems: 'center',
     marginTop: 6,
+    justifyContent: 'center',
   },
   item: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignSelf: 'stretch',
+    justifyContent: 'center',
   },
   back: {
     position: 'absolute',

@@ -60,12 +60,13 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
       </TouchableHighlight>
 
       <DateTimePicker
+        isDarkModeEnabled={true}
         isVisible={showDatePicker}
+        textColor={Colors.black}
         mode="date"
         value={new Date()}
         maximumDate={new Date()}
         minimumDate={new Date(1900, 0, 1)}
-        display="spinner"
         onConfirm={(e) => {
           const date =
             e.getDate().toString().padStart(2, '0') +

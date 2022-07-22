@@ -77,7 +77,7 @@ export const LoginScreen = ({ navigation }) => {
                 <Text
                   style={[
                     styles.buttonText,
-                    { color: isLoading ? Colors.mediumGray : Colors.white },
+                    { color: isLoading ? Colors.lightGray : Colors.white },
                   ]}
                 >
                   {isLoading ? 'Logging in...' : 'Login'}
