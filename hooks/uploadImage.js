@@ -1,5 +1,5 @@
 import { storage } from '../config';
-import { ref, uploadBytes } from 'firebase/storage';
+import { ref, uploadBytesResumable } from 'firebase/storage';
 
 export const uploadImage = async (uri, imageName) => {
   const response = await fetch(uri);
@@ -8,5 +8,5 @@ export const uploadImage = async (uri, imageName) => {
   const storageRef = ref(storage, `images/${imageName}`);
 
   // 'file' comes from the Blob or File API
-  await uploadBytes(storageRef, blob);
+  await uploadBytesResumable(storageRef, blob);
 };
