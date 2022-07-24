@@ -69,9 +69,9 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
         minimumDate={new Date(1900, 0, 1)}
         onConfirm={(e) => {
           const date =
-            e.getDate().toString().padStart(2, '0') +
-            '-' +
             (e.getMonth() + 1).toString().padStart(2, '0') +
+            '-' +
+            e.getDate().toString().padStart(2, '0') +
             '-' +
             e.getFullYear();
           setShowDatePicker(false);
