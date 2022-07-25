@@ -34,13 +34,12 @@ export const EditProfileScreen = () => {
         console.log('No such document!');
       }
     })();
-  }, []);
+  }, [changeCounter]);
 
   const handleSignup = async (values) => {
     setIsLoading(true);
     try {
       const docRef = doc(db, 'users', user.uid);
-
       await setDoc(
         docRef,
         {
@@ -48,7 +47,7 @@ export const EditProfileScreen = () => {
         },
         { merge: true }
       );
-      setChangeCounter(!changeCounter);
+      setChangeCounter((prev) => prev + 1);
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -67,7 +66,9 @@ export const EditProfileScreen = () => {
 
     let result = await ImagePicker.launchImageLibraryAsync();
     if (!result.cancelled) {
+      const imageUri = result.uri;
       const imageName = user.uid;
+      await uploadImage(imageUri, `dp/${imageName}`);
       const docRef = doc(db, 'users', user.uid);
       await setDoc(
         docRef,
@@ -76,7 +77,7 @@ export const EditProfileScreen = () => {
         },
         { merge: true }
       );
-      setChangeCounter(!changeCounter);
+      setChangeCounter((prev) => prev + 1);
     }
     setIsLoading(false);
   };

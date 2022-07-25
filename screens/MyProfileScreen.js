@@ -15,22 +15,27 @@ import { AuthenticatedUserContext } from '../providers';
 
 const data = fakeData.map((post) => post.post);
 
-export const MyProfileScreen = () => {
-  const { user } = useContext(AuthenticatedUserContext);
+export const MyProfileScreen = ({ navigation }) => {
+  const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [userData, setUserData] = useState(null);
 
-  useEffect(() => {
-    (async () => {
-      const docRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(docRef);
+  const getUserData = async () => {
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
-      } else {
-        console.log('No such document!');
-      }
-    })();
-  }, []);
+    if (docSnap.exists()) {
+      setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
+    } else {
+      console.log('No such document!');
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getUserData();
+    });
+    return unsubscribe;
+  }, [navigation, changeCounter]);
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>

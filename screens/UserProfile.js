@@ -78,40 +78,47 @@ export const UserProfile = ({ route, navigation }) => {
   };
 
   const goToChats = async () => {
-    navigation.navigate('MessagesStack', { screen: 'Chats', params: { uid: userData.uid } });
+    navigation.navigate('MessagesStack', {
+      screen: 'Chats',
+      params: { uid: userData.uid },
+    });
   };
 
-  useEffect(() => {
-    (async () => {
-      const docRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(docRef);
+  const getStatus = async () => {
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        if (docSnap.data().friends.length && docSnap.data().friends.includes(route.params.uid)) {
-          setFriend(true);
-        } else if (
-          docSnap.data().requests.length &&
-          docSnap.data().requests.includes(route.params.uid)
-        ) {
-          setReqRcvd(true);
-        }
+    if (docSnap.exists()) {
+      if (docSnap.data().friends.length && docSnap.data().friends.includes(route.params.uid)) {
+        setFriend(true);
+      } else if (
+        docSnap.data().requests.length &&
+        docSnap.data().requests.includes(route.params.uid)
+      ) {
+        setReqRcvd(true);
       }
-    })();
-  }, []);
+    }
+  };
 
-  useEffect(() => {
-    (async () => {
-      const docRef = doc(db, 'users', route.params.uid);
-      const docSnap = await getDoc(docRef);
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getUserData();
+      getStatus();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
-      if (docSnap.exists()) {
-        if (docSnap.data().requests.length && docSnap.data().requests.includes(user.uid)) {
-          setReqSent(true);
-        }
-        setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
+  const getUserData = async () => {
+    const docRef = doc(db, 'users', route.params.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      if (docSnap.data().requests.length && docSnap.data().requests.includes(user.uid)) {
+        setReqSent(true);
       }
-    })();
-  }, []);
+      setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
+    }
+  };
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>

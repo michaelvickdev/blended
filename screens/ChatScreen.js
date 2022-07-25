@@ -1,4 +1,5 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { BackHandler } from 'react-native';
 import { Icon, View } from '../components';
 import { Text } from '../components/Text';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -9,13 +10,58 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Button, TextInput } from 'react-native-paper';
 import Constants from 'expo-constants';
 
-import { collection, doc, getDoc, arrayUnion, addDoc, arrayRemove } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  arrayUnion,
+  addDoc,
+  updateDoc,
+  getDocs,
+  query,
+  orderBy,
+  getDoc,
+} from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 
 export const ChatScreen = ({ navigation, route }) => {
   const { user } = useContext(AuthenticatedUserContext);
+  const [chat, setChat] = useState([]);
   const [text, setText] = useState('');
+  const [inChat, setInChat] = useState(false);
+  const [name, setName] = useState('');
+
+  const getName = async () => {
+    try {
+      const userRef = doc(db, 'users', route.params.uid);
+      const usernameSnap = await getDoc(userRef);
+      setName(usernameSnap.data().username);
+    } catch (err) {
+      console.log('error here', err);
+    }
+  };
+
+  const getChat = async () => {
+    try {
+      const msgId =
+        user.uid > route.params.uid
+          ? `${user.uid}-${route.params.uid}`
+          : `${route.params.uid}-${user.uid}`;
+      const msgRef = collection(db, 'messages', msgId, 'thread');
+      const q = query(msgRef, orderBy('timestamp'));
+      const chatSnap = await getDocs(q);
+      const chatData = chatSnap.docs.map((doc) => doc.data());
+      setChat(chatData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getChat();
+    getName();
+  }, [route.params.uid]);
+
   const [isLoading, setIsLoading] = useState(false);
   const sendText = async () => {
     if (!text) return;
@@ -26,11 +72,27 @@ export const ChatScreen = ({ navigation, route }) => {
           ? `${user.uid}-${route.params.uid}`
           : `${route.params.uid}-${user.uid}`;
       const msgRef = collection(db, 'messages', msgId, 'thread');
-      await addDoc(msgRef, {
+
+      const msg = {
         text: text,
         timestamp: Date.now(),
         sentBy: user.uid,
-      });
+      };
+      await addDoc(msgRef, msg);
+
+      const userRef = doc(db, 'users', user.uid);
+      const friendRef = doc(db, 'users', route.params.uid);
+      if (!inChat) {
+        await updateDoc(friendRef, {
+          chats: arrayUnion(userRef.id),
+        });
+
+        await updateDoc(userRef, {
+          chats: arrayUnion(friendRef.id),
+        });
+        setInChat(true);
+      }
+      setChat(chat.concat(msg));
     } catch (error) {
       console.log(error);
     }
@@ -38,13 +100,33 @@ export const ChatScreen = ({ navigation, route }) => {
     setText('');
   };
 
+  function handleBackButtonClick() {
+    navigation.popToTop();
+    return true;
+  }
+
+  useEffect(() => {
+    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+    };
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <ChatHeader name="vick" navigation={navigation} />
+        <ChatHeader name={name} navigation={navigation} />
         <ScrollView style={{ background: 'transparent' }}>
-          <ChatBubble />
-          <ChatBubble self={true} />
+          {chat.map((msg, index) => {
+            return (
+              <ChatBubble
+                key={index}
+                self={msg.sentBy === user.uid}
+                text={msg.text}
+                timestamp={msg.timestamp}
+              />
+            );
+          })}
         </ScrollView>
         <View style={styles.chatBox}>
           <TextInput
@@ -75,7 +157,7 @@ export const ChatScreen = ({ navigation, route }) => {
   );
 };
 
-const ChatBubble = ({ self }) => {
+const ChatBubble = ({ self, text, timestamp }) => {
   return (
     <View
       style={[
@@ -87,13 +169,12 @@ const ChatBubble = ({ self }) => {
       ]}
     >
       <View style={styles.chatBubbleText}>
-        <Text style={{ fontSize: 16 }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore.
-        </Text>
+        <Text style={{ fontSize: 16 }}>{text}</Text>
       </View>
       <View style={styles.chatBubbleTime}>
-        <Text style={{ fontSize: 12, color: Colors.mediumGray, marginRight: 2 }}>12:00</Text>
+        <Text style={{ fontSize: 12, color: Colors.mediumGray, marginRight: 2 }}>
+          {new Date(timestamp).toLocaleTimeString()}
+        </Text>
         <Icon name="check" size={14} color={Colors.mediumGray} />
       </View>
     </View>
@@ -104,7 +185,7 @@ export const ChatHeader = ({ name, navigation }) => {
   return (
     <View style={styles.headerContainer}>
       <View style={styles.back}>
-        <TouchableOpacity onPress={() => navigation.navigate('Messages')}>
+        <TouchableOpacity onPress={() => navigation.popToTop()}>
           <Icon name="keyboard-backspace" size={32} />
         </TouchableOpacity>
       </View>

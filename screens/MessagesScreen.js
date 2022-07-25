@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { View } from '../components';
 import { StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Colors } from '../config';
@@ -6,7 +6,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Text } from '../components/Text';
 
 import { createStackNavigator } from '@react-navigation/stack';
-import { ChatScreen, ChatHeader } from './ChatScreen';
+import { ChatScreen } from './ChatScreen';
+
+import { getDoc, doc, query, orderBy, limit, collection, getDocs } from 'firebase/firestore';
+import { getImage } from '../hooks/getImage';
+import { AuthenticatedUserContext } from '../providers';
+import { db } from '../config';
 
 const Stack = createStackNavigator();
 
@@ -23,12 +28,11 @@ export const MessagesStack = () => {
       <Stack.Screen
         name="Chats"
         component={ChatScreen}
-        options={(props) => ({
+        options={() => ({
           headerStyle: {
             backgroundColor: Colors.mainFirst,
           },
           headerShown: false,
-          headerTitle: () => <ChatHeader {...props} name="michaelvick" />,
           headerLeft: () => null,
         })}
       />
@@ -37,16 +41,31 @@ export const MessagesStack = () => {
 };
 
 const Messages = ({ navigation }) => {
+  const { user } = useContext(AuthenticatedUserContext);
+  const [threads, setThreads] = useState([]);
+
+  const getThreads = async () => {
+    console.log('Getting threads');
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    const chats = userSnap.data().chats;
+    setThreads(chats);
+  };
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setThreads([]);
+      getThreads();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   return (
     <View style={{ flex: 1, paddingHorizontal: 16 }}>
       <ScrollView style={styles.container}>
-        <SingleThread
-          navigation={navigation}
-          avatar="https://randomuser.me/api/portraits/med/men/1.jpg"
-          name="michaelvick"
-          lastMsg="This was the message"
-          date="July, 13 01:55 PM"
-        />
+        {threads.map((thread) => (
+          <SingleThread key={thread} userId={thread} navigation={navigation} selfId={user.uid} />
+        ))}
       </ScrollView>
       <LinearGradient
         style={styles.gradient}
@@ -56,13 +75,76 @@ const Messages = ({ navigation }) => {
   );
 };
 
-const SingleThread = ({ navigation, lastMsg, date, name, avatar }) => {
+const SingleThread = ({ navigation, userId, selfId }) => {
+  const [data, setData] = useState(null);
+  const [avatar, setAvatar] = useState(require('../assets/default-image.png'));
+  const [msgData, setMsgData] = useState([]);
   const navigate = () => {
-    navigation.navigate('Chats');
+    navigation.navigate('Chats', { uid: userId });
   };
+
+  useEffect(() => {
+    if (data) {
+      (async () => {
+        const image = await getImage(data.avatar);
+        if (image) {
+          setAvatar(image);
+        }
+      })();
+    }
+  }, [data]);
+
+  const getData = async () => {
+    try {
+      const userRef = doc(db, 'users', userId);
+
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        setData({
+          avatar: userSnap.data().avatar,
+          name: userSnap.data().username,
+        });
+      }
+    } catch (err) {
+      console.log('In getting data', err);
+    }
+  };
+
+  const getLastMsg = async () => {
+    try {
+      const msgId = selfId > userId ? `${selfId}-${userId}` : `${userId}-${selfId}`;
+      const msgRef = collection(db, 'messages', msgId, 'thread');
+      const q = query(msgRef, orderBy('timestamp', 'desc'), limit(1));
+      const chatSnap = await getDocs(q);
+      const chatData = chatSnap.docs.map((doc) => doc.data());
+      setMsgData(chatData[0]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  useEffect(() => {
+    if (data) {
+      getLastMsg();
+    }
+  }, [data]);
+
+  if (!data) {
+    return (
+      <View style={styles.threadContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <TouchableOpacity style={styles.threadContainer} onPress={navigate}>
-      <Image source={{ uri: avatar }} style={{ width: 65, height: 65, borderRadius: 65 / 2 }} />
+      <Image source={avatar} style={{ width: 65, height: 65, borderRadius: 65 / 2 }} />
       <View
         style={{
           flexDirection: 'row',
@@ -74,13 +156,13 @@ const SingleThread = ({ navigation, lastMsg, date, name, avatar }) => {
       >
         <View>
           <Text heading={true} style={{ fontSize: 18 }}>
-            {name}
+            {data.name}
           </Text>
           <Text numberOfLines={1} heading={true} style={{ fontSize: 12, width: 100 }}>
-            {lastMsg}
+            {msgData?.text}
           </Text>
         </View>
-        <Text>{date}</Text>
+        <Text>{new Date(msgData.timestamp).toLocaleTimeString()}</Text>
       </View>
     </TouchableOpacity>
   );
