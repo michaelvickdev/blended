@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -7,7 +7,7 @@ import { Button } from 'react-native-paper';
 import { Formik } from 'formik';
 import { View, TextInput, FormErrorMessage } from '../components';
 import { SelectInput } from '../components/SelectInput';
-import { personalInfoValidationSchema } from '../utils';
+import { personalInfoValidationSchema, socialLinksValidationSchema } from '../utils';
 import { DateInput } from '../components/DateInput';
 import * as ImagePicker from 'expo-image-picker';
 import { AuthenticatedUserContext } from '../providers';
@@ -17,6 +17,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
 
 export const EditProfileScreen = () => {
+  const mountedRef = useRef(true);
   const [errorState] = useState('');
   const [toggleTab, setToggle] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,12 +29,15 @@ export const EditProfileScreen = () => {
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
+      if (docSnap.exists() && mountedRef.current) {
         setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
       } else {
         console.log('No such document!');
       }
     })();
+    return () => {
+      mountedRef.current = false;
+    };
   }, [changeCounter]);
 
   const handleSignup = async (values) => {
@@ -52,6 +56,27 @@ export const EditProfileScreen = () => {
       console.error(err);
       alert(err.message);
     }
+    setIsLoading(false);
+  };
+
+  const handleSocialLinks = async (values) => {
+    setIsLoading(true);
+
+    try {
+      const docRef = doc(db, 'users', user.uid);
+      await setDoc(
+        docRef,
+        {
+          socialLinks: values,
+        },
+        { merge: true }
+      );
+      setChangeCounter((prev) => prev + 1);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+
     setIsLoading(false);
   };
 
@@ -271,80 +296,82 @@ export const EditProfileScreen = () => {
               )}
               {!toggleTab && (
                 <View style={styles.socialLinks}>
-                  <Formik
-                    initialValues={{
-                      facebook: '',
-                      instagram: '',
-                      twitter: '',
-                      linkedin: '',
-                    }}
-                    validationSchema={personalInfoValidationSchema}
-                    onSubmit={(values) => handleSignup(values)}
-                  >
-                    {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
-                      <>
-                        {/* Input fields */}
-                        <TextInput
-                          name="facebook"
-                          leftIconName="facebook"
-                          placeholder="Enter Facebook Link"
-                          autoCapitalize="none"
-                          value={values.facebook}
-                          onChangeText={handleChange('facebook')}
-                          onBlur={handleBlur('facebook')}
-                        />
-                        <FormErrorMessage error={errors.facebook} visible={touched.facebook} />
+                  {userData && (
+                    <Formik
+                      initialValues={{
+                        facebook: 'socialLinks' in userData ? userData.socialLinks.facebook : '',
+                        instagram: 'socialLinks' in userData ? userData.socialLinks.instagram : '',
+                        twitter: 'socialLinks' in userData ? userData.socialLinks.twitter : '',
+                        linkedin: 'socialLinks' in userData ? userData.socialLinks.linkedin : '',
+                      }}
+                      validationSchema={socialLinksValidationSchema}
+                      onSubmit={(values) => handleSocialLinks(values)}
+                    >
+                      {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
+                        <>
+                          {/* Input fields */}
+                          <TextInput
+                            name="facebook"
+                            leftIconName="facebook"
+                            placeholder="Enter Facebook Link"
+                            autoCapitalize="none"
+                            value={values.facebook}
+                            onChangeText={handleChange('facebook')}
+                            onBlur={handleBlur('facebook')}
+                          />
+                          <FormErrorMessage error={errors.facebook} visible={touched.facebook} />
 
-                        <TextInput
-                          name="instagram"
-                          leftIconName="instagram"
-                          placeholder="Enter Instagram Link"
-                          autoCapitalize="none"
-                          value={values.instagram}
-                          onChangeText={handleChange('instagram')}
-                          onBlur={handleBlur('instagram')}
-                        />
-                        <FormErrorMessage error={errors.instagram} visible={touched.instagram} />
+                          <TextInput
+                            name="instagram"
+                            leftIconName="instagram"
+                            placeholder="Enter Instagram Link"
+                            autoCapitalize="none"
+                            value={values.instagram}
+                            onChangeText={handleChange('instagram')}
+                            onBlur={handleBlur('instagram')}
+                          />
+                          <FormErrorMessage error={errors.instagram} visible={touched.instagram} />
 
-                        <TextInput
-                          name="linkedin"
-                          leftIconName="linkedin"
-                          placeholder="Enter LinkedIn Link"
-                          autoCapitalize="none"
-                          value={values.linkedin}
-                          onChangeText={handleChange('linkedin')}
-                          onBlur={handleBlur('linkedin')}
-                        />
-                        <FormErrorMessage error={errors.linkedin} visible={touched.linkedin} />
+                          <TextInput
+                            name="linkedin"
+                            leftIconName="linkedin"
+                            placeholder="Enter LinkedIn Link"
+                            autoCapitalize="none"
+                            value={values.linkedin}
+                            onChangeText={handleChange('linkedin')}
+                            onBlur={handleBlur('linkedin')}
+                          />
+                          <FormErrorMessage error={errors.linkedin} visible={touched.linkedin} />
 
-                        <TextInput
-                          name="twitter"
-                          leftIconName="twitter"
-                          placeholder="Enter Twitter Link"
-                          autoCapitalize="none"
-                          value={values.twitter}
-                          onChangeText={handleChange('twitter')}
-                          onBlur={handleBlur('twitter')}
-                        />
-                        <FormErrorMessage error={errors.twitter} visible={touched.twitter} />
+                          <TextInput
+                            name="twitter"
+                            leftIconName="twitter"
+                            placeholder="Enter Twitter Link"
+                            autoCapitalize="none"
+                            value={values.twitter}
+                            onChangeText={handleChange('twitter')}
+                            onBlur={handleBlur('twitter')}
+                          />
+                          <FormErrorMessage error={errors.twitter} visible={touched.twitter} />
 
-                        {/* Display Screen Error Mesages */}
-                        {errorState !== '' ? (
-                          <FormErrorMessage error={errorState} visible={true} />
-                        ) : null}
-                        {/* Signup button */}
-                        <Button
-                          mode="contained"
-                          style={styles.button}
-                          onPress={handleSubmit}
-                          color={Colors.secondary}
-                          labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
-                        >
-                          {isLoading ? 'Updating...' : 'Update'}
-                        </Button>
-                      </>
-                    )}
-                  </Formik>
+                          {/* Display Screen Error Mesages */}
+                          {errorState !== '' ? (
+                            <FormErrorMessage error={errorState} visible={true} />
+                          ) : null}
+                          {/* Signup button */}
+                          <Button
+                            mode="contained"
+                            style={styles.button}
+                            onPress={handleSubmit}
+                            color={Colors.secondary}
+                            labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
+                          >
+                            {isLoading ? 'Updating...' : 'Update'}
+                          </Button>
+                        </>
+                      )}
+                    </Formik>
+                  )}
                 </View>
               )}
             </View>

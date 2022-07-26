@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, Image, View } from 'react-native';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
@@ -12,31 +12,37 @@ export const Post = ({ post }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [postImage, setPostImage] = useState(require('../assets/default-post.jpg'));
   const [profileImage, setprofileImage] = useState(require('../assets/default-image.png'));
+  const mountedRef = useRef(true);
+
+  const getUser = async () => {
+    const docRef = doc(db, 'users', post.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists() && mountedRef.current) {
+      setUserInfo({ ...docSnap.data() });
+      const image = await getImage(docSnap.data().avatar);
+      if (image && mountedRef.current) {
+        setprofileImage(image);
+      }
+    } else {
+      console.log('No such document!');
+    }
+  };
+
+  const setImage = async () => {
+    const image = await getImage(post.url);
+    if (image && mountedRef.current) {
+      setPostImage(image);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      const docRef = doc(db, 'users', post.uid);
-      const docSnap = await getDoc(docRef);
+    getUser();
+    setImage();
 
-      if (docSnap.exists()) {
-        setUserInfo({ ...docSnap.data() });
-        const image = await getImage(docSnap.data().avatar);
-        if (image) {
-          setprofileImage(image);
-        }
-      } else {
-        console.log('No such document!');
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      const image = await getImage(post.url);
-      if (image) {
-        setPostImage(image);
-      }
-    })();
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   return (

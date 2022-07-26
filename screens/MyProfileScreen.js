@@ -1,29 +1,39 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { StyleSheet, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
-import { fakeData } from '../assets/fakeData';
-import PostCarouselItem from '../components/PostCarouselItem';
+import { PostCarouselItem } from '../components/PostCarouselItem';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../components/View';
 import { SocialIcon } from 'react-native-elements';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 
-const data = fakeData.map((post) => post.post);
-
 export const MyProfileScreen = ({ navigation }) => {
+  const mountedRef = useRef(true);
   const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [userData, setUserData] = useState(null);
+  const [feedData, setFeedData] = useState([]);
+
+  const getFeed = async () => {
+    const docRef = collection(db, 'feeds');
+    const q = query(docRef, where('uid', '==', user.uid), orderBy('uploadDate', 'desc'));
+    const docSnap = await getDocs(q);
+
+    const feedRes = docSnap.docs.map((doc) => doc.data());
+
+    if (mountedRef.current) setFeedData(feedRes);
+  };
 
   const getUserData = async () => {
     const docRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
+    if (docSnap.exists() && mountedRef.current) {
       setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
     } else {
       console.log('No such document!');
@@ -33,8 +43,12 @@ export const MyProfileScreen = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getUserData();
+      getFeed();
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      mountedRef.current = false;
+    };
   }, [navigation, changeCounter]);
 
   return (
@@ -42,54 +56,45 @@ export const MyProfileScreen = ({ navigation }) => {
       {userData && <ProfileHeader user={{ ...userData, uid: '' }} />}
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {data.map((post, index) => (
+          {feedData.map((post, index) => (
             <PostCarouselItem item={post} index={index} key={index} />
           ))}
         </ScrollView>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: 16,
-          }}
-        >
-          <SocialIcon type="facebook" />
-          <SocialIcon type="twitter" />
-          <SocialIcon type="instagram" />
-          <SocialIcon type="linkedin" />
-        </View>
-
-        {/* <View style={styles.action}>
-          <TouchableOpacity style={styles.item}>
-            <MaterialIcons name="person" size={12} color={Colors.black} />
-            <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.item}>
-            <Icon name="heart" size={12} color={Colors.black} />
-            <Text style={{ marginLeft: 5, fontSize: 12 }}>Add to Favorite</Text>
-          </TouchableOpacity>
-        </View> */}
+        {userData && 'socialLinks' in userData && (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginTop: 16,
+            }}
+          >
+            {userData.socialLinks.facebook !== '' && (
+              <SocialIcon
+                type="facebook"
+                onPress={() => Linking.openURL(userData.socialLinks.facebook)}
+              />
+            )}
+            {userData.socialLinks.twitter !== '' && (
+              <SocialIcon
+                type="twitter"
+                onPress={() => Linking.openURL(userData.socialLinks.twitter)}
+              />
+            )}
+            {userData.socialLinks.instagram !== '' && (
+              <SocialIcon
+                type="instagram"
+                onPress={() => Linking.openURL(userData.socialLinks.instagram)}
+              />
+            )}
+            {userData.socialLinks.linkedin !== '' && (
+              <SocialIcon
+                type="linkedin"
+                onPress={() => Linking.openURL(userData.socialLinks.linkedin)}
+              />
+            )}
+          </View>
+        )}
       </View>
-      {/* <View style={styles.footer}>
-        <Button
-          mode="contained"
-          onPress={() => console.log('Pressed')}
-          style={styles.button}
-          color={Colors.white}
-          labelStyle={{ color: Colors.black }}
-        >
-          Friend
-        </Button>
-        <Button
-          mode="contained"
-          onPress={() => console.log('Pressed')}
-          style={styles.button}
-          color={Colors.white}
-          textColor={Colors.black}
-        >
-          Send Message
-        </Button>
-      </View> */}
     </LinearGradient>
   );
 };

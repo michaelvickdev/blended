@@ -14,7 +14,6 @@ import { HeaderRight } from '../components/HeaderRight';
 import { SearchStack } from './SearchStack';
 import { MyFeedsScreen } from '../screens/MyFeedsScreen';
 import { NearByScreen } from '../screens/NearByScreen';
-import { MyFriendsScreen } from '../screens/MyFriendsScreen';
 import { MessagesStack } from '../screens/MessagesScreen';
 import { EventsScreen } from '../screens/EventsScreen';
 import { FriendsStack } from './FriendsStack';

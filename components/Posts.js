@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { Post } from './Post';
 import { View } from './View';
@@ -13,6 +13,7 @@ import { db } from '../config/';
 export const Posts = () => {
   const { user } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
+  const mountedRef = useRef(true);
 
   const getPosts = async () => {
     const userRef = doc(db, 'users', user.uid);
@@ -23,17 +24,21 @@ export const Posts = () => {
         reqProfiles.push(...userSnap.data().friends);
       }
     }
-
     const docRef = collection(db, 'feeds');
     const q = query(docRef, where('uid', 'in', reqProfiles), orderBy('uploadDate', 'desc'));
 
     const docSnap = await getDocs(q);
     const feedData = docSnap.docs.map((doc) => doc.data());
-    setPosts(feedData);
+    if (mountedRef.current) {
+      setPosts(feedData);
+    }
   };
 
   useEffect(() => {
     getPosts();
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   return (

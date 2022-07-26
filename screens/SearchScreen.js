@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { View, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,6 +11,7 @@ import { AuthenticatedUserContext } from '../providers';
 import { getImage } from '../hooks/getImage';
 
 export const SearchScreen = ({ navigation }) => {
+  const mountedRef = useRef(true);
   const { user } = useContext(AuthenticatedUserContext);
   const [users, setUsers] = useState([]);
   const [text, setText] = React.useState('');
@@ -19,14 +20,20 @@ export const SearchScreen = ({ navigation }) => {
     navigation.navigate('UserProfile', { uid: uid });
   };
 
-  useEffect(() => {
-    (async () => {
-      const usersQuery = query(collection(db, 'users'), where('uid', '!=', user.uid));
-      const usersSnapshot = await getDocs(usersQuery);
-      const usersData = usersSnapshot.docs.map((doc) => doc.data());
-
+  const setUserData = async () => {
+    const usersQuery = query(collection(db, 'users'), where('uid', '!=', user.uid));
+    const usersSnapshot = await getDocs(usersQuery);
+    const usersData = usersSnapshot.docs.map((doc) => doc.data());
+    if (mountedRef.current) {
       setUsers(usersData);
-    })();
+    }
+  };
+
+  useEffect(() => {
+    setUserData();
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   return (
@@ -61,15 +68,20 @@ export const SearchScreen = ({ navigation }) => {
 };
 
 const SingleProfile = ({ name, url, location, goToProfile, uid }) => {
+  const mountedRef = useRef(true);
   const [image, setImage] = useState(require('../assets/default-image.png'));
 
   useEffect(() => {
     (async () => {
       const image = await getImage(url);
-      if (image) {
+      if (image && mountedRef.current) {
         setImage(image);
       }
     })();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
   return (
     <TouchableOpacity onPress={() => goToProfile(uid)}>

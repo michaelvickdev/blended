@@ -5,7 +5,7 @@ import { Icon } from './Icon';
 import { View } from './View';
 import { Colors } from '../config';
 
-export const ImageInput = ({ width = '100%', leftIconName, handleChange, label }) => {
+export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, free }) => {
   const pickImage = async (handleChange) => {
     const { granted } = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -13,10 +13,11 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label }
       alert('Please allow permission to continue uploading the image.');
       return;
     }
+    const imgOptions = free ? {} : { aspect: [4, 4] };
 
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      aspect: [4, 4],
+      ...imgOptions,
     });
     if (!result.cancelled) {
       handleChange(result.uri);

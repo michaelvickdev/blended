@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useContext, useRef } from 'react';
+import { StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
-import { fakeData } from '../assets/fakeData';
-import PostCarouselItem from '../components/PostCarouselItem';
+import { PostCarouselItem } from '../components/PostCarouselItem';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../components/View';
 import { Icon } from '../components';
@@ -14,17 +13,28 @@ import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
 import { AuthenticatedUserContext } from '../providers';
 
-import { doc, getDoc, arrayUnion, updateDoc, arrayRemove } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  arrayUnion,
+  updateDoc,
+  arrayRemove,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  where,
+} from 'firebase/firestore';
 import { db } from '../config';
 
-const data = fakeData.map((post) => post.post);
-
 export const UserProfile = ({ route, navigation }) => {
+  const mountedRef = useRef(true);
   const [userData, setUserData] = useState(null);
   const { user } = useContext(AuthenticatedUserContext);
   const [reqSent, setReqSent] = useState(false);
   const [reqRcvd, setReqRcvd] = useState(false);
   const [friend, setFriend] = useState(false);
+  const [feedData, setFeedData] = useState([]);
 
   const removeFriend = async () => {
     const requester = doc(db, 'users', user.uid);
@@ -88,7 +98,7 @@ export const UserProfile = ({ route, navigation }) => {
     const docRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
+    if (docSnap.exists() && mountedRef.current) {
       if (docSnap.data().friends.length && docSnap.data().friends.includes(route.params.uid)) {
         setFriend(true);
       } else if (
@@ -100,19 +110,33 @@ export const UserProfile = ({ route, navigation }) => {
     }
   };
 
+  const getFeed = async () => {
+    const docRef = collection(db, 'feeds');
+    const q = query(docRef, where('uid', '==', route.params.uid), orderBy('uploadDate', 'desc'));
+    const docSnap = await getDocs(q);
+
+    const feedRes = docSnap.docs.map((doc) => doc.data());
+
+    if (mountedRef.current) setFeedData(feedRes);
+  };
+
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getUserData();
+      getFeed();
       getStatus();
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      mountedRef.current = false;
+    };
   }, [navigation]);
 
   const getUserData = async () => {
     const docRef = doc(db, 'users', route.params.uid);
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists()) {
+    if (docSnap.exists() && mountedRef.current) {
       if (docSnap.data().requests.length && docSnap.data().requests.includes(user.uid)) {
         setReqSent(true);
       }
@@ -125,23 +149,45 @@ export const UserProfile = ({ route, navigation }) => {
       {userData && <ProfileHeader user={{ ...userData }} />}
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {data.map((post, index) => (
+          {feedData.map((post, index) => (
             <PostCarouselItem item={post} index={index} key={index} />
           ))}
         </ScrollView>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: 16,
-          }}
-        >
-          <SocialIcon type="facebook" />
-          <SocialIcon type="twitter" />
-          <SocialIcon type="instagram" />
-          <SocialIcon type="linkedin" />
-        </View>
 
+        {userData && 'socialLinks' in userData && (
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginTop: 16,
+            }}
+          >
+            {userData.socialLinks.facebook !== '' && (
+              <SocialIcon
+                type="facebook"
+                onPress={() => Linking.openURL(userData.socialLinks.facebook)}
+              />
+            )}
+            {userData.socialLinks.twitter !== '' && (
+              <SocialIcon
+                type="twitter"
+                onPress={() => Linking.openURL(userData.socialLinks.twitter)}
+              />
+            )}
+            {userData.socialLinks.instagram !== '' && (
+              <SocialIcon
+                type="instagram"
+                onPress={() => Linking.openURL(userData.socialLinks.instagram)}
+              />
+            )}
+            {userData.socialLinks.linkedin !== '' && (
+              <SocialIcon
+                type="linkedin"
+                onPress={() => Linking.openURL(userData.socialLinks.linkedin)}
+              />
+            )}
+          </View>
+        )}
         <View style={styles.action}>
           <TouchableOpacity style={styles.item}>
             <MaterialIcons name="person" size={12} color={Colors.black} />

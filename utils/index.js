@@ -40,3 +40,22 @@ export const personalInfoValidationSchema = Yup.object().shape({
 export const uploadFeedsSchema = Yup.object().shape({
   image: Yup.string(),
 });
+
+export const socialLinksValidationSchema = Yup.object().shape({
+  facebook: Yup.string().matches(
+    /^(http|https):\/\/?(www\.)?facebook.com\/?/i,
+    'Enter a valid Facebook URL'
+  ),
+  intagram: Yup.string().matches(
+    /^(http|https):\/\/?(www\.)?instagram.com\/?/i,
+    'Enter a valid Instagram URL'
+  ),
+  twitter: Yup.string().matches(
+    /^(http|https):\/\/?(www\.)?twitter.com\/?/i,
+    'Enter a valid Twitter URL'
+  ),
+  linkedin: Yup.string().matches(
+    /^(http|https):\/\/?(www\.)?linkedin.com\/?/i,
+    'Enter a valid LinkedIn URL'
+  ),
+});

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View } from '../components';
@@ -32,6 +32,7 @@ export const MyFeedsScreen = () => {
 };
 
 const MyFeeds = () => {
+  const mountedRef = useRef(true);
   const { user } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
 
@@ -42,11 +43,14 @@ const MyFeeds = () => {
 
     const feedData = docSnap.docs.map((doc) => doc.data());
 
-    setPosts(feedData);
+    if (mountedRef.current) setPosts(feedData);
   };
 
   useEffect(() => {
     getPosts();
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   return (
@@ -120,6 +124,7 @@ const AddFeed = () => {
             />
             <ImageInput
               name="image"
+              free={true}
               leftIconName="attachment"
               label="*Upload Pic"
               handleChange={(url) => setFieldValue('image', url)}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { View } from '../components';
 import { Text } from '../components/Text';
@@ -12,25 +12,31 @@ import { db } from '../config';
 import { getImage } from '../hooks/getImage';
 
 export const MyFriendsScreen = ({ navigation }) => {
+  const mountedRef = useRef(true);
   const [toggleTab, setToggle] = useState(true);
   const [friends, setFriends] = useState([]);
   const [pending, setPending] = useState([]);
   const { user } = useContext(AuthenticatedUserContext);
 
-  useEffect(() => {
-    (async () => {
-      const docRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(docRef);
+  const getFriendData = async () => {
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        if (docSnap.data().friends.length) {
-          setFriends(docSnap.data().friends);
-        }
-        if (docSnap.data().requests.length) {
-          setPending(docSnap.data().requests);
-        }
+    if (docSnap.exists() && mountedRef.current) {
+      if (docSnap.data().friends.length) {
+        setFriends(docSnap.data().friends);
       }
-    })();
+      if (docSnap.data().requests.length) {
+        setPending(docSnap.data().requests);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getFriendData();
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   const goToProfile = (uid) => {
