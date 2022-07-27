@@ -1,22 +1,17 @@
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { Colors } from '../config';
-import { Text } from './Text';
 import { View } from './View';
 import { TouchableOpacity } from 'react-native';
 import { Icon } from './Icon';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import { AuthenticatedUserContext } from '../providers';
 
 export const HeaderRight = ({ navigation, route }) => {
+  const { setFeedReload } = React.useContext(AuthenticatedUserContext);
   return (
     <View style={styles.header}>
-      <TouchableOpacity
-        onPress={() => {
-          if (getRoute(route)) {
-            navigation.navigate(getRoute(route));
-          }
-        }}
-      >
+      <TouchableOpacity onPress={() => getPressFunction(route, navigation, setFeedReload)()}>
         <Icon name={getIcon(route)} size={24} color={Colors.black} />
       </TouchableOpacity>
     </View>
@@ -30,14 +25,16 @@ const styles = StyleSheet.create({
 });
 
 const getIcon = (route) => {
-  const current = !!getFocusedRouteNameFromRoute(route)
+  const current = getFocusedRouteNameFromRoute(route)
     ? getFocusedRouteNameFromRoute(route)
     : route.name;
 
   switch (current) {
     case 'Feeds':
+    case 'Home':
       return 'reload';
     case 'EditProfile':
+    case 'Comments':
       return 'close';
     case 'Profile':
     case 'ProfileStack':
@@ -52,23 +49,29 @@ const getIcon = (route) => {
   }
 };
 
-const getRoute = (route) => {
-  const current = !!getFocusedRouteNameFromRoute(route)
+const getPressFunction = (route, navigation, setFeedReload) => {
+  const current = getFocusedRouteNameFromRoute(route)
     ? getFocusedRouteNameFromRoute(route)
     : route.name;
 
   switch (current) {
     case 'Profile':
     case 'ProfileStack':
-      return 'EditProfile';
+      return () => navigation.navigate('EditProfile');
     case 'EditProfile':
-      return 'Profile';
+      return () => navigation.navigate('Profile');
     case 'MyFeedsStack':
     case 'MyFeeds':
-      return 'AddFeed';
+      return () => navigation.navigate('AddFeed');
     case 'AddFeed':
-      return 'MyFeeds';
+      return () => navigation.navigate('MyFeeds');
+    case 'Comments':
+      return () => navigation.goBack();
+    case 'Feeds':
+    case 'Home': {
+      return () => setFeedReload((prev) => prev + 1);
+    }
     default:
-      return false;
+      return () => {};
   }
 };

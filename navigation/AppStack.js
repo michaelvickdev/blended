@@ -50,12 +50,13 @@ export const AppStack = () => {
       }}
     >
       <Drawer.Screen
-        name="Feeds"
+        name="Home"
         component={HomeScreen}
         options={(props) => ({
           drawerIcon: () => <MaterialIcons name="rss-feed" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
           headerRight: () => <HeaderRight {...props} />,
+          headerShown: getFocusedRouteNameFromRoute(props.route) === 'Comments' ? false : true,
         })}
       />
       <Drawer.Screen
@@ -130,6 +131,7 @@ export const AppStack = () => {
           ),
           headerTitle: () => <Header {...props} />,
           headerRight: () => <HeaderRight {...props} />,
+          headerShown: getFocusedRouteNameFromRoute(props.route) === 'Comments' ? false : true,
         })}
       />
       <Drawer.Screen

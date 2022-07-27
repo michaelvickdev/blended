@@ -8,6 +8,7 @@ import { Post } from '../components/Post';
 import { TextInput, Button } from '../components';
 import { ImageInput } from '../components/ImageInput';
 import { Formik } from 'formik';
+import { Comments } from './CommentScreen';
 import { Text } from '../components/Text';
 import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
@@ -27,13 +28,14 @@ export const MyFeedsScreen = () => {
     >
       <Stack.Screen name="MyFeeds" component={MyFeeds} />
       <Stack.Screen name="AddFeed" component={AddFeed} />
+      <Stack.Screen name="Comments" component={Comments} />
     </Stack.Navigator>
   );
 };
 
-const MyFeeds = () => {
+const MyFeeds = ({ navigation }) => {
   const mountedRef = useRef(true);
-  const { user } = useContext(AuthenticatedUserContext);
+  const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
 
   const getPosts = async () => {
@@ -41,23 +43,25 @@ const MyFeeds = () => {
     const q = query(docRef, where('uid', '==', user.uid), orderBy('uploadDate', 'desc'));
     const docSnap = await getDocs(q);
 
-    const feedData = docSnap.docs.map((doc) => doc.data());
+    const feedData = docSnap.docs.map((doc) => ({
+      ...doc.data(),
+      feedId: doc.id,
+    }));
 
     if (mountedRef.current) setPosts(feedData);
   };
 
   useEffect(() => {
     getPosts();
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  }, [changeCounter]);
+
+  useEffect(() => () => (mountedRef.current = false));
 
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         {posts.map((post, index) => (
-          <Post key={index} post={post} />
+          <Post key={index} navigation={navigation} post={post} self={true} />
         ))}
       </ScrollView>
       <LinearGradient
@@ -69,7 +73,7 @@ const MyFeeds = () => {
 };
 
 const AddFeed = () => {
-  const { user } = useContext(AuthenticatedUserContext);
+  const { user, setChangeCounter } = useContext(AuthenticatedUserContext);
   const [isLoading, setIsLoading] = useState(false);
   const uploadFeed = async (values, resetForm) => {
     setIsLoading(true);
@@ -79,8 +83,8 @@ const AddFeed = () => {
       const feedRef = await addDoc(docRef, {
         uid: user.uid,
         title: values.title,
-        likes: 0,
-        comments: 0,
+        likes: [],
+        comments: [],
         uploadDate: new Date(),
       });
 
@@ -96,6 +100,7 @@ const AddFeed = () => {
         );
       }
       resetForm();
+      setChangeCounter((prev) => prev + 1);
     } catch (err) {
       console.error(err);
       alert(err.message);

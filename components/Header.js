@@ -30,6 +30,7 @@ const getTitle = (route) => {
 
   switch (current) {
     case 'Feeds':
+    case 'Home':
       return 'Feeds';
     case 'EditProfile':
       return 'Edit Profile';

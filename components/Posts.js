@@ -10,8 +10,8 @@ import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider
 import { doc, getDoc, collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from '../config/';
 
-export const Posts = () => {
-  const { user } = useContext(AuthenticatedUserContext);
+export const Posts = ({ navigation }) => {
+  const { user, feedReload } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
   const mountedRef = useRef(true);
 
@@ -28,24 +28,32 @@ export const Posts = () => {
     const q = query(docRef, where('uid', 'in', reqProfiles), orderBy('uploadDate', 'desc'));
 
     const docSnap = await getDocs(q);
-    const feedData = docSnap.docs.map((doc) => doc.data());
+    const feedData = docSnap.docs.map((doc) => ({
+      ...doc.data(),
+      feedId: doc.id,
+    }));
     if (mountedRef.current) {
       setPosts(feedData);
     }
   };
 
   useEffect(() => {
+    setPosts([]);
     getPosts();
-    return () => {
+  }, [feedReload]);
+
+  useEffect(
+    () => () => {
       mountedRef.current = false;
-    };
-  }, []);
+    },
+    []
+  );
 
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         {posts.map((post, index) => (
-          <Post key={index} user={post.uid} post={post} />
+          <Post key={index} user={post.uid} post={post} navigation={navigation} />
         ))}
       </ScrollView>
       <LinearGradient

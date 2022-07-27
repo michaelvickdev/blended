@@ -1,18 +1,35 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, Image, View } from 'react-native';
-import { doc, getDoc } from 'firebase/firestore';
+import React, { useEffect, useState, useRef, useContext } from 'react';
+import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
+import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config';
+const { AuthenticatedUserContext } = require('../providers');
 
 import { Text } from './Text';
 import { Colors } from '../config';
 import { Icon } from './Icon';
 import { getImage } from '../hooks/getImage';
 
-export const Post = ({ post }) => {
+export const Post = ({ post, navigation, self }) => {
+  const { changeCounter } = useContext(AuthenticatedUserContext);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(post.likes.length);
+  const [commentCount, setCommentCount] = useState(post.comments.length);
   const [userInfo, setUserInfo] = useState(null);
   const [postImage, setPostImage] = useState(require('../assets/default-post.jpg'));
   const [profileImage, setprofileImage] = useState(require('../assets/default-image.png'));
   const mountedRef = useRef(true);
+
+  const goToProfile = () => {
+    if (self) {
+      navigation.navigate('ProfileStack');
+    } else {
+      navigation.navigate('UserProfile', { uid: post.uid });
+    }
+  };
+
+  const goToComments = () => {
+    navigation.navigate('Comments', { postId: post.feedId });
+  };
 
   const getUser = async () => {
     const docRef = doc(db, 'users', post.uid);
@@ -25,8 +42,38 @@ export const Post = ({ post }) => {
         setprofileImage(image);
       }
     } else {
-      console.log('No such document!');
+      console.log('Here, no such document!');
     }
+  };
+
+  const getLikeInfo = async () => {
+    if (!userInfo) return;
+    if (mountedRef.current && post.likes.length && post.likes.includes(userInfo.uid)) {
+      setIsLiked(true);
+    }
+    const feedRef = doc(db, 'feeds', post.feedId);
+    const feedSnap = await getDoc(feedRef);
+    if (feedSnap.exists() && mountedRef.current) {
+      setLikeCount(feedSnap.data().likes.length);
+    }
+  };
+
+  const getCommentInfo = async () => {
+    if (!userInfo) return;
+    const feedRef = doc(db, 'feeds', post.feedId);
+    const feedSnap = await getDoc(feedRef);
+    if (feedSnap.exists() && mountedRef.current) {
+      setCommentCount(feedSnap.data().comments.length);
+    }
+  };
+
+  const setLike = async () => {
+    const feedRef = doc(db, 'feeds', post.feedId);
+    const updateObj = isLiked
+      ? { likes: arrayRemove(userInfo.uid) }
+      : { likes: arrayUnion(userInfo.uid) };
+    await updateDoc(feedRef, updateObj);
+    if (mountedRef.current) setIsLiked((prev) => !prev);
   };
 
   const setImage = async () => {
@@ -39,15 +86,21 @@ export const Post = ({ post }) => {
   useEffect(() => {
     getUser();
     setImage();
-
-    return () => {
-      mountedRef.current = false;
-    };
   }, []);
+
+  useEffect(() => {
+    getLikeInfo();
+  }, [userInfo, isLiked]);
+
+  useEffect(() => {
+    getCommentInfo();
+  }, [changeCounter]);
+
+  useEffect(() => () => (mountedRef.current = false), []);
 
   return (
     <View style={styles.container}>
-      <View style={styles.userDetails}>
+      <TouchableOpacity style={styles.userDetails} onPress={goToProfile}>
         <Image source={profileImage} style={styles.avatar} />
         <View style={{ paddingHorizontal: 10, flex: 1 }}>
           <Text bold={true} heading={true}>
@@ -55,7 +108,7 @@ export const Post = ({ post }) => {
           </Text>
           <Text>{userInfo?.about}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
       {post.title && (
         <Text heading={true} style={{ marginBottom: 4, paddingHorizontal: 8 }}>
           {post.title}
@@ -68,18 +121,29 @@ export const Post = ({ post }) => {
           </View>
         </View>
         <View style={styles.postInfo}>
-          <View style={styles.likes}>
-            <Icon name="heart" size={20} color={Colors.trueBlack} />
-            <Text style={{ paddingLeft: 7 }}>{post.likes} Likes</Text>
-          </View>
-          <View style={styles.comments}>
-            <Icon name="comment-multiple" size={20} color={Colors.trueBlack} />
-            <Text style={{ paddingLeft: 7 }}>{post.comments} Comments</Text>
-          </View>
-          <View style={styles.report}>
-            <Icon name="alert-circle" size={20} color={Colors.trueBlack} />
-            <Text style={{ paddingLeft: 7 }}>Report Abuse</Text>
-          </View>
+          <TouchableOpacity onPress={setLike}>
+            <View style={styles.likes}>
+              <Icon name={isLiked ? 'heart' : 'heart-outline'} size={20} color={Colors.trueBlack} />
+              <Text style={{ paddingLeft: 7 }}>
+                {likeCount} {likeCount == 1 ? 'Like' : 'Likes'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={goToComments}>
+            <View style={styles.comments}>
+              <Icon name="comment-multiple" size={20} color={Colors.trueBlack} />
+              <Text style={{ paddingLeft: 7 }}>
+                {commentCount} {commentCount == 1 ? 'Comment' : 'Comments'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <View style={styles.report}>
+              <Icon name="alert-circle" size={20} color={Colors.trueBlack} />
+              <Text style={{ paddingLeft: 7 }}>Report Abuse</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

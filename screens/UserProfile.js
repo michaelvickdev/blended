@@ -34,6 +34,7 @@ export const UserProfile = ({ route, navigation }) => {
   const [reqSent, setReqSent] = useState(false);
   const [reqRcvd, setReqRcvd] = useState(false);
   const [friend, setFriend] = useState(false);
+  const [isFav, setIsFav] = useState(false);
   const [feedData, setFeedData] = useState([]);
 
   const removeFriend = async () => {
@@ -132,6 +133,8 @@ export const UserProfile = ({ route, navigation }) => {
     };
   }, [navigation]);
 
+  const setFavourite = async () => {};
+
   const getUserData = async () => {
     const docRef = doc(db, 'users', route.params.uid);
     const docSnap = await getDoc(docRef);
@@ -194,8 +197,10 @@ export const UserProfile = ({ route, navigation }) => {
             <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item}>
-            <Icon name="heart" size={12} color={Colors.black} />
-            <Text style={{ marginLeft: 5, fontSize: 12 }}>Add to Favorite</Text>
+            <Icon name={isFav ? 'heart' : 'heart-outline'} size={12} color={Colors.black} />
+            <Text style={{ marginLeft: 5, fontSize: 12 }}>
+              {isFav ? 'Remove from Favorites' : 'Add to Favorite'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
