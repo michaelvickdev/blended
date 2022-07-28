@@ -9,8 +9,8 @@ import { Colors } from '../config';
 import { Icon } from './Icon';
 import { getImage } from '../hooks/getImage';
 
-export const Post = ({ post, navigation, self }) => {
-  const { changeCounter } = useContext(AuthenticatedUserContext);
+export const Post = ({ post, navigation }) => {
+  const { changeCounter, user } = useContext(AuthenticatedUserContext);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes.length);
   const [commentCount, setCommentCount] = useState(post.comments.length);
@@ -20,7 +20,7 @@ export const Post = ({ post, navigation, self }) => {
   const mountedRef = useRef(true);
 
   const goToProfile = () => {
-    if (self) {
+    if (post.uid == user.uid) {
       navigation.navigate('ProfileStack');
     } else {
       navigation.navigate('UserProfile', { uid: post.uid });
@@ -72,8 +72,11 @@ export const Post = ({ post, navigation, self }) => {
     const updateObj = isLiked
       ? { likes: arrayRemove(userInfo.uid) }
       : { likes: arrayUnion(userInfo.uid) };
+    if (mountedRef.current) {
+      setLikeCount((prev) => (isLiked ? (prev != 0 ? prev - 1 : prev) : prev + 1));
+      setIsLiked((prev) => !prev);
+    }
     await updateDoc(feedRef, updateObj);
-    if (mountedRef.current) setIsLiked((prev) => !prev);
   };
 
   const setImage = async () => {
@@ -90,7 +93,7 @@ export const Post = ({ post, navigation, self }) => {
 
   useEffect(() => {
     getLikeInfo();
-  }, [userInfo, isLiked]);
+  }, [userInfo]);
 
   useEffect(() => {
     getCommentInfo();

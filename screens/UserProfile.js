@@ -92,6 +92,7 @@ export const UserProfile = ({ route, navigation }) => {
     navigation.navigate('MessagesStack', {
       screen: 'Chats',
       params: { uid: userData.uid },
+      initial: false,
     });
   };
 

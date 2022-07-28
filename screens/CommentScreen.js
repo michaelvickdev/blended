@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { StyleSheet, ScrollView, Dimensions, Touchable } from 'react-native';
+import { StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { View } from '../components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../config';
@@ -9,12 +9,12 @@ import { Button, TextInput } from 'react-native-paper';
 import { doc, arrayUnion, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
-import Constants from 'expo-constants';
 import { TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 export const Comments = ({ route, navigation }) => {
   const mountedRef = useRef(true);
+  const scrollViewRef = useRef();
   const { user, setChangeCounter } = useContext(AuthenticatedUserContext);
   const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -63,40 +63,46 @@ export const Comments = ({ route, navigation }) => {
     }
   };
   return (
-    <View style={{ flex: 1, marginTop: Constants.statusBarHeight }}>
-      <CommentHeader commentLength={comments.length} navigation={navigation} />
-      <ScrollView style={styles.container}>
-        {comments.map((comment, index) => (
-          <CommentBubble
-            key={index}
-            text={comment.text}
-            timestamp={comment.timestamp}
-            user={comment.sentBy == user.uid ? 'self' : comment.sentBy}
-          />
-        ))}
-      </ScrollView>
-
-      <View style={styles.commentBox}>
-        <TextInput
-          style={{ flex: 1, marginRight: 16 }}
-          mode="outlined"
-          placeholder="Type Your Comment here..."
-          outlineColor={Colors.lightGray}
-          activeOutlineColor={Colors.mediumGray}
-          multiline={true}
-          value={text}
-          onChangeText={(text) => setText(text)}
-        />
-        <Button
-          mode="contained"
-          color={isLoading ? Colors.lightGray : Colors.white}
-          onPress={addComment}
-          disabled={isLoading}
+    <View style={{ flex: 1 }}>
+      <View isSafe style={{ flex: 1 }}>
+        <CommentHeader commentLength={comments.length} navigation={navigation} />
+        <ScrollView
+          style={styles.container}
+          ref={scrollViewRef}
+          onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+          scrollIndicatorInsets={{ right: 0 }}
         >
-          {isLoading ? 'Sending...' : 'Send'}
-        </Button>
-      </View>
+          {comments.map((comment, index) => (
+            <CommentBubble
+              key={index}
+              text={comment.text}
+              timestamp={comment.timestamp}
+              user={comment.sentBy == user.uid ? 'self' : comment.sentBy}
+            />
+          ))}
+        </ScrollView>
 
+        <View style={styles.commentBox}>
+          <TextInput
+            style={{ flex: 1, marginRight: 16 }}
+            mode="outlined"
+            placeholder="Type Your Comment here..."
+            outlineColor={Colors.lightGray}
+            activeOutlineColor={Colors.mediumGray}
+            multiline={true}
+            value={text}
+            onChangeText={(text) => setText(text)}
+          />
+          <Button
+            mode="contained"
+            color={isLoading ? Colors.lightGray : Colors.white}
+            onPress={addComment}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Sending...' : 'Send'}
+          </Button>
+        </View>
+      </View>
       <LinearGradient
         style={styles.gradient}
         colors={[Colors.mainFirst, Colors.mainSecond]}

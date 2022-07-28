@@ -6,6 +6,7 @@ import { Text } from './Text';
 
 export const Button = ({
   children,
+  bold,
   onPress,
   activeOpacity = 0.3,
   borderless = false,
@@ -19,6 +20,7 @@ export const Button = ({
     return (
       <Pressable onPress={onPress} style={_style}>
         <Text
+          bold={true}
           style={
             borderlessTitleStyle
               ? [styles.borderlessButtonText, borderlessTitleStyle]
@@ -42,6 +44,5 @@ const styles = StyleSheet.create({
   borderlessButtonText: {
     fontSize: 16,
     color: Colors.primary,
-    fontWeight: '700',
   },
 });

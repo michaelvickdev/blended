@@ -45,7 +45,6 @@ const Messages = ({ navigation }) => {
   const [threads, setThreads] = useState([]);
 
   const getThreads = async () => {
-    console.log('Getting threads');
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
     const chats = userSnap.data().chats;
@@ -62,7 +61,7 @@ const Messages = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1, paddingHorizontal: 16 }}>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
         {threads.map((thread) => (
           <SingleThread key={thread} userId={thread} navigation={navigation} selfId={user.uid} />
         ))}
@@ -78,7 +77,7 @@ const Messages = ({ navigation }) => {
 const SingleThread = ({ navigation, userId, selfId }) => {
   const [data, setData] = useState(null);
   const [avatar, setAvatar] = useState(require('../assets/default-image.png'));
-  const [msgData, setMsgData] = useState([]);
+  const [msgData, setMsgData] = useState(null);
   const navigate = () => {
     navigation.navigate('Chats', { uid: userId });
   };
@@ -134,7 +133,7 @@ const SingleThread = ({ navigation, userId, selfId }) => {
     }
   }, [data]);
 
-  if (!data) {
+  if (!data || !msgData) {
     return (
       <View style={styles.threadContainer}>
         <Text>Loading...</Text>

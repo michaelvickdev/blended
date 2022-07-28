@@ -51,7 +51,7 @@ export const Posts = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
         {posts.map((post, index) => (
           <Post key={index} user={post.uid} post={post} navigation={navigation} />
         ))}

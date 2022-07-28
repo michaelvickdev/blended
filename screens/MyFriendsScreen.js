@@ -103,7 +103,7 @@ export const MyFriendsScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
         {!toggleTab &&
           friends.map((user, index) => (
             <SingleProfile key={index} uid={user} goToProfile={goToProfile} />

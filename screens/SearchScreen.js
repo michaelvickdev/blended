@@ -46,7 +46,7 @@ export const SearchScreen = ({ navigation }) => {
         outlineColor={Colors.lightGray}
         activeOutlineColor={Colors.mediumGray}
       />
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
         {users.map((user, index) => (
           <SingleProfile
             key={index}
@@ -101,7 +101,6 @@ const SingleProfile = ({ name, url, location, goToProfile, uid }) => {
 const styles = StyleSheet.create({
   container: {
     background: 'transparent',
-    padding: 16,
   },
   gradient: {
     position: 'absolute',

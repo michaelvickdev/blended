@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef, KeyboardAvoidingView } from 'react';
 import { BackHandler } from 'react-native';
 import { Icon, View } from '../components';
 import { Text } from '../components/Text';
@@ -8,7 +8,6 @@ import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Button, TextInput } from 'react-native-paper';
-import Constants from 'expo-constants';
 
 import {
   collection,
@@ -25,6 +24,8 @@ import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 
 export const ChatScreen = ({ navigation, route }) => {
+  const scrollViewRef = useRef();
+  const isMounted = useRef(true);
   const { user } = useContext(AuthenticatedUserContext);
   const [chat, setChat] = useState([]);
   const [text, setText] = useState('');
@@ -35,7 +36,7 @@ export const ChatScreen = ({ navigation, route }) => {
     try {
       const userRef = doc(db, 'users', route.params.uid);
       const usernameSnap = await getDoc(userRef);
-      setName(usernameSnap.data().username);
+      if (isMounted.current) setName(usernameSnap.data().username);
     } catch (err) {
       console.log('error here', err);
     }
@@ -51,7 +52,7 @@ export const ChatScreen = ({ navigation, route }) => {
       const q = query(msgRef, orderBy('timestamp'));
       const chatSnap = await getDocs(q);
       const chatData = chatSnap.docs.map((doc) => doc.data());
-      setChat(chatData);
+      if (isMounted.current) setChat(chatData);
     } catch (error) {
       console.log(error);
     }
@@ -60,7 +61,11 @@ export const ChatScreen = ({ navigation, route }) => {
   useEffect(() => {
     getChat();
     getName();
-  }, [route.params.uid]);
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const [isLoading, setIsLoading] = useState(false);
   const sendText = async () => {
@@ -90,33 +95,44 @@ export const ChatScreen = ({ navigation, route }) => {
         await updateDoc(userRef, {
           chats: arrayUnion(friendRef.id),
         });
-        setInChat(true);
+        if (isMounted.current) setInChat(true);
       }
       setChat(chat.concat(msg));
     } catch (error) {
       console.log(error);
     }
-    setIsLoading(false);
-    setText('');
+    if (isMounted.current) {
+      setIsLoading(false);
+      setText('');
+    }
   };
 
   function handleBackButtonClick() {
-    navigation.popToTop();
-    return true;
+    navigation.navigate('MessagesStack');
+  }
+
+  function goBack() {
+    navigation.popToTop(null);
   }
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
     return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+      backHandler.remove();
     };
   }, []);
 
   return (
     <View style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <ChatHeader name={name} navigation={navigation} />
-        <ScrollView style={{ background: 'transparent' }}>
+      <View isSafe style={styles.container}>
+        <ChatHeader name={name} goBack={goBack} />
+
+        <ScrollView
+          ref={scrollViewRef}
+          style={{ background: 'transparent' }}
+          onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
+          scrollIndicatorInsets={{ right: 0 }}
+        >
           {chat.map((msg, index) => {
             return (
               <ChatBubble
@@ -128,6 +144,7 @@ export const ChatScreen = ({ navigation, route }) => {
             );
           })}
         </ScrollView>
+
         <View style={styles.chatBox}>
           <TextInput
             style={{ flex: 1, marginRight: 16 }}
@@ -181,11 +198,11 @@ const ChatBubble = ({ self, text, timestamp }) => {
   );
 };
 
-export const ChatHeader = ({ name, navigation }) => {
+export const ChatHeader = ({ name, goBack }) => {
   return (
     <View style={styles.headerContainer}>
       <View style={styles.back}>
-        <TouchableOpacity onPress={() => navigation.popToTop()}>
+        <TouchableOpacity onPress={goBack} style={{ flex: 1 }}>
           <Icon name="keyboard-backspace" size={32} />
         </TouchableOpacity>
       </View>
@@ -219,7 +236,6 @@ export const ChatHeader = ({ name, navigation }) => {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    marginTop: Constants.statusBarHeight,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -241,6 +257,7 @@ const styles = StyleSheet.create({
   },
   back: {
     position: 'absolute',
+    zIndex: 9,
     left: 0,
   },
   divider: {
@@ -249,7 +266,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     background: 'transparent',
-    padding: 16,
+    paddingHorizontal: 16,
   },
   gradient: {
     position: 'absolute',

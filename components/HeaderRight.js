@@ -20,7 +20,7 @@ export const HeaderRight = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   header: {
-    marginRight: 15,
+    marginRight: 16,
   },
 });
 

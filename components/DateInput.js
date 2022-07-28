@@ -24,10 +24,11 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
     >
       {label && (
         <Text
+          bold={true}
+          heading={true}
           style={{
             flex: 1,
             color: Colors.black,
-            fontWeight: 'bold',
             fontSize: 14,
           }}
         >

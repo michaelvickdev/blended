@@ -8,7 +8,7 @@ import { Text } from '../components/Text';
 export const EventsScreen = () => {
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
         <SingleEvent title="Event 1" url="https://zoom.test.com" uploadDate="2020-01-01" />
       </ScrollView>
       <LinearGradient

@@ -48,6 +48,7 @@ export const TextInput = ({
               paddingVertical: 4,
               paddingHorizontal: 12,
               textAlignVertical: 'top',
+              fontFamily: 'futura',
             },
             textInputStyles,
           ]}

@@ -255,6 +255,7 @@ export const SignupScreen = ({ navigation }) => {
               {/* Signup button */}
               <Button disabled={isLoading} style={styles.button} onPress={handleSubmit}>
                 <Text
+                  bold={true}
                   style={[
                     styles.buttonText,
                     { color: isLoading ? Colors.lightGray : Colors.white },
@@ -273,7 +274,9 @@ export const SignupScreen = ({ navigation }) => {
         </Formik>
         {/* Button to navigate to Login screen */}
         <View style={styles.footerButtonsContainer}>
-          <Text style={styles.boldText}>Already a Member?</Text>
+          <Text bold={true} heading={true}>
+            Already a Member?
+          </Text>
           <Button
             style={styles.borderlessButtonContainer}
             borderless
@@ -321,7 +324,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '700',
     textTransform: 'uppercase',
   },
   borderlessButtonContainer: {
@@ -333,6 +335,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 20,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   boldText: {
     fontSize: 15,

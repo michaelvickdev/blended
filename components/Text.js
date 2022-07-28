@@ -15,7 +15,6 @@ export const Text = ({ bold, style, children, heading, ...props }) => {
       style={[
         {
           fontFamily: fontFamily,
-          fontWeight: bold ? 'bold' : 'normal',
         },
         style,
       ]}

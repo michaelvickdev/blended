@@ -22,10 +22,11 @@ export const SelectInput = ({ leftIconName, options, label, ...otherProps }) => 
     >
       {label && (
         <Text
+          bold={true}
+          heading={true}
           style={{
             flex: 1,
             color: Colors.black,
-            fontWeight: 'bold',
             fontSize: 14,
           }}
         >

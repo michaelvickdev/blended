@@ -1,9 +1,10 @@
 import React from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { Text, TouchableHighlight } from 'react-native';
+import { TouchableHighlight } from 'react-native';
 import { Icon } from './Icon';
 import { View } from './View';
 import { Colors } from '../config';
+import { Text } from './Text';
 
 export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, free }) => {
   const pickImage = async (handleChange) => {
@@ -49,11 +50,11 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, 
           underlayColor="white"
         >
           <Text
+            bold={true}
+            heading={true}
             style={{
               flex: 1,
               color: Colors.black,
-              fontWeight: 'bold',
-              fontSize: 16,
               paddingVertical: 4,
             }}
           >

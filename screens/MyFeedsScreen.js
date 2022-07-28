@@ -59,9 +59,9 @@ const MyFeeds = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
         {posts.map((post, index) => (
-          <Post key={index} navigation={navigation} post={post} self={true} />
+          <Post key={index} navigation={navigation} post={post} />
         ))}
       </ScrollView>
       <LinearGradient
