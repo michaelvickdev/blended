@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef, KeyboardAvoidingView } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { BackHandler } from 'react-native';
 import { Icon, View } from '../components';
 import { Text } from '../components/Text';
@@ -19,6 +19,7 @@ import {
   query,
   orderBy,
   getDoc,
+  arrayRemove,
 } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
@@ -31,6 +32,8 @@ export const ChatScreen = ({ navigation, route }) => {
   const [text, setText] = useState('');
   const [inChat, setInChat] = useState(false);
   const [name, setName] = useState('');
+  const [isBlocked, setIsBlocked] = useState(false);
+  const [hasBlocked, setHasBlocked] = useState(false);
 
   const getName = async () => {
     try {
@@ -58,10 +61,57 @@ export const ChatScreen = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-    getChat();
-    getName();
+  const checkBlocked = async () => {
+    const userRef = doc(db, 'users', route.params.uid);
+    const userDoc = await getDoc(userRef);
+    if (
+      isMounted.current &&
+      userDoc.data().blockList?.length &&
+      userDoc.data().blockList?.includes(user.uid)
+    ) {
+      setHasBlocked(true);
+      return;
+    }
 
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (
+      isMounted.current &&
+      docSnap.data().blockList?.length &&
+      docSnap.data().blockList?.includes(route.params.uid)
+    ) {
+      setIsBlocked(true);
+    }
+  };
+
+  const setBlock = async () => {
+    const docRef = doc(db, 'users', user.uid);
+    const updateObj = isBlocked
+      ? { blockList: arrayRemove(route.params.uid) }
+      : {
+          blockList: arrayUnion(route.params.uid),
+          favourites: arrayRemove(route.params.uid),
+          friends: arrayRemove(route.params.uid),
+          requests: arrayRemove(route.params.uid),
+        };
+    await updateDoc(docRef, updateObj);
+    if (!isBlocked) {
+      updateDoc(doc(db, 'users', route.params.uid), {
+        friends: arrayRemove(user.uid),
+        favourites: arrayRemove(user.uid),
+        requests: arrayRemove(user.uid),
+      });
+    }
+    setIsBlocked((prev) => !prev);
+  };
+
+  useEffect(() => {
+    (async () => {
+      await checkBlocked();
+      await getChat();
+      await getName();
+    })();
     return () => {
       isMounted.current = false;
     };
@@ -125,7 +175,13 @@ export const ChatScreen = ({ navigation, route }) => {
   return (
     <View style={{ flex: 1 }}>
       <View isSafe style={styles.container}>
-        <ChatHeader name={name} goBack={goBack} />
+        <ChatHeader
+          name={name}
+          goBack={goBack}
+          isBlocked={isBlocked}
+          setBlock={setBlock}
+          hasBlocked={hasBlocked}
+        />
 
         <ScrollView
           ref={scrollViewRef}
@@ -155,14 +211,15 @@ export const ChatScreen = ({ navigation, route }) => {
             multiline={true}
             value={text}
             onChangeText={(text) => setText(text)}
+            disabled={isLoading || hasBlocked || isBlocked}
           />
           <Button
             mode="contained"
-            color={isLoading ? Colors.lightGray : Colors.white}
+            color={isLoading || isBlocked ? Colors.lightGray : Colors.white}
             onPress={sendText}
-            disabled={isLoading}
+            disabled={isLoading || hasBlocked || isBlocked}
           >
-            {isLoading ? 'Sending...' : 'Send'}
+            {isBlocked || hasBlocked ? 'Blocked' : isLoading ? 'Sending...' : 'Send'}
           </Button>
         </View>
       </View>
@@ -198,7 +255,7 @@ const ChatBubble = ({ self, text, timestamp }) => {
   );
 };
 
-export const ChatHeader = ({ name, goBack }) => {
+export const ChatHeader = ({ name, goBack, isBlocked, setBlock, hasBlocked }) => {
   return (
     <View style={styles.headerContainer}>
       <View style={styles.back}>
@@ -214,21 +271,35 @@ export const ChatHeader = ({ name, goBack }) => {
         >
           {name}
         </Text>
-        <View style={styles.action}>
-          <TouchableOpacity style={styles.item}>
-            <MaterialIcons name="person" size={12} color={Colors.black} />
-            <Text heading={true} style={{ marginLeft: 5, fontSize: 12 }}>
-              Block User
-            </Text>
-          </TouchableOpacity>
-          <View style={styles.divider} />
-          <TouchableOpacity style={styles.item}>
-            <MaterialIcons name="person" size={12} color={Colors.black} />
-            <Text heading={true} style={{ marginLeft: 5, fontSize: 12 }}>
-              Report User
-            </Text>
-          </TouchableOpacity>
-        </View>
+        {!hasBlocked && (
+          <View style={styles.action}>
+            {isBlocked && (
+              <TouchableOpacity style={styles.item} onPress={setBlock}>
+                <MaterialIcons name="person" size={12} color={Colors.black} />
+                <Text heading={true} style={{ marginLeft: 5, fontSize: 12, lineHeight: 14 }}>
+                  Unblock User
+                </Text>
+              </TouchableOpacity>
+            )}
+            {!isBlocked && (
+              <>
+                <TouchableOpacity style={styles.item} onPress={setBlock}>
+                  <MaterialIcons name="person" size={12} color={Colors.black} />
+                  <Text heading={true} style={{ marginLeft: 5, fontSize: 12, lineHeight: 14 }}>
+                    Block User
+                  </Text>
+                </TouchableOpacity>
+                <View style={styles.divider} />
+                <TouchableOpacity style={styles.item}>
+                  <MaterialIcons name="person" size={12} color={Colors.black} />
+                  <Text heading={true} style={{ marginLeft: 5, fontSize: 12, lineHeight: 14 }}>
+                    Report User
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        )}
       </View>
     </View>
   );

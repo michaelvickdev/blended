@@ -12,19 +12,28 @@ import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
+import { getImage } from '../hooks/getImage';
+
+import { Modal } from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 export const MyProfileScreen = ({ navigation }) => {
   const mountedRef = useRef(true);
   const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [userData, setUserData] = useState(null);
   const [feedData, setFeedData] = useState([]);
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const getFeed = async () => {
     const docRef = collection(db, 'feeds');
     const q = query(docRef, where('uid', '==', user.uid), orderBy('uploadDate', 'desc'));
     const docSnap = await getDocs(q);
 
-    const feedRes = docSnap.docs.map((doc) => doc.data());
+    const feedRes = await Promise.all(
+      docSnap.docs.map(async (doc) => await getImage(doc.data().url))
+    );
 
     if (mountedRef.current) setFeedData(feedRes);
   };
@@ -40,6 +49,12 @@ export const MyProfileScreen = ({ navigation }) => {
     }
   };
 
+  const updateGalleyImages = async () => {
+    if (feedData.length) {
+      if (mountedRef.current) setGalleryImages(feedData.map((item) => ({ url: item.uri })));
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getUserData();
@@ -47,9 +62,41 @@ export const MyProfileScreen = ({ navigation }) => {
     });
     return () => {
       unsubscribe();
-      mountedRef.current = false;
     };
   }, [navigation, changeCounter]);
+
+  useEffect(() => {
+    updateGalleyImages();
+  }, [feedData]);
+
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    []
+  );
+
+  if (galleryVisible && galleryImages.length) {
+    return (
+      <Modal
+        visible={true}
+        transparent={true}
+        onRequestClose={() => {
+          if (mountedRef.current) setGalleryVisible(false);
+        }}
+      >
+        <ImageViewer
+          imageUrls={galleryImages}
+          enableSwipeDown={true}
+          onSwipeDown={() => {
+            if (mountedRef.current) setGalleryVisible(false);
+          }}
+          index={galleryIndex}
+          saveToLocalByLongPress={false}
+        />
+      </Modal>
+    );
+  }
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
@@ -57,7 +104,15 @@ export const MyProfileScreen = ({ navigation }) => {
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {feedData.map((post, index) => (
-            <PostCarouselItem item={post} index={index} key={index} />
+            <PostCarouselItem
+              item={post}
+              index={index}
+              key={index}
+              openGallery={(index) => {
+                setGalleryVisible(true);
+                setGalleryIndex(index);
+              }}
+            />
           ))}
         </ScrollView>
         {userData && 'socialLinks' in userData && (

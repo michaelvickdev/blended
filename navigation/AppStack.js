@@ -6,7 +6,6 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { HomeScreen } from '../screens';
 import { SideBarContent } from './SideBarContent';
 import { ProfileStack } from './ProfileStack';
-import { BlankScreen } from './BlankScreen';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../config';
 import { Header } from '../components/Header';
@@ -17,6 +16,7 @@ import { NearByScreen } from '../screens/NearByScreen';
 import { MessagesStack } from '../screens/MessagesScreen';
 import { EventsScreen } from '../screens/EventsScreen';
 import { FriendsStack } from './FriendsStack';
+import { SettingStack } from './SettingStack';
 
 const Drawer = createDrawerNavigator();
 
@@ -148,8 +148,8 @@ export const AppStack = () => {
         })}
       />
       <Drawer.Screen
-        name="Settings"
-        component={BlankScreen}
+        name="SettingStack"
+        component={SettingStack}
         options={(props) => ({
           drawerLabel: 'Settings',
           drawerIcon: () => <MaterialIcons name="settings" size={24} color={Colors.black} />,

@@ -6,6 +6,6 @@ export const getImage = async (url) => {
     const image = await getDownloadURL(ref(storage, 'images/' + url));
     return { uri: image.toString() };
   } catch {
-    return null;
+    return require('../assets/default-post.jpg');
   }
 };

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -12,6 +12,10 @@ import { SocialIcon } from 'react-native-elements';
 import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
 import { AuthenticatedUserContext } from '../providers';
+import { getImage } from '../hooks/getImage';
+
+import { Modal } from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 import {
   doc,
@@ -35,7 +39,11 @@ export const UserProfile = ({ route, navigation }) => {
   const [reqRcvd, setReqRcvd] = useState(false);
   const [friend, setFriend] = useState(false);
   const [isFav, setIsFav] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
   const [feedData, setFeedData] = useState([]);
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const removeFriend = async () => {
     const requester = doc(db, 'users', user.uid);
@@ -96,18 +104,51 @@ export const UserProfile = ({ route, navigation }) => {
     });
   };
 
+  const checkBlocked = async () => {
+    const userRef = doc(db, 'users', route.params.uid);
+    const userDoc = await getDoc(userRef);
+    if (
+      mountedRef.current &&
+      userDoc.data().blockList?.length &&
+      userDoc.data().blockList?.includes(user.uid)
+    ) {
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+      } else {
+        navigation.navigate('Home');
+      }
+    }
+
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (
+      mountedRef.current &&
+      docSnap.data().blockList?.length &&
+      docSnap.data().blockList?.includes(route.params.uid)
+    ) {
+      setIsBlocked(true);
+    }
+  };
+
   const getStatus = async () => {
     const docRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists() && mountedRef.current) {
-      if (docSnap.data().friends.length && docSnap.data().friends.includes(route.params.uid)) {
+      if (docSnap.data().friends?.length && docSnap.data().friends?.includes(route.params.uid)) {
         setFriend(true);
       } else if (
-        docSnap.data().requests.length &&
-        docSnap.data().requests.includes(route.params.uid)
+        docSnap.data().requests?.length &&
+        docSnap.data().requests?.includes(route.params.uid)
       ) {
         setReqRcvd(true);
+      }
+      if (
+        docSnap.data().favourites?.length &&
+        docSnap.data().favourites?.includes(route.params.uid)
+      ) {
+        setIsFav(true);
       }
     }
   };
@@ -117,30 +158,78 @@ export const UserProfile = ({ route, navigation }) => {
     const q = query(docRef, where('uid', '==', route.params.uid), orderBy('uploadDate', 'desc'));
     const docSnap = await getDocs(q);
 
-    const feedRes = docSnap.docs.map((doc) => doc.data());
-
+    const feedRes = await Promise.all(
+      docSnap.docs.map(async (doc) => await getImage(doc.data().url))
+    );
     if (mountedRef.current) setFeedData(feedRes);
   };
 
-  React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      getUserData();
-      getFeed();
-      getStatus();
+  const updateGalleyImages = async () => {
+    if (feedData.length) {
+      if (mountedRef.current) setGalleryImages(feedData.map((item) => ({ url: item.uri })));
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      await checkBlocked();
+      await getUserData();
+      await getFeed();
+      await getStatus();
     });
     return () => {
       unsubscribe();
-      mountedRef.current = false;
     };
   }, [navigation]);
 
-  const setFavourite = async () => {};
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    []
+  );
+
+  useEffect(() => {
+    updateGalleyImages();
+  }, [feedData]);
+
+  const setFavourite = async () => {
+    const docRef = doc(db, 'users', user.uid);
+    const updateObj = isFav ? arrayRemove(route.params.uid) : arrayUnion(route.params.uid);
+    await updateDoc(docRef, {
+      favourites: updateObj,
+    });
+    setIsFav((prev) => !prev);
+  };
+
+  const setBlocked = async () => {
+    const docRef = doc(db, 'users', user.uid);
+    const updateObj = isBlocked
+      ? { blockList: arrayRemove(route.params.uid) }
+      : {
+          blockList: arrayUnion(route.params.uid),
+          favourites: arrayRemove(route.params.uid),
+          friends: arrayRemove(route.params.uid),
+          requests: arrayRemove(route.params.uid),
+        };
+    await updateDoc(docRef, updateObj);
+    if (!isBlocked) {
+      updateDoc(doc(db, 'users', route.params.uid), {
+        friends: arrayRemove(user.uid),
+        favourites: arrayRemove(user.uid),
+        requests: arrayRemove(user.uid),
+      });
+    } else {
+      await getUserData();
+    }
+    setIsBlocked((prev) => !prev);
+  };
 
   const getUserData = async () => {
     const docRef = doc(db, 'users', route.params.uid);
     const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists() && mountedRef.current) {
+    if (docSnap.exists() && mountedRef.current && !isBlocked) {
       if (docSnap.data().requests.length && docSnap.data().requests.includes(user.uid)) {
         setReqSent(true);
       }
@@ -148,88 +237,137 @@ export const UserProfile = ({ route, navigation }) => {
     }
   };
 
+  if (galleryVisible && galleryImages.length) {
+    return (
+      <Modal
+        visible={true}
+        transparent={true}
+        onRequestClose={() => {
+          setGalleryVisible(false);
+        }}
+      >
+        <ImageViewer
+          imageUrls={galleryImages}
+          index={galleryIndex}
+          enableSwipeDown={true}
+          onSwipeDown={() => {
+            if (mountedRef.current) setGalleryVisible(false);
+          }}
+          saveToLocalByLongPress={false}
+        />
+      </Modal>
+    );
+  }
+
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      {userData && <ProfileHeader user={{ ...userData }} />}
-      <View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {feedData.map((post, index) => (
-            <PostCarouselItem item={post} index={index} key={index} />
-          ))}
-        </ScrollView>
+      {!isBlocked && userData && <ProfileHeader user={{ ...userData }} />}
+      {!isBlocked && (
+        <View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {feedData.map((post, index) => (
+              <PostCarouselItem
+                item={post}
+                index={index}
+                key={index}
+                openGallery={(index) => {
+                  setGalleryVisible(true);
+                  setGalleryIndex(index);
+                }}
+              />
+            ))}
+          </ScrollView>
 
-        {userData && 'socialLinks' in userData && (
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              marginTop: 16,
-            }}
-          >
-            {userData.socialLinks.facebook !== '' && (
-              <SocialIcon
-                type="facebook"
-                onPress={() => Linking.openURL(userData.socialLinks.facebook)}
-              />
-            )}
-            {userData.socialLinks.twitter !== '' && (
-              <SocialIcon
-                type="twitter"
-                onPress={() => Linking.openURL(userData.socialLinks.twitter)}
-              />
-            )}
-            {userData.socialLinks.instagram !== '' && (
-              <SocialIcon
-                type="instagram"
-                onPress={() => Linking.openURL(userData.socialLinks.instagram)}
-              />
-            )}
-            {userData.socialLinks.linkedin !== '' && (
-              <SocialIcon
-                type="linkedin"
-                onPress={() => Linking.openURL(userData.socialLinks.linkedin)}
-              />
-            )}
+          {userData && 'socialLinks' in userData && (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                marginTop: 16,
+              }}
+            >
+              {userData.socialLinks.facebook !== '' && (
+                <SocialIcon
+                  type="facebook"
+                  onPress={() => Linking.openURL(userData.socialLinks.facebook)}
+                />
+              )}
+              {userData.socialLinks.twitter !== '' && (
+                <SocialIcon
+                  type="twitter"
+                  onPress={() => Linking.openURL(userData.socialLinks.twitter)}
+                />
+              )}
+              {userData.socialLinks.instagram !== '' && (
+                <SocialIcon
+                  type="instagram"
+                  onPress={() => Linking.openURL(userData.socialLinks.instagram)}
+                />
+              )}
+              {userData.socialLinks.linkedin !== '' && (
+                <SocialIcon
+                  type="linkedin"
+                  onPress={() => Linking.openURL(userData.socialLinks.linkedin)}
+                />
+              )}
+            </View>
+          )}
+          <View style={styles.action}>
+            <TouchableOpacity style={styles.item} onPress={setBlocked}>
+              <MaterialIcons name="person" size={12} color={Colors.black} />
+              <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.item} onPress={setFavourite}>
+              <Icon name={isFav ? 'heart' : 'heart-outline'} size={12} color={Colors.black} />
+              <Text style={{ marginLeft: 5, fontSize: 12 }}>
+                {isFav ? 'Remove from Favorites' : 'Add to Favorite'}
+              </Text>
+            </TouchableOpacity>
           </View>
-        )}
-        <View style={styles.action}>
-          <TouchableOpacity style={styles.item}>
-            <MaterialIcons name="person" size={12} color={Colors.black} />
-            <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.item}>
-            <Icon name={isFav ? 'heart' : 'heart-outline'} size={12} color={Colors.black} />
-            <Text style={{ marginLeft: 5, fontSize: 12 }}>
-              {isFav ? 'Remove from Favorites' : 'Add to Favorite'}
-            </Text>
-          </TouchableOpacity>
         </View>
-      </View>
+      )}
       <View style={styles.footer}>
-        <Button
-          mode="contained"
-          onPress={friend ? removeFriend : reqRcvd ? approveReq : reqSent ? cancelReq : addFriend}
-          style={styles.button}
-          color={Colors.white}
-          labelStyle={{ color: Colors.black }}
-        >
-          {friend
-            ? 'Remove Friend'
-            : reqRcvd
-            ? 'Approve'
-            : reqSent
-            ? 'Cancel Request'
-            : 'Add Friend'}
-        </Button>
-        <Button
-          mode="contained"
-          onPress={userData && goToChats}
-          style={styles.button}
-          color={Colors.white}
-          textColor={Colors.black}
-        >
-          Send Message
-        </Button>
+        {isBlocked && (
+          <Button
+            mode="contained"
+            onPress={setBlocked}
+            style={styles.button}
+            color={Colors.white}
+            labelStyle={{ color: Colors.black }}
+          >
+            Unblock User
+          </Button>
+        )}
+        {isBlocked || (
+          <>
+            <Button
+              mode="contained"
+              onPress={
+                friend ? removeFriend : reqRcvd ? approveReq : reqSent ? cancelReq : addFriend
+              }
+              style={styles.button}
+              color={Colors.white}
+              labelStyle={{ color: Colors.black }}
+            >
+              {friend
+                ? 'Remove Friend'
+                : reqRcvd
+                ? 'Approve'
+                : reqSent
+                ? 'Cancel Request'
+                : 'Add Friend'}
+            </Button>
+            <Button
+              mode="contained"
+              onPress={userData && goToChats}
+              style={styles.button}
+              color={Colors.white}
+              textColor={Colors.black}
+            >
+              Send Message
+            </Button>
+          </>
+        )}
       </View>
     </LinearGradient>
   );

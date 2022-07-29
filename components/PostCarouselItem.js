@@ -1,30 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Image } from 'react-native';
-import { View } from './View';
+import React from 'react';
+import { StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Colors } from '../config';
-import { getImage } from '../hooks/getImage';
 export const ITEM_WIDTH = 95;
 
-export const PostCarouselItem = ({ item, index }) => {
-  const mountedRef = useRef(true);
-  const [imageUrl, setImageUrl] = useState(require('../assets/default-post.jpg'));
-  const setImage = async () => {
-    const image = await getImage(item.url);
-    if (image && mountedRef.current) {
-      setImageUrl(image);
-    }
-  };
-
-  useEffect(() => {
-    setImage();
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+export const PostCarouselItem = ({ item, index, openGallery }) => {
   return (
-    <View style={styles.imgContainer} key={index}>
-      <Image source={imageUrl} style={styles.postImg} />
-    </View>
+    <TouchableOpacity style={styles.imgContainer} key={index} onPress={() => openGallery(index)}>
+      <Image source={item} style={styles.postImg} />
+    </TouchableOpacity>
   );
 };
 
