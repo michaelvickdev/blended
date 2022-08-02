@@ -2,17 +2,30 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { Post } from './Post';
 import { View } from './View';
+import { Text } from './Text';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions } from 'react-native';
 import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
-import { doc, getDoc, collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  where,
+  updateDoc,
+  arrayUnion,
+} from 'firebase/firestore';
 import { db } from '../config/';
 
 export const Posts = ({ navigation }) => {
   const { user, feedReload } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
+  const [reportCount, setReportCount] = useState(0);
+  const [showReport, setShowReport] = useState(false);
   const mountedRef = useRef(true);
 
   const getPosts = async () => {
@@ -38,6 +51,19 @@ export const Posts = ({ navigation }) => {
   };
 
   useEffect(() => {
+    if (reportCount > 0) {
+      setShowReport(true);
+      const timeout = setTimeout(() => {
+        setShowReport(false);
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [reportCount]);
+
+  useEffect(() => {
+    setReportCount(0);
+    setShowReport(false);
     setPosts([]);
     getPosts();
   }, [feedReload]);
@@ -49,13 +75,45 @@ export const Posts = ({ navigation }) => {
     []
   );
 
+  const reportPost = async (feedId) => {
+    const docRef = doc(db, 'feeds', feedId);
+    await updateDoc(docRef, {
+      reported: arrayUnion(user.uid),
+    });
+    if (mountedRef.current) {
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.feedId === feedId ? Object.assign([], { ...post, hidden: true }) : post
+        )
+      );
+      setReportCount((prev) => prev + 1);
+    }
+    console.log('reported');
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
-        {posts.map((post, index) => (
-          <Post key={index} user={post.uid} post={post} navigation={navigation} />
-        ))}
+        {posts.map((post) =>
+          post.hidden || post.reported.includes(user.uid) ? null : (
+            <Post
+              key={post.feedId}
+              user={post.uid}
+              post={post}
+              navigation={navigation}
+              reportPost={reportPost}
+            />
+          )
+        )}
       </ScrollView>
+      {showReport && (
+        <View style={styles.report}>
+          <Text style={styles.reportText}>
+            Your report has been submitted and we have removed the post from you Feeds. We will
+            check the post manually.
+          </Text>
+        </View>
+      )}
       <LinearGradient
         style={styles.gradient}
         colors={[Colors.mainFirst, Colors.mainSecond]}
@@ -75,5 +133,13 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height,
     zIndex: -1,
+  },
+  report: {
+    backgroundColor: Colors.black,
+    padding: 16,
+  },
+  reportText: {
+    color: Colors.white,
+    fontSize: 16,
   },
 });

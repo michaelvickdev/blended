@@ -85,6 +85,7 @@ const AddFeed = () => {
         title: values.title,
         likes: [],
         comments: [],
+        reported: [],
         uploadDate: new Date(),
       });
 

@@ -14,7 +14,7 @@ export const HomeScreen = () => {
   const Stack = createStackNavigator();
 
   const getCurrentLoc = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
+    let { status } = await Location.getForegroundPermissionsAsync();
     if (status !== 'granted') {
       return;
     }

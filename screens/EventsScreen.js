@@ -1,15 +1,44 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, ScrollView, Dimensions, Linking } from 'react-native';
 import { View } from '../components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../config';
 import { Text } from '../components/Text';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../config';
 
 export const EventsScreen = () => {
+  const mountedRef = useRef(true);
+
+  const [events, setEvents] = React.useState([]);
+
+  const getEvents = async () => {
+    const eventsQuery = collection(db, 'events');
+    const eventsSnapshot = await getDocs(eventsQuery);
+    const eventsData = eventsSnapshot.docs.map((doc) => doc.data());
+    if (mountedRef.current) {
+      setEvents(eventsData);
+    }
+  };
+
+  useEffect(() => {
+    getEvents();
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
-        <SingleEvent title="Event 1" url="https://zoom.test.com" uploadDate="2020-01-01" />
+        {events.length > 0 &&
+          events.map((event, index) => (
+            <SingleEvent
+              key={index}
+              title={event.title}
+              url={event.url}
+              uploadDate={event.uploaded}
+            />
+          ))}
       </ScrollView>
       <LinearGradient
         style={styles.gradient}
@@ -27,7 +56,9 @@ const SingleEvent = ({ title, url, uploadDate }) => (
     <Text style={{ color: 'blue', fontSize: 16 }} onPress={() => Linking.openURL(url)}>
       {url}
     </Text>
-    <Text style={{ textAlign: 'right', color: Colors.mediumGray }}>Uploaded {uploadDate}</Text>
+    <Text style={{ textAlign: 'right', color: Colors.mediumGray }}>
+      Uploaded {new Date(uploadDate.toDate()).toLocaleDateString()}
+    </Text>
   </View>
 );
 

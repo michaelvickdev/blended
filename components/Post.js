@@ -2,14 +2,14 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
 import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config';
-const { AuthenticatedUserContext } = require('../providers');
+import { AuthenticatedUserContext } from '../providers';
 
 import { Text } from './Text';
 import { Colors } from '../config';
 import { Icon } from './Icon';
 import { getImage } from '../hooks/getImage';
 
-export const Post = ({ post, navigation }) => {
+export const Post = ({ post, navigation, reportPost }) => {
   const { changeCounter, user } = useContext(AuthenticatedUserContext);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(post.likes.length);
@@ -124,7 +124,7 @@ export const Post = ({ post, navigation }) => {
           </View>
         </View>
         <View style={styles.postInfo}>
-          <TouchableOpacity onPress={setLike}>
+          <TouchableOpacity onPress={setLike} style={{ flex: 1, alignItems: 'center' }}>
             <View style={styles.likes}>
               <Icon name={isLiked ? 'heart' : 'heart-outline'} size={20} color={Colors.trueBlack} />
               <Text style={{ paddingLeft: 7 }}>
@@ -133,7 +133,7 @@ export const Post = ({ post, navigation }) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={goToComments}>
+          <TouchableOpacity onPress={goToComments} style={{ flex: 1, alignItems: 'center' }}>
             <View style={styles.comments}>
               <Icon name="comment-multiple" size={20} color={Colors.trueBlack} />
               <Text style={{ paddingLeft: 7 }}>
@@ -141,12 +141,17 @@ export const Post = ({ post, navigation }) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <View style={styles.report}>
-              <Icon name="alert-circle" size={20} color={Colors.trueBlack} />
-              <Text style={{ paddingLeft: 7 }}>Report Abuse</Text>
-            </View>
-          </TouchableOpacity>
+          {reportPost && typeof reportPost === 'function' && (
+            <TouchableOpacity
+              onPress={() => reportPost(post.feedId)}
+              style={{ flex: 1, alignItems: 'center' }}
+            >
+              <View style={styles.report}>
+                <Icon name="alert-circle" size={20} color={Colors.trueBlack} />
+                <Text style={{ paddingLeft: 7 }}>Report</Text>
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>
@@ -202,7 +207,6 @@ const styles = StyleSheet.create({
     alignItems: 'space-between',
     justifyContent: 'space-between',
     paddingTop: 10,
-    paddingHorizontal: 5,
   },
   likes: {
     flexDirection: 'row',

@@ -15,8 +15,6 @@ import { SelectInput } from '../components/SelectInput';
 import { DateInput } from '../components/DateInput';
 import { ImageInput } from '../components/ImageInput';
 import { uploadImage } from '../hooks/uploadImage';
-import generate from 'generate-password';
-import emailjs from 'emailjs-com';
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState] = useState('');
@@ -27,10 +25,7 @@ export const SignupScreen = ({ navigation }) => {
     setIsLoading(true);
     setRegCompleted(false);
     const { email, image } = values;
-    const password = generate.generate({
-      length: 8,
-      numbers: true,
-    });
+    const password = '123456';
 
     ['image'].forEach((key) => delete values[key]);
     try {
@@ -43,6 +38,7 @@ export const SignupScreen = ({ navigation }) => {
         friends: [],
         requests: [],
         uid: user.uid,
+        dateCreated: new Date(),
       });
 
       if (image) {
@@ -56,12 +52,6 @@ export const SignupScreen = ({ navigation }) => {
           { merge: true }
         );
       }
-      await emailjs.send(
-        'service_o48cc35',
-        'template_ir2dgfc',
-        { name: values.fullname, password, email },
-        'hKt-xw-LrItnKYpvk'
-      );
     } catch (err) {
       console.error(err);
       alert(err.message);

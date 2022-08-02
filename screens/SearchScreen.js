@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { TextInput } from 'react-native-paper';
 import { Text } from '../components/Text';
 
-import { collection, query, getDocs, where } from 'firebase/firestore';
+import { collection, query, getDocs, limit, orderBy, where } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 import { getImage } from '../hooks/getImage';
@@ -14,6 +14,7 @@ export const SearchScreen = ({ navigation }) => {
   const mountedRef = useRef(true);
   const { user } = useContext(AuthenticatedUserContext);
   const [users, setUsers] = useState([]);
+  const [searchData, setSearchData] = useState([]);
   const [text, setText] = React.useState('');
 
   const goToProfile = (uid) => {
@@ -21,13 +22,34 @@ export const SearchScreen = ({ navigation }) => {
   };
 
   const setUserData = async () => {
-    const usersQuery = query(collection(db, 'users'), where('uid', '!=', user.uid));
+    const usersQuery = query(collection(db, 'users'), orderBy('dateCreated', 'desc'), limit(25));
     const usersSnapshot = await getDocs(usersQuery);
     const usersData = usersSnapshot.docs.map((doc) => doc.data());
     if (mountedRef.current) {
       setUsers(usersData);
     }
   };
+
+  const searchUsers = async (text) => {
+    const usersQuery = query(
+      collection(db, 'users'),
+      where('username', '>=', text.toLowerCase()),
+      where('username', '<=', text.toLowerCase() + '\uf8ff'),
+      limit(25)
+    );
+    const usersSnapshot = await getDocs(usersQuery);
+    const usersData = usersSnapshot.docs.map((doc) => doc.data());
+    console.log(mountedRef.current);
+    if (mountedRef.current) {
+      setSearchData(usersData);
+    }
+  };
+
+  useEffect(() => {
+    if (text.length > 0) {
+      searchUsers(text);
+    }
+  }, [text]);
 
   useEffect(() => {
     setUserData();
@@ -47,17 +69,39 @@ export const SearchScreen = ({ navigation }) => {
         activeOutlineColor={Colors.mediumGray}
       />
       <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
-        {users.map((user, index) => (
-          <SingleProfile
-            key={index}
-            name={user.username}
-            url={user.avatar}
-            location={user.city}
-            navigation={navigation}
-            uid={user.uid}
-            goToProfile={goToProfile}
-          />
-        ))}
+        {text.length > 0 &&
+          (searchData.length ? (
+            searchData.map((singleUser, index) =>
+              singleUser.uid !== user.uid ? (
+                <SingleProfile
+                  key={index}
+                  name={singleUser.username}
+                  url={singleUser.avatar}
+                  location={singleUser.city}
+                  navigation={navigation}
+                  uid={singleUser.uid}
+                  goToProfile={goToProfile}
+                />
+              ) : null
+            )
+          ) : (
+            <Text style={{ textAlign: 'center', marginTop: 20 }}>No users found</Text>
+          ))}
+
+        {!text.length &&
+          users.map((singleUser, index) =>
+            singleUser.uid !== user.uid ? (
+              <SingleProfile
+                key={index}
+                name={singleUser.username}
+                url={singleUser.avatar}
+                location={singleUser.city}
+                navigation={navigation}
+                uid={singleUser.uid}
+                goToProfile={goToProfile}
+              />
+            ) : null
+          )}
       </ScrollView>
       <LinearGradient
         style={styles.gradient}
