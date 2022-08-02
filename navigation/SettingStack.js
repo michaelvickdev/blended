@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SettingScreen } from '../screens/SettingScreen';
-import { BlankScreen } from './BlankScreen';
+import { FavouriteScreen } from '../screens/FavouriteScreen';
+import { UserProfile } from '../screens/UserProfile';
+import { ChangePassword } from '../screens/ChangePassword';
+import { SupportScreen } from '../screens/SupportScreen';
+import { NotificationScreen } from '../screens/NotificationScreen';
+
 const Stack = createStackNavigator();
 
 export const SettingStack = () => {
@@ -13,7 +18,11 @@ export const SettingStack = () => {
       }}
     >
       <Stack.Screen name="Settings" component={SettingScreen} />
-      <Stack.Screen name="Next" component={BlankScreen} />
+      <Stack.Screen name="Favourite" component={FavouriteScreen} />
+      <Stack.Screen name="UserProfile" component={UserProfile} />
+      <Stack.Screen name="ChangePassword" component={ChangePassword} />
+      <Stack.Screen name="SupportScreen" component={SupportScreen} />
+      <Stack.Screen name="Notification" component={NotificationScreen} />
     </Stack.Navigator>
   );
 };

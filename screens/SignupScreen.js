@@ -10,33 +10,29 @@ import { doc, setDoc } from 'firebase/firestore';
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
 import { Text } from '../components/Text';
 import { Images, Colors } from '../config';
-import { useTogglePasswordVisibility } from '../hooks';
 import { signupValidationSchema } from '../utils';
 import { SelectInput } from '../components/SelectInput';
 import { DateInput } from '../components/DateInput';
 import { ImageInput } from '../components/ImageInput';
 import { uploadImage } from '../hooks/uploadImage';
+import generate from 'generate-password';
+import emailjs from 'emailjs-com';
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { setRegCompleted } = useContext(AuthenticatedUserContext);
 
-  const {
-    passwordVisibility,
-    handlePasswordVisibility,
-    rightIcon,
-    handleConfirmPasswordVisibility,
-    confirmPasswordIcon,
-    confirmPasswordVisibility,
-  } = useTogglePasswordVisibility();
-
   const handleSignup = async (values) => {
     setIsLoading(true);
     setRegCompleted(false);
-    const { email, password, image } = values;
+    const { email, image } = values;
+    const password = generate.generate({
+      length: 8,
+      numbers: true,
+    });
 
-    ['password', 'confirmPassword', 'image'].forEach((key) => delete values[key]);
+    ['image'].forEach((key) => delete values[key]);
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password);
       const user = res.user;
@@ -60,6 +56,12 @@ export const SignupScreen = ({ navigation }) => {
           { merge: true }
         );
       }
+      await emailjs.send(
+        'service_o48cc35',
+        'template_ir2dgfc',
+        { name: values.fullname, password, email },
+        'hKt-xw-LrItnKYpvk'
+      );
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -146,36 +148,6 @@ export const SignupScreen = ({ navigation }) => {
                 onBlur={handleBlur('phone')}
               />
               <FormErrorMessage error={errors.phone} visible={touched.phone} />
-              <TextInput
-                name="password"
-                leftIconName="key-variant"
-                placeholder="*Password"
-                autoCapitalize="none"
-                autoCorrect={false}
-                secureTextEntry={passwordVisibility}
-                textContentType="newPassword"
-                rightIcon={rightIcon}
-                handlePasswordVisibility={handlePasswordVisibility}
-                value={values.password}
-                onChangeText={handleChange('password')}
-                onBlur={handleBlur('password')}
-              />
-              <FormErrorMessage error={errors.password} visible={touched.password} />
-              <TextInput
-                name="confirmPassword"
-                leftIconName="key-variant"
-                placeholder="*Confirm Password"
-                autoCapitalize="none"
-                autoCorrect={false}
-                secureTextEntry={confirmPasswordVisibility}
-                textContentType="password"
-                rightIcon={confirmPasswordIcon}
-                handlePasswordVisibility={handleConfirmPasswordVisibility}
-                value={values.confirmPassword}
-                onChangeText={handleChange('confirmPassword')}
-                onBlur={handleBlur('confirmPassword')}
-              />
-              <FormErrorMessage error={errors.confirmPassword} visible={touched.confirmPassword} />
               <TextInput
                 name="city"
                 leftIconName="flag"

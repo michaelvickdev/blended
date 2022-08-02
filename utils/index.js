@@ -14,11 +14,15 @@ export const signupValidationSchema = Yup.object().shape({
   about: Yup.string().required().label('About You'),
   gender: Yup.string().required(),
   interested: Yup.string().required(),
-  password: Yup.string().required().min(6).label('Password'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password')], 'Confirm Password must match password.')
-    .required('Confirm Password is required.'),
   dateOfBirth: Yup.string().required().label('Date of Birth'),
+});
+
+export const changePasswordValidationSchema = Yup.object().shape({
+  oldPassword: Yup.string().required().min(6).label('Old Password'),
+  password: Yup.string().required().min(6).label('New Password'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password')], 'Confirm Password must match new password.')
+    .required('Confirm Password is required.'),
 });
 
 export const passwordResetSchema = Yup.object().shape({
@@ -39,6 +43,10 @@ export const personalInfoValidationSchema = Yup.object().shape({
 
 export const uploadFeedsSchema = Yup.object().shape({
   image: Yup.string(),
+});
+
+export const supportSchema = Yup.object().shape({
+  comment: Yup.string().required(),
 });
 
 export const socialLinksValidationSchema = Yup.object().shape({

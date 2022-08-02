@@ -35,6 +35,9 @@ const getIcon = (route) => {
       return 'reload';
     case 'EditProfile':
     case 'Comments':
+    case 'Favourite':
+    case 'SupportScreen':
+    case 'ChangePassword':
       return 'close';
     case 'Profile':
     case 'ProfileStack':
@@ -71,6 +74,10 @@ const getPressFunction = (route, navigation, setFeedReload) => {
     case 'Home': {
       return () => setFeedReload((prev) => prev + 1);
     }
+    case 'Favourite':
+    case 'SupportScreen':
+    case 'ChangePassword':
+      return () => navigation.navigate('Settings');
     default:
       return () => {};
   }

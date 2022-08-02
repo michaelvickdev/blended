@@ -7,12 +7,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 export const SettingScreen = ({ navigation }) => {
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      <SingleItem title="Favourites" path="Next" icon="heart" navigation={navigation} />
-      <SingleItem title="Notifications" path="Next" icon="update" navigation={navigation} />
-      <SingleItem title="Change Password" path="Next" icon="shield-edit" navigation={navigation} />
+      <SingleItem title="Favourites" path="Favourite" icon="heart" navigation={navigation} />
+      <SingleItem title="Notifications" path="Notification" icon="update" navigation={navigation} />
+      <SingleItem
+        title="Change Password"
+        path="ChangePassword"
+        icon="shield-edit"
+        navigation={navigation}
+      />
       <SingleItem
         title="Help/Comment/Report"
-        path="Next"
+        path="SupportScreen"
         icon="help-circle"
         navigation={navigation}
       />

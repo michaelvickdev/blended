@@ -53,6 +53,10 @@ const getTitle = (route) => {
     case 'MessagesStack':
     case 'Messages':
       return 'Messages';
+    case 'SupportScreen':
+      return 'Help and Support';
+    case 'ChangePassword':
+      return 'Change Password';
 
     default:
       return current;

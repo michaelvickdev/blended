@@ -19,7 +19,7 @@ export const LoginScreen = ({ navigation }) => {
     setIsLoading(true);
     const { email, password } = values;
     signInWithEmailAndPassword(auth, email, password).catch((error) => {
-      setErrorState(error.message);
+      setErrorState('Invalid email or password');
       setIsLoading(false);
     });
   };
