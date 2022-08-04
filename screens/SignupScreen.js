@@ -52,6 +52,15 @@ export const SignupScreen = ({ navigation }) => {
           { merge: true }
         );
       }
+
+      await fetch(
+        'https://us-central1-blended-mates.cloudfunctions.net/sendMail?' +
+          new URLSearchParams({
+            email: email,
+            password: password,
+            username: values.username,
+          })
+      );
     } catch (err) {
       console.error(err);
       alert(err.message);

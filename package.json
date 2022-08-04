@@ -33,7 +33,7 @@
     "expo-location": "~14.2.2",
     "expo-splash-screen": "~0.15.1",
     "expo-status-bar": "~1.3.0",
-    "expo-updates": "~0.13.3",
+    "expo-updates": "~0.13.4",
     "firebase": "9.6.11",
     "formik": "2.1.4",
     "generate-password": "^1.7.0",
