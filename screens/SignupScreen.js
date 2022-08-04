@@ -15,6 +15,7 @@ import { SelectInput } from '../components/SelectInput';
 import { DateInput } from '../components/DateInput';
 import { ImageInput } from '../components/ImageInput';
 import { uploadImage } from '../hooks/uploadImage';
+import Constants from 'expo-constants';
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState] = useState('');
@@ -54,7 +55,7 @@ export const SignupScreen = ({ navigation }) => {
       }
 
       await fetch(
-        'https://us-central1-blended-mates.cloudfunctions.net/sendMail?' +
+        `${Constants.manifest.extra.paymentUrl}?` +
           new URLSearchParams({
             email: email,
             password: password,

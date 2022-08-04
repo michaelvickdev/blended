@@ -2,17 +2,25 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 const cors = require('cors')({ origin: true });
+const stripe = require('stripe')(
+  'sk_test_51LT4F4BgPqjmJlMVouCyiVJ2D8DryA6qLZmjhNhdHePhiRkWrDrZ2OIgRMztT23H36LuaMCWvob9jWISzqA3IA0300sMqjNBXG'
+);
 admin.initializeApp();
 
 /**
  * Here we're using Gmail to send
  */
 let transporter = nodemailer.createTransport({
-  host: 'smtp.mailgun.org',
-  port: 587,
+  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
-    user: 'postmaster@sandboxc34a6799d79c42a89c36ff7ae56f6287.mailgun.org',
-    pass: 'b64e9c766cbd68df3fa80c24c5f35465-1b3a03f6-7f228f07',
+    user: 'michaelvick.dev@gmail.com',
+    pass: 'lrbbujyrtvlxgkvb',
+  },
+  tls: {
+    rejectUnauthorized: false,
   },
 });
 
@@ -54,4 +62,32 @@ exports.sendMail = functions.https.onRequest((req, res) => {
       return res.send('Sent');
     });
   });
+});
+
+exports.payWithStripe = functions.https.onRequest(async (req, res) => {
+  try {
+    const customer = await stripe.customers.create({
+      email: req.body.email,
+      name: req.body.name,
+    });
+
+    const subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [
+        {
+          price: req.body.priceId,
+        },
+      ],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    res.send({
+      subscriptionId: subscription.id,
+      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+    });
+  } catch (error) {
+    res.send(error);
+  }
 });

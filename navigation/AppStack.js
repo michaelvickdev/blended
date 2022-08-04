@@ -17,6 +17,7 @@ import { MessagesStack } from '../screens/MessagesScreen';
 import { EventsScreen } from '../screens/EventsScreen';
 import { FriendsStack } from './FriendsStack';
 import { SettingStack } from './SettingStack';
+import { PaymentScreen } from '../screens/PaymentScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -157,6 +158,8 @@ export const AppStack = () => {
           headerRight: () => <HeaderRight {...props} />,
         })}
       />
+
+      <Drawer.Screen name="Payments" component={PaymentScreen} options={{ headerShown: false }} />
     </Drawer.Navigator>
   );
 };
