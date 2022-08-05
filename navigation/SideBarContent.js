@@ -15,11 +15,17 @@ import Constants from 'expo-constants';
 import { AuthenticatedUserContext } from '../providers';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function SideBarContent(props) {
   const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
   const [userDetails, setUserDetails] = useState(null);
+
+  const signOutHandler = async () => {
+    await AsyncStorage.clear();
+    await signOut(auth);
+  };
 
   useEffect(() => {
     (async () => {
@@ -89,7 +95,7 @@ export function SideBarContent(props) {
           label={() => (
             <Text style={{ color: Colors.darkRed, fontSize: 16, marginLeft: -15 }}>Sign Out</Text>
           )}
-          onPress={() => signOut(auth)}
+          onPress={signOutHandler}
           options={{
             drawerActiveTintColor: Colors.darkRed,
             drawerInactiveTintColor: Colors.darkRed,

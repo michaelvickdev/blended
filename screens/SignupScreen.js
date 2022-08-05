@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { AuthenticatedUserContext } from '../providers';
 import { doc, setDoc } from 'firebase/firestore';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
 import { Text } from '../components/Text';
@@ -21,6 +22,7 @@ export const SignupScreen = ({ navigation }) => {
   const [errorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { setRegCompleted } = useContext(AuthenticatedUserContext);
+  const [showAlert, setShowAlert] = useState(false);
 
   const handleSignup = async (values) => {
     setIsLoading(true);
@@ -55,18 +57,20 @@ export const SignupScreen = ({ navigation }) => {
       }
 
       await fetch(
-        `${Constants.manifest.extra.paymentUrl}?` +
+        `${Constants.manifest.extra.mailUrl}?` +
           new URLSearchParams({
             email: email,
             password: password,
             username: values.username,
           })
       );
+      await auth.signOut();
+      setShowAlert(true);
     } catch (err) {
       console.error(err);
       alert(err.message);
-      setIsLoading(false);
     }
+    setIsLoading(false);
     setRegCompleted(true);
   };
 
@@ -92,8 +96,6 @@ export const SignupScreen = ({ navigation }) => {
             about: '',
             gender: '',
             interested: '',
-            password: '',
-            confirmPassword: '',
             dateOfBirth: '',
             image: '',
           }}
@@ -258,6 +260,22 @@ export const SignupScreen = ({ navigation }) => {
           />
         </View>
       </KeyboardAwareScrollView>
+
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title="User Created"
+        message="We have mailed your credentials to the provided email. Please use them to sign in."
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="Ok"
+        confirmButtonColor={Colors.secondary}
+        onConfirmPressed={() => {
+          navigation.navigate('Login');
+        }}
+      />
     </View>
   );
 };

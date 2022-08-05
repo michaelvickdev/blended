@@ -31,6 +31,7 @@ export default {
       appId: process.env.APP_ID,
       paymentUrl: process.env.PAYMENT_URL,
       mailUrl: process.env.MAIL_URL,
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     },
     android: {
       package: 'com.blended',

@@ -1,21 +1,40 @@
 import * as React from 'react';
 import { Icon, Text, View } from '../components';
-import { StyleSheet, Alert } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
-import { useConfirmPayment, CardField } from '@stripe/stripe-react-native';
+import { useConfirmPayment, CardField, initStripe } from '@stripe/stripe-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import RNPickerSelect from 'react-native-picker-select';
 import { Colors } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 import { KeyboardAvoidingView } from 'react-native';
 import Constants from 'expo-constants';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../config';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
-export const PaymentScreen = () => {
+export const PaymentScreen = ({ setMember }) => {
   const { user } = React.useContext(AuthenticatedUserContext);
   const [plan, setPlan] = React.useState('0');
   const [name, setName] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const { confirmPayment, loading } = useConfirmPayment();
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  const [showError, setShowError] = React.useState(false);
+  const items = {
+    price_1LT94EBgPqjmJlMVYhjs57x3: '12 Months $259.99',
+    price_1LT933BgPqjmJlMVzWcTKE1W: '6 Months $139.99',
+    price_1LT91PBgPqjmJlMVhayYqoev: '1 Month $24.99',
+  };
+
+  React.useEffect(() => {
+    async function initialize() {
+      await initStripe({
+        publishableKey: Constants.manifest.extra.stripePublishableKey,
+      });
+    }
+    initialize().catch(console.error);
+  }, []);
 
   const fetchPaymentIntentClientSecret = async (info) => {
     const response = await fetch(Constants.manifest.extra.paymentUrl, {
@@ -43,22 +62,27 @@ export const PaymentScreen = () => {
         name: name,
       });
 
-      const { error, paymentIntent } = await confirmPayment(clientSecret, {
+      const { error } = await confirmPayment(clientSecret, {
         type: 'Card',
         billingDetails: {
           email: user.email,
         },
       });
       if (error) {
-        Alert.alert('Failed', 'Payment did not succeed.');
+        throw error;
       } else {
-        Alert.alert('Success', `Payment succeeded! with id: ${paymentIntent.id}`);
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, {
+          isMember: true,
+          plan: items[plan],
+        });
+        setShowSuccess(true);
       }
-
       setName('');
       setPlan('0');
     } catch (e) {
       console.log(e);
+      setShowError(true);
     }
     setIsLoading(false);
   };
@@ -90,11 +114,11 @@ export const PaymentScreen = () => {
               name="plan"
               useNativeAndroidPickerStyle={false}
               Icon={() => <Icon name="chevron-down" size={24} color={Colors.black} />}
-              items={[
-                { label: '12 Months $259.99', value: 'price_1LT94EBgPqjmJlMVYhjs57x3', key: '1' },
-                { label: '6 Months $139.99', value: 'price_1LT933BgPqjmJlMVzWcTKE1W', key: '2' },
-                { label: '1 Month $24.99', value: 'price_1LT91PBgPqjmJlMVhayYqoev', key: '3' },
-              ]}
+              items={Object.keys(items).map((key) => ({
+                label: items[key],
+                value: key,
+                key: key,
+              }))}
               value={plan}
               placeholder={{ label: 'Select a Plan', value: '0' }}
               onValueChange={(value) => setPlan(value)}
@@ -124,6 +148,37 @@ export const PaymentScreen = () => {
             </Button>
           </KeyboardAvoidingView>
         </View>
+        <AwesomeAlert
+          show={showSuccess}
+          showProgress={false}
+          title="Success"
+          message="Payment succeeded, press 'Ok' to continue."
+          closeOnTouchOutside={false}
+          closeOnHardwareBackPress={false}
+          showCancelButton={false}
+          showConfirmButton={true}
+          confirmText="Ok"
+          confirmButtonColor={Colors.secondary}
+          onConfirmPressed={() => {
+            setMember(true);
+          }}
+        />
+
+        <AwesomeAlert
+          show={showError}
+          showProgress={false}
+          title="Failed"
+          message="Payment did not succeed. Please try again."
+          closeOnTouchOutside={false}
+          closeOnHardwareBackPress={false}
+          showCancelButton={false}
+          showConfirmButton={true}
+          confirmText="Ok"
+          confirmButtonColor={Colors.secondary}
+          onConfirmPressed={() => {
+            setShowError(false);
+          }}
+        />
       </View>
     </LinearGradient>
   );

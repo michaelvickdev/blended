@@ -7,19 +7,24 @@ import { sendPasswordResetEmail } from 'firebase/auth';
 import { passwordResetSchema } from '../utils';
 import { Colors, auth, Images } from '../config';
 import { View, TextInput, Button, FormErrorMessage, Logo } from '../components';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 export const ForgotPasswordScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSendPasswordResetEmail = (values) => {
+  const handleSendPasswordResetEmail = async (values) => {
+    setLoading(true);
     const { email } = values;
+    try {
+      await sendPasswordResetEmail(auth, email);
 
-    sendPasswordResetEmail(auth, email)
-      .then(() => {
-        console.log('Success: Password Reset Email sent.');
-        navigation.navigate('Login');
-      })
-      .catch((error) => setErrorState(error.message));
+      setShowAlert(true);
+    } catch (error) {
+      setErrorState(error.message);
+    }
+    setLoading(false);
   };
 
   return (
@@ -51,8 +56,8 @@ export const ForgotPasswordScreen = ({ navigation }) => {
             {/* Display Screen Error Mesages */}
             {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
             {/* Password Reset Send Email  button */}
-            <Button style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Reset Password</Text>
+            <Button disabled={loading} style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>{loading ? 'Resetting' : 'Reset Password'}</Text>
             </Button>
           </>
         )}
@@ -68,6 +73,21 @@ export const ForgotPasswordScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('Signup')}
         />
       </View>
+      <AwesomeAlert
+        show={showAlert}
+        showProgress={false}
+        title="Success"
+        message="Password reset email sent, press 'Ok' to continue."
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="Ok"
+        confirmButtonColor={Colors.secondary}
+        onConfirmPressed={() => {
+          navigation.navigate('Login');
+        }}
+      />
     </View>
   );
 };
