@@ -37,6 +37,7 @@ const MyFeeds = ({ navigation }) => {
   const mountedRef = useRef(true);
   const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const getPosts = async () => {
     const docRef = collection(db, 'feeds');
@@ -48,14 +49,31 @@ const MyFeeds = ({ navigation }) => {
       feedId: doc.id,
     }));
 
-    if (mountedRef.current) setPosts(feedData);
+    if (mountedRef.current) {
+      setPosts(feedData);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
+    setLoading(true);
     getPosts();
   }, [changeCounter]);
 
   useEffect(() => () => (mountedRef.current = false));
+
+  if (!posts.length) {
+    return (
+      <LinearGradient
+        style={{ flex: 1, padding: 16 }}
+        colors={[Colors.mainFirst, Colors.mainSecond]}
+      >
+        <Text style={{ fontSize: 16, textAlign: 'center' }}>
+          {loading ? 'Loading...' : 'No feeds to show'}
+        </Text>
+      </LinearGradient>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>

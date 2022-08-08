@@ -24,6 +24,7 @@ import { db } from '../config/';
 export const Posts = ({ navigation }) => {
   const { user, feedReload } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [reportCount, setReportCount] = useState(0);
   const [showReport, setShowReport] = useState(false);
   const mountedRef = useRef(true);
@@ -47,6 +48,7 @@ export const Posts = ({ navigation }) => {
     }));
     if (mountedRef.current) {
       setPosts(feedData);
+      setLoading(false);
     }
   };
 
@@ -63,6 +65,7 @@ export const Posts = ({ navigation }) => {
 
   useEffect(() => {
     setReportCount(0);
+    setLoading(true);
     setShowReport(false);
     setPosts([]);
     getPosts();
@@ -90,6 +93,16 @@ export const Posts = ({ navigation }) => {
     }
     console.log('reported');
   };
+
+  if (!posts.length) {
+    return (
+      <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
+        <Text style={{ fontSize: 16, textAlign: 'center' }}>
+          {loading ? 'Loading...' : 'No feeds to show'}
+        </Text>
+      </LinearGradient>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -123,6 +136,7 @@ export const Posts = ({ navigation }) => {
 };
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     background: 'transparent',
     padding: 16,
   },

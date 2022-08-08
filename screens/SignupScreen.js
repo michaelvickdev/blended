@@ -28,7 +28,7 @@ export const SignupScreen = ({ navigation }) => {
     setIsLoading(true);
     setRegCompleted(false);
     const { email, image } = values;
-    const password = '123456';
+    const password = Math.floor(100000 + Math.random() * 900000).toString();
 
     ['image'].forEach((key) => delete values[key]);
     try {

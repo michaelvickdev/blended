@@ -7,7 +7,7 @@ export const AuthenticatedUserProvider = ({ children }) => {
   const [regCompleted, setRegCompleted] = useState(true);
   const [changeCounter, setChangeCounter] = useState(0);
   const [feedReload, setFeedReload] = useState(0);
-
+  const [paymentCounter, setPaymentCounter] = useState(0);
   return (
     <AuthenticatedUserContext.Provider
       value={{
@@ -19,6 +19,8 @@ export const AuthenticatedUserProvider = ({ children }) => {
         setChangeCounter,
         feedReload,
         setFeedReload,
+        paymentCounter,
+        setPaymentCounter,
       }}
     >
       {children}

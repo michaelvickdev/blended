@@ -13,18 +13,45 @@ import { signOut } from 'firebase/auth';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { AuthenticatedUserContext } from '../providers';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '../config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 export function SideBarContent(props) {
-  const { user, changeCounter } = useContext(AuthenticatedUserContext);
+  const { user, changeCounter, setPaymentCounter } = useContext(AuthenticatedUserContext);
   const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
   const [userDetails, setUserDetails] = useState(null);
+  const [cancelAlert, setCancelAlert] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const signOutHandler = async () => {
-    await AsyncStorage.clear();
     await signOut(auth);
+  };
+
+  const cancelSub = async () => {
+    try {
+      const response = await fetch(Constants.manifest.extra.delSub, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionId: userDetails.plan.id,
+        }),
+      });
+      const responseJson = await response.json();
+      const { status } = responseJson;
+      if (status === 'canceled') {
+        const docRef = doc(db, 'users', user.uid);
+        await updateDoc(docRef, {
+          plan: deleteField(),
+          isMember: false,
+        });
+        setShowConfirm(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
@@ -40,7 +67,8 @@ export function SideBarContent(props) {
         }
       }
     })();
-  }, [changeCounter]);
+  }, [changeCounter, user]);
+
   return (
     <LinearGradient style={{ flex: 1 }} colors={[Colors.themeFirst, Colors.themeSecond]}>
       <DrawerContentScrollView {...props}>
@@ -69,7 +97,7 @@ export function SideBarContent(props) {
                 </View>
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <Text bold={true} heading={true} style={{ fontSize: 14 }}>
-                    Yearly Plan
+                    {userDetails ? userDetails?.plan?.description + ' Plan' : ''}
                   </Text>
                   <Button
                     color={Colors.white}
@@ -79,6 +107,7 @@ export function SideBarContent(props) {
                     compact
                     style={{ marginTop: 10, alignSelf: 'center', borderRadius: 10 }}
                     labelStyle={{ marginVertical: 5, marginHorizontal: 6 }}
+                    onPress={() => setCancelAlert(true)}
                   >
                     Cancel Subscription
                   </Button>
@@ -107,6 +136,44 @@ export function SideBarContent(props) {
           </Text>
         </View>
       </Drawer.Section>
+      <AwesomeAlert
+        show={cancelAlert}
+        showProgress={false}
+        title="Confirm"
+        message="Are you sure you want to cancel your subscription?"
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        showConfirmButton={true}
+        confirmText="Yes"
+        cancelText="No"
+        cancelButtonColor={Colors.red}
+        confirmButtonColor={Colors.secondary}
+        onCancelPressed={() => {
+          setCancelAlert(false);
+        }}
+        onConfirmPressed={() => {
+          cancelSub();
+          setCancelAlert(false);
+        }}
+      />
+      <AwesomeAlert
+        show={showConfirm}
+        showProgress={false}
+        title="Unsubscribed"
+        message="You have successfully unsubscribed from the plan."
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="Ok"
+        confirmButtonColor={Colors.secondary}
+        animatedValue={0}
+        onConfirmPressed={() => {
+          setShowConfirm(false);
+          setPaymentCounter((prev) => prev + 1);
+        }}
+      />
     </LinearGradient>
   );
 }

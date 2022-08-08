@@ -7,31 +7,29 @@ const stripe = require('stripe')(
 );
 admin.initializeApp();
 
-/**
- * Here we're using Gmail to send
- */
-let transporter = nodemailer.createTransport({
-  service: 'gmail',
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'michaelvick.dev@gmail.com',
-    pass: 'lrbbujyrtvlxgkvb',
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-
 exports.sendMail = functions.https.onRequest((req, res) => {
   cors(req, res, () => {
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.office365.com',
+      port: 587,
+      secureConnection: false,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: 'welcome@blendedmates.com',
+        pass: 'WealthG#22',
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
     const username = req.query.username;
     const email = req.query.email;
     const password = req.query.password;
 
     const mailOptions = {
-      from: 'Blended Mates <support@blendedmates.com>',
+      from: 'Blended Mates <welcome@blendedmates.com>',
       to: email,
       subject: 'Please update your Personal Profile', // email subject
       html: `
@@ -90,4 +88,72 @@ exports.payWithStripe = functions.https.onRequest(async (req, res) => {
   } catch (error) {
     res.send(error);
   }
+});
+
+exports.cancelSubscription = functions.https.onRequest(async (req, res) => {
+  try {
+    const subscription = await stripe.subscriptions.del(req.body.subscriptionId);
+    res.send(subscription);
+  } catch (error) {
+    res.send(error);
+  }
+});
+
+exports.forgotPassword = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.office365.com',
+        port: 587,
+        secureConnection: false,
+        secure: false,
+        requireTLS: true,
+        auth: {
+          user: 'support@blendedmates.com',
+          pass: 'WealthG#22',
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+
+      const email = req.query.email;
+
+      const userData = await admin.auth().getUserByEmail(email);
+      const uid = userData.uid;
+      const password = Math.floor(100000 + Math.random() * 900000).toString();
+      admin.auth().updateUser(uid, { password: password });
+
+      const mailOptions = {
+        from: 'Blended Mates <support@blendedmates.com>',
+        to: email,
+        subject: 'Request for updating credentials', // email subject
+        html: `
+            <h2>Hello,</h2>
+            <br />
+            <p>You have requested for a password change. Please use below credentials to login</p>
+            <br />
+            <p>Username: ${email}</p>
+            <p>Password: ${password} (change later for security reasons)</p>
+
+            <br />
+            <br />
+            <br />
+            <p>Blended Mates Support Team</p>
+            <a href="www.blendedmates.com">www.blendedmates.com</a>
+            <p>Source: App</p>
+            `,
+      };
+
+      // returning result
+      return transporter.sendMail(mailOptions, (erro, info) => {
+        if (erro) {
+          return res.send({ status: 'error', message: erro.toString() });
+        }
+        return res.send({ status: 'success', message: 'Message Sent' });
+      });
+    } catch (error) {
+      res.send({ status: 'error', message: error.message });
+    }
+  });
 });

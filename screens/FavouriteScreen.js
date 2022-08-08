@@ -63,11 +63,13 @@ export const FavouriteScreen = ({ navigation }) => {
         </ScrollView>
       )}
       {noFav && (
-        <Text style={{ textAlign: 'center', marginTop: 16 }}>You have no favourites yet.</Text>
+        <Text style={{ textAlign: 'center', marginTop: 16, fontSize: 16 }}>
+          You have no favourites yet.
+        </Text>
       )}
 
       {!noFav && users.length === 0 && (
-        <Text style={{ textAlign: 'center', marginTop: 16 }}>Loading...</Text>
+        <Text style={{ textAlign: 'center', marginTop: 16, fontSize: 16 }}>Loading...</Text>
       )}
       <LinearGradient
         style={styles.gradient}

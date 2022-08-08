@@ -21,7 +21,7 @@ const customFonts = {
 };
 
 export const RootNavigator = () => {
-  const { user, setUser, regCompleted } = useContext(AuthenticatedUserContext);
+  const { user, setUser, regCompleted, paymentCounter } = useContext(AuthenticatedUserContext);
   const [isLoading, setIsLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [fontLoaded] = useFonts(customFonts);
@@ -38,8 +38,8 @@ export const RootNavigator = () => {
   useEffect(() => {
     // onAuthStateChanged returns an unsubscriber
     const unsubscribeAuthStateChanged = onAuthStateChanged(auth, (authenticatedUser) => {
-      setIsLoading(true);
       authenticatedUser ? setUser(authenticatedUser) : setUser(null);
+      setIsLoading(true);
       setIsMember(false);
       if (user) {
         getMemberInfo();
@@ -50,7 +50,7 @@ export const RootNavigator = () => {
 
     // unsubscribe auth listener on unmount
     return unsubscribeAuthStateChanged;
-  }, [user]);
+  }, [user, paymentCounter]);
 
   if (!fontLoaded || isLoading) {
     return <LoadingIndicator />;

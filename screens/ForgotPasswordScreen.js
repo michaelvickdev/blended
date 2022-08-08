@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Text } from '../components/Text';
 import { Formik } from 'formik';
-import { sendPasswordResetEmail } from 'firebase/auth';
+import Constants from 'expo-constants';
 
 import { passwordResetSchema } from '../utils';
-import { Colors, auth, Images } from '../config';
+import { Colors, Images } from '../config';
 import { View, TextInput, Button, FormErrorMessage, Logo } from '../components';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
@@ -18,9 +18,17 @@ export const ForgotPasswordScreen = ({ navigation }) => {
     setLoading(true);
     const { email } = values;
     try {
-      await sendPasswordResetEmail(auth, email);
-
-      setShowAlert(true);
+      const { status } = await fetch(
+        `${Constants.manifest.extra.forgetUrl}?` +
+          new URLSearchParams({
+            email: email,
+          })
+      );
+      if (status == 'success') {
+        setShowAlert(true);
+      } else {
+        setErrorState('Please enter a valid email address.');
+      }
     } catch (error) {
       setErrorState(error.message);
     }

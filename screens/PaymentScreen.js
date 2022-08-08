@@ -22,9 +22,9 @@ export const PaymentScreen = ({ setMember }) => {
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showError, setShowError] = React.useState(false);
   const items = {
-    price_1LT94EBgPqjmJlMVYhjs57x3: '12 Months $259.99',
-    price_1LT933BgPqjmJlMVzWcTKE1W: '6 Months $139.99',
-    price_1LT91PBgPqjmJlMVhayYqoev: '1 Month $24.99',
+    price_1LT94EBgPqjmJlMVYhjs57x3: { label: '12 Months $259.99', val: 'Monthly' },
+    price_1LT933BgPqjmJlMVzWcTKE1W: { label: '6 Months $139.99', val: 'Half-Yearly' },
+    price_1LT91PBgPqjmJlMVhayYqoev: { label: '1 Month $24.99', val: 'Yearly' },
   };
 
   React.useEffect(() => {
@@ -48,15 +48,15 @@ export const PaymentScreen = ({ setMember }) => {
         name: info.name,
       }),
     });
-    const { clientSecret } = await response.json();
-    return clientSecret;
+    const res = await response.json();
+    return res;
   };
 
   const handlePayPress = async () => {
     if (plan === '0') return;
     try {
       setIsLoading(true);
-      const clientSecret = await fetchPaymentIntentClientSecret({
+      const { clientSecret, subscriptionId } = await fetchPaymentIntentClientSecret({
         email: user.email,
         priceId: plan,
         name: name,
@@ -74,7 +74,7 @@ export const PaymentScreen = ({ setMember }) => {
         const userRef = doc(db, 'users', user.uid);
         await updateDoc(userRef, {
           isMember: true,
-          plan: items[plan],
+          plan: { description: items[plan].val, id: subscriptionId },
         });
         setShowSuccess(true);
       }
@@ -115,7 +115,7 @@ export const PaymentScreen = ({ setMember }) => {
               useNativeAndroidPickerStyle={false}
               Icon={() => <Icon name="chevron-down" size={24} color={Colors.black} />}
               items={Object.keys(items).map((key) => ({
-                label: items[key],
+                label: items[key].label,
                 value: key,
                 key: key,
               }))}

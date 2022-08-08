@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React, { useEffect, useContext, useState, useRef } from 'react';
 import { View } from '../components';
 import { StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Colors } from '../config';
@@ -43,21 +43,41 @@ export const MessagesStack = () => {
 const Messages = ({ navigation }) => {
   const { user } = useContext(AuthenticatedUserContext);
   const [threads, setThreads] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const isMounted = useRef(true);
 
   const getThreads = async () => {
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
     const chats = userSnap.data().chats;
-    setThreads(chats);
+    if (chats && isMounted.current) {
+      setThreads(chats);
+    }
+    setLoading(false);
   };
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      setThreads([]);
+      if (isMounted.current) {
+        setThreads([]);
+        setLoading(true);
+      }
       getThreads();
     });
     return unsubscribe;
   }, [navigation]);
+
+  useEffect(() => () => (isMounted.current = false), []);
+
+  if (!threads.length) {
+    return (
+      <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
+        <Text style={{ fontSize: 16, textAlign: 'center' }}>
+          {loading ? 'Loading...' : 'No Messages'}
+        </Text>
+      </LinearGradient>
+    );
+  }
 
   return (
     <View style={{ flex: 1, paddingHorizontal: 16 }}>
@@ -169,6 +189,7 @@ const SingleThread = ({ navigation, userId, selfId }) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     background: 'transparent',
     padding: 16,
   },
