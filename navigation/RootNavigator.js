@@ -12,7 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { PaymentScreen } from '../screens/PaymentScreen';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
-
+import { AddDetailsScreen } from '../screens/AddDetailsScreen';
 const customFonts = {
   poppinsLight: require('../assets/fonts/Poppins-Light.ttf'),
   poppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
@@ -25,24 +25,32 @@ export const RootNavigator = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [fontLoaded] = useFonts(customFonts);
+  const [addDetails, setAddDetails] = useState(false);
 
   const getMemberInfo = async () => {
     const userRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userRef);
+    if (!userDoc.exists()) {
+      setIsLoading(false);
+      return false;
+    }
     if ('isMember' in userDoc.data() && userDoc.data().isMember) {
       setIsMember(true);
     }
     setIsLoading(false);
+    return true;
   };
 
   useEffect(() => {
     // onAuthStateChanged returns an unsubscriber
-    const unsubscribeAuthStateChanged = onAuthStateChanged(auth, (authenticatedUser) => {
+    const unsubscribeAuthStateChanged = onAuthStateChanged(auth, async (authenticatedUser) => {
       authenticatedUser ? setUser(authenticatedUser) : setUser(null);
+      console.log('authenticatedUser', authenticatedUser);
       setIsLoading(true);
+      setAddDetails(false);
       setIsMember(false);
-      if (user) {
-        getMemberInfo();
+      if (user && !(await getMemberInfo())) {
+        setAddDetails(true);
       } else {
         setIsLoading(false);
       }
@@ -62,6 +70,8 @@ export const RootNavigator = () => {
       {user && regCompleted ? (
         isMember ? (
           <AppStack />
+        ) : addDetails ? (
+          <AddDetailsScreen hideDetailsScreen={setAddDetails} />
         ) : (
           <PaymentScreen setMember={setIsMember} />
         )

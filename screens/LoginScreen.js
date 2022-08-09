@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from 'firebase/auth';
 import Constants from 'expo-constants';
 
-import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
+import { View, TextInput, Logo, Button, FormErrorMessage, Icon } from '../components';
 import { Text } from '../components/Text';
 import { Images, Colors, auth } from '../config';
 import { useTogglePasswordVisibility } from '../hooks';
 import { loginValidationSchema } from '../utils';
+import * as Google from 'expo-auth-session/providers/google';
 
 export const LoginScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { passwordVisibility, handlePasswordVisibility, rightIcon } = useTogglePasswordVisibility();
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientSecret: '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',
+    expoClientId: '573825754797-u5cdk1ij7ajqlidagh1o0l3becu02nf2.apps.googleusercontent.com',
+  });
 
   const handleLogin = (values) => {
     setIsLoading(true);
@@ -23,6 +32,17 @@ export const LoginScreen = ({ navigation }) => {
       setIsLoading(false);
     });
   };
+
+  React.useEffect(() => {
+    if (response?.type === 'success') {
+      const { idToken, accessToken } = response.authentication;
+      const credential = GoogleAuthProvider.credential(idToken, accessToken);
+      signInWithCredential(auth, credential).catch((error) => {
+        setErrorState('Google login failed');
+      });
+    }
+  }, [response]);
+
   return (
     <View isSafe style={styles.container}>
       {/* LogoContainer: consits app logo and screen title */}
@@ -84,6 +104,18 @@ export const LoginScreen = ({ navigation }) => {
         )}
       </Formik>
       {/* Button to navigate to SignupScreen to create a new account */}
+      <View style={styles.socialSignIn}>
+        <Button
+          style={[styles.button, { flexDirection: 'row', width: '60%' }]}
+          onPress={() => promptAsync()}
+          disabled={isLoading}
+        >
+          <Icon name="google" size={20} color={Colors.white} style={{ marginRight: 8 }} />
+          <Text bold={true} style={[styles.buttonText, { color: Colors.white }]}>
+            Sign up with Google
+          </Text>
+        </Button>
+      </View>
       <View style={styles.footerButtonsContainer}>
         <View>
           <Text heading={true} bold={true}>

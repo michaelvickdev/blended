@@ -4,10 +4,32 @@ export const loginValidationSchema = Yup.object().shape({
   email: Yup.string().required().email().label('Email Address'),
   password: Yup.string().required().min(6).label('Password'),
 });
+export const addDetailsValidationScema = Yup.object().shape({
+  fullname: Yup.string().required().label('Full Name'),
+  username: Yup.string()
+    .required()
+    .label('Username')
+    .matches(
+      /^[a-zA-Z0-9_.-]*$/,
+      'Username can only contain letters, numbers, underscores, dashes and periods.'
+    ),
+  phone: Yup.string().required().label('Phone Number'),
+  city: Yup.string().required().label('City'),
+  about: Yup.string().required().label('About You'),
+  gender: Yup.string().required(),
+  interested: Yup.string().required(),
+  dateOfBirth: Yup.string().required().label('Date of Birth'),
+});
 
 export const signupValidationSchema = Yup.object().shape({
   fullname: Yup.string().required().label('Full Name'),
-  username: Yup.string().required().label('Username'),
+  username: Yup.string()
+    .required()
+    .label('Username')
+    .matches(
+      /^[a-zA-Z0-9_.-]*$/,
+      'Username can only contain letters, numbers, underscores, dashes and periods.'
+    ),
   email: Yup.string().required().email().label('Email Address'),
   phone: Yup.string().required().label('Phone Number'),
   city: Yup.string().required().label('City'),

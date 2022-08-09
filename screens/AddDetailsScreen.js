@@ -1,30 +1,24 @@
 import React, { useState, useContext } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
-import { db, auth } from '../config';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { db } from '../config';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { AuthenticatedUserContext } from '../providers';
-import { doc, setDoc, collection, where, query, getDocs } from 'firebase/firestore';
-import AwesomeAlert from 'react-native-awesome-alerts';
+import { doc, setDoc, getDocs, collection, query, where } from 'firebase/firestore';
 
 import { View, TextInput, Logo, Button, FormErrorMessage } from '../components';
 import { Text } from '../components/Text';
 import { Images, Colors } from '../config';
-import { signupValidationSchema } from '../utils';
+import { addDetailsValidationScema } from '../utils';
 import { SelectInput } from '../components/SelectInput';
 import { DateInput } from '../components/DateInput';
 import { ImageInput } from '../components/ImageInput';
 import { uploadImage } from '../hooks/uploadImage';
-import Constants from 'expo-constants';
 
-export const SignupScreen = ({ navigation }) => {
+export const AddDetailsScreen = () => {
   const [errorState, setErrorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { setRegCompleted } = useContext(AuthenticatedUserContext);
-  const [showAlert, setShowAlert] = useState(false);
-
-  //firestore check username already exists
+  const { user, setRegCompleted } = useContext(AuthenticatedUserContext);
 
   const checkUsername = async (username) => {
     const users = collection(db, 'users');
@@ -33,23 +27,18 @@ export const SignupScreen = ({ navigation }) => {
     return querySnapshot.size > 0;
   };
 
-  const handleSignup = async (values) => {
+  const addDetails = async (values) => {
     setIsLoading(true);
     setRegCompleted(false);
-    const { email, image, username } = values;
+    const { image, username } = values;
     const usernameExists = await checkUsername(username);
     if (usernameExists) {
       setErrorState('Username already exists');
       setIsLoading(false);
       return;
     }
-
-    const password = Math.floor(100000 + Math.random() * 900000).toString();
-
     ['image'].forEach((key) => delete values[key]);
     try {
-      const res = await createUserWithEmailAndPassword(auth, email, password);
-      const user = res.user;
       const docRef = doc(db, 'users', user.uid);
 
       await setDoc(docRef, {
@@ -71,18 +60,8 @@ export const SignupScreen = ({ navigation }) => {
           { merge: true }
         );
       }
-
-      await fetch(
-        `${Constants.manifest.extra.mailUrl}?` +
-          new URLSearchParams({
-            email: email,
-            password: password,
-            username: values.username,
-          })
-      );
-      await auth.signOut();
-      setShowAlert(true);
     } catch (err) {
+      setErrorState('Something went wrong, please try again.');
       console.error(err);
       alert(err.message);
     }
@@ -99,14 +78,15 @@ export const SignupScreen = ({ navigation }) => {
         {/* LogoContainer: consits app logo and screen title */}
         <View style={styles.logoContainer}>
           <Logo uri={Images.logo} />
-          {/*<Text style={styles.screenTitle}>Create a new account!</Text>*/}
+          <Text bold={true} style={styles.screenTitle}>
+            Welocome, please add the following details:
+          </Text>
         </View>
         {/* Formik Wrapper */}
         <Formik
           initialValues={{
             fullname: '',
             username: '',
-            email: '',
             phone: '',
             city: '',
             about: '',
@@ -115,8 +95,8 @@ export const SignupScreen = ({ navigation }) => {
             dateOfBirth: '',
             image: '',
           }}
-          validationSchema={signupValidationSchema}
-          onSubmit={(values) => handleSignup(values)}
+          validationSchema={addDetailsValidationScema}
+          onSubmit={(values) => addDetails(values)}
         >
           {({ values, touched, errors, handleChange, handleSubmit, handleBlur, setFieldValue }) => (
             <>
@@ -144,18 +124,6 @@ export const SignupScreen = ({ navigation }) => {
                 onBlur={handleBlur('username')}
               />
               <FormErrorMessage error={errors.username} visible={touched.username} />
-              <TextInput
-                name="email"
-                leftIconName="email"
-                placeholder="*Email Address"
-                autoCapitalize="none"
-                keyboardType="email-address"
-                textContentType="emailAddress"
-                value={values.email}
-                onChangeText={handleChange('email')}
-                onBlur={handleBlur('email')}
-              />
-              <FormErrorMessage error={errors.email} visible={touched.email} />
               <TextInput
                 name="phone"
                 leftIconName="phone"
@@ -239,9 +207,7 @@ export const SignupScreen = ({ navigation }) => {
 
               {/* Display Screen Error Mesages */}
               {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
-              <Text style={styles.customText}>
-                By using our app you agree to our Terms and conditions and Privacy Policy
-              </Text>
+
               {/* Signup button */}
               <Button disabled={isLoading} style={styles.button} onPress={handleSubmit}>
                 <Text
@@ -251,47 +217,13 @@ export const SignupScreen = ({ navigation }) => {
                     { color: isLoading ? Colors.lightGray : Colors.white },
                   ]}
                 >
-                  {isLoading ? 'Loading...' : 'Signup'}
+                  {isLoading ? 'Adding...' : 'Add Details'}
                 </Text>
               </Button>
-              <Text style={styles.customText}>
-                Please check Spam/Junk folder for login password. Add extra social media and custom
-                links including resume. Invite friends to Join the Circle. Manage Privacy/Visibility
-                in the Inner Circle feature.
-              </Text>
             </>
           )}
         </Formik>
-        {/* Button to navigate to Login screen */}
-        <View style={styles.footerButtonsContainer}>
-          <Text bold={true} heading={true}>
-            Already a Member?
-          </Text>
-          <Button
-            style={styles.borderlessButtonContainer}
-            borderless
-            borderlessTitleStyle={{ fontSize: 16 }}
-            title={'Login'}
-            onPress={() => navigation.navigate('Login')}
-          />
-        </View>
       </KeyboardAwareScrollView>
-
-      <AwesomeAlert
-        show={showAlert}
-        showProgress={false}
-        title="User Created"
-        message="We have mailed your credentials to the provided email. Please use them to sign in."
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
-        showCancelButton={false}
-        showConfirmButton={true}
-        confirmText="Ok"
-        confirmButtonColor={Colors.secondary}
-        onConfirmPressed={() => {
-          navigation.navigate('Login');
-        }}
-      />
     </View>
   );
 };
@@ -308,12 +240,11 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
   },
-  // screenTitle: {
-  //   fontSize: 32,
-  //   fontWeight: '700',
-  //   color: Colors.black,
-  //   paddingTop: 20
-  // },
+  screenTitle: {
+    fontSize: 18,
+    color: Colors.black,
+    paddingVertical: 10,
+  },
   button: {
     width: '50%',
     justifyContent: 'center',

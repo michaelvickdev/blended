@@ -5,6 +5,7 @@ export default {
     userInterfaceStyle: 'automatic',
     name: 'Blended Mates',
     slug: 'blended-mates',
+    scheme: 'com.blended-mates.app',
     privacy: 'unlisted',
     platforms: ['ios', 'android'],
     version: '0.0.15',

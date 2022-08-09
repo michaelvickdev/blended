@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text } from '../components/Text';
 import { Icon } from '../components/Icon';
@@ -23,9 +23,13 @@ export function SideBarContent(props) {
   const [userDetails, setUserDetails] = useState(null);
   const [cancelAlert, setCancelAlert] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showSignOut, setShowSignOut] = useState(false);
+  const mountedRef = useRef(true);
 
-  const signOutHandler = async () => {
-    await signOut(auth);
+  const signOutHandler = () => {
+    setTimeout(async () => {
+      await signOut(auth);
+    }, 0);
   };
 
   const cancelSub = async () => {
@@ -47,7 +51,7 @@ export function SideBarContent(props) {
           plan: deleteField(),
           isMember: false,
         });
-        setShowConfirm(true);
+        if (mountedRef.current) setShowConfirm(true);
       }
     } catch (err) {
       console.log(err);
@@ -56,18 +60,26 @@ export function SideBarContent(props) {
 
   useEffect(() => {
     (async () => {
+      mountedRef.current = true;
       const docRef = doc(db, 'users', user.uid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        setUserDetails({ ...docSnap.data() });
+        if (mountedRef.current) setUserDetails({ ...docSnap.data() });
         const image = await getImage(docSnap.data().avatar);
-        if (image) {
+        if (image && mountedRef.current) {
           setImgUrl(image);
         }
       }
     })();
   }, [changeCounter, user]);
+
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    []
+  );
 
   return (
     <LinearGradient style={{ flex: 1 }} colors={[Colors.themeFirst, Colors.themeSecond]}>
@@ -124,7 +136,7 @@ export function SideBarContent(props) {
           label={() => (
             <Text style={{ color: Colors.darkRed, fontSize: 16, marginLeft: -15 }}>Sign Out</Text>
           )}
-          onPress={signOutHandler}
+          onPress={() => setShowSignOut(true)}
           options={{
             drawerActiveTintColor: Colors.darkRed,
             drawerInactiveTintColor: Colors.darkRed,
@@ -172,6 +184,28 @@ export function SideBarContent(props) {
         onConfirmPressed={() => {
           setShowConfirm(false);
           setPaymentCounter((prev) => prev + 1);
+        }}
+      />
+      <AwesomeAlert
+        show={showSignOut}
+        showProgress={false}
+        title="Sign Out"
+        message="Do you want to sign out?"
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        showConfirmButton={true}
+        cancelText="No"
+        confirmText="Yes"
+        confirmButtonColor={Colors.red}
+        cancelButtonColor={Colors.secondary}
+        animatedValue={0}
+        onCancelPressed={() => {
+          setShowSignOut(false);
+        }}
+        onConfirmPressed={() => {
+          setShowSignOut(false);
+          signOutHandler();
         }}
       />
     </LinearGradient>
