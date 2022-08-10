@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { Text } from '../components/Text';
 import { Icon } from '../components/Icon';
 import { auth, Colors } from '../config';
@@ -23,13 +23,25 @@ export function SideBarContent(props) {
   const [userDetails, setUserDetails] = useState(null);
   const [cancelAlert, setCancelAlert] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showSignOut, setShowSignOut] = useState(false);
   const mountedRef = useRef(true);
 
   const signOutHandler = () => {
-    setTimeout(async () => {
-      await signOut(auth);
-    }, 0);
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        {
+          text: 'Yes',
+          onPress: async () => {
+            await signOut(auth);
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      {
+        cancelable: false,
+      }
+    );
   };
 
   const cancelSub = async () => {
@@ -136,7 +148,7 @@ export function SideBarContent(props) {
           label={() => (
             <Text style={{ color: Colors.darkRed, fontSize: 16, marginLeft: -15 }}>Sign Out</Text>
           )}
-          onPress={() => setShowSignOut(true)}
+          onPress={signOutHandler}
           options={{
             drawerActiveTintColor: Colors.darkRed,
             drawerInactiveTintColor: Colors.darkRed,
@@ -184,28 +196,6 @@ export function SideBarContent(props) {
         onConfirmPressed={() => {
           setShowConfirm(false);
           setPaymentCounter((prev) => prev + 1);
-        }}
-      />
-      <AwesomeAlert
-        show={showSignOut}
-        showProgress={false}
-        title="Sign Out"
-        message="Do you want to sign out?"
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
-        showCancelButton={true}
-        showConfirmButton={true}
-        cancelText="No"
-        confirmText="Yes"
-        confirmButtonColor={Colors.red}
-        cancelButtonColor={Colors.secondary}
-        animatedValue={0}
-        onCancelPressed={() => {
-          setShowSignOut(false);
-        }}
-        onConfirmPressed={() => {
-          setShowSignOut(false);
-          signOutHandler();
         }}
       />
     </LinearGradient>

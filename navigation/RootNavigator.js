@@ -31,26 +31,25 @@ export const RootNavigator = () => {
     const userRef = doc(db, 'users', user.uid);
     const userDoc = await getDoc(userRef);
     if (!userDoc.exists()) {
+      setAddDetails(true);
       setIsLoading(false);
-      return false;
+      return;
     }
     if ('isMember' in userDoc.data() && userDoc.data().isMember) {
       setIsMember(true);
     }
     setIsLoading(false);
-    return true;
   };
 
   useEffect(() => {
     // onAuthStateChanged returns an unsubscriber
     const unsubscribeAuthStateChanged = onAuthStateChanged(auth, async (authenticatedUser) => {
       authenticatedUser ? setUser(authenticatedUser) : setUser(null);
-      console.log('authenticatedUser', authenticatedUser);
       setIsLoading(true);
       setAddDetails(false);
       setIsMember(false);
-      if (user && !(await getMemberInfo())) {
-        setAddDetails(true);
+      if (user) {
+        await getMemberInfo();
       } else {
         setIsLoading(false);
       }
@@ -71,7 +70,7 @@ export const RootNavigator = () => {
         isMember ? (
           <AppStack />
         ) : addDetails ? (
-          <AddDetailsScreen hideDetailsScreen={setAddDetails} />
+          <AddDetailsScreen showDetails={setAddDetails} />
         ) : (
           <PaymentScreen setMember={setIsMember} />
         )

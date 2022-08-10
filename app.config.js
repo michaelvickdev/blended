@@ -35,6 +35,9 @@ export default {
       stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
       delSub: process.env.DEL_SUB,
       forgetUrl: process.env.FORGET_URL,
+      googleClientId: process.env.GOOGLE_CLIENT_ID,
+      googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      fbAppId: process.env.FB_APP_ID,
     },
     android: {
       package: 'com.blended',

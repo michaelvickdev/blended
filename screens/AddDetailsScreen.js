@@ -15,10 +15,10 @@ import { DateInput } from '../components/DateInput';
 import { ImageInput } from '../components/ImageInput';
 import { uploadImage } from '../hooks/uploadImage';
 
-export const AddDetailsScreen = () => {
+export const AddDetailsScreen = ({ showDetails }) => {
   const [errorState, setErrorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { user, setRegCompleted } = useContext(AuthenticatedUserContext);
+  const { user } = useContext(AuthenticatedUserContext);
 
   const checkUsername = async (username) => {
     const users = collection(db, 'users');
@@ -29,7 +29,6 @@ export const AddDetailsScreen = () => {
 
   const addDetails = async (values) => {
     setIsLoading(true);
-    setRegCompleted(false);
     const { image, username } = values;
     const usernameExists = await checkUsername(username);
     if (usernameExists) {
@@ -66,7 +65,7 @@ export const AddDetailsScreen = () => {
       alert(err.message);
     }
     setIsLoading(false);
-    setRegCompleted(true);
+    showDetails(false);
   };
 
   return (

@@ -32,6 +32,7 @@ export const ChangePassword = () => {
     setIsLoading(true);
     try {
       //firebase change user password
+
       const auth = getAuth();
       const user = auth.currentUser;
 

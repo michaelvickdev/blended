@@ -5,7 +5,9 @@ import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithCredential,
+  FacebookAuthProvider,
 } from 'firebase/auth';
+import * as Facebook from 'expo-facebook';
 import Constants from 'expo-constants';
 
 import { View, TextInput, Logo, Button, FormErrorMessage, Icon } from '../components';
@@ -20,9 +22,28 @@ export const LoginScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { passwordVisibility, handlePasswordVisibility, rightIcon } = useTogglePasswordVisibility();
   const [request, response, promptAsync] = Google.useAuthRequest({
-    clientSecret: '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',
-    expoClientId: '573825754797-u5cdk1ij7ajqlidagh1o0l3becu02nf2.apps.googleusercontent.com',
+    clientSecret: Constants.manifest.extra.googleClientSecret,
+    expoClientId: Constants.manifest.extra.googleClientId,
   });
+
+  const signInWithFb = async () => {
+    try {
+      await Facebook.initializeAsync({
+        appId: Constants.manifest.extra.fbAppId,
+      });
+      const { type, token } = await Facebook.logInWithReadPermissionsAsync({
+        permissions: ['public_profile'],
+      });
+      if (type === 'success') {
+        const credential = FacebookAuthProvider.credential(token);
+        await signInWithCredential(auth, credential);
+      } else {
+        throw new Error('Something went wrong');
+      }
+    } catch ({ message }) {
+      setErrorState('There was a problem signing in with Facebook');
+    }
+  };
 
   const handleLogin = (values) => {
     setIsLoading(true);
@@ -112,7 +133,18 @@ export const LoginScreen = ({ navigation }) => {
         >
           <Icon name="google" size={20} color={Colors.white} style={{ marginRight: 8 }} />
           <Text bold={true} style={[styles.buttonText, { color: Colors.white }]}>
-            Sign up with Google
+            Continue with Google
+          </Text>
+        </Button>
+
+        <Button
+          style={[styles.button, { flexDirection: 'row', width: '60%' }]}
+          onPress={signInWithFb}
+          disabled={isLoading}
+        >
+          <Icon name="facebook" size={20} color={Colors.white} style={{ marginRight: 8 }} />
+          <Text bold={true} style={[styles.buttonText, { color: Colors.white }]}>
+            Continue with Facebook
           </Text>
         </Button>
       </View>
@@ -215,10 +247,12 @@ const styles = StyleSheet.create({
   footerButtonsContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
   },
   buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  socialSignIn: {
+    marginVertical: 20,
   },
 });
