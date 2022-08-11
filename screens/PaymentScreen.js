@@ -22,9 +22,9 @@ export const PaymentScreen = ({ setMember }) => {
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showError, setShowError] = React.useState(false);
   const items = {
-    price_1LT94EBgPqjmJlMVYhjs57x3: { label: '12 Months $259.99', val: 'Monthly' },
+    price_1LT94EBgPqjmJlMVYhjs57x3: { label: '12 Months $259.99', val: 'Yearly' },
     price_1LT933BgPqjmJlMVzWcTKE1W: { label: '6 Months $139.99', val: 'Half-Yearly' },
-    price_1LT91PBgPqjmJlMVhayYqoev: { label: '1 Month $24.99', val: 'Yearly' },
+    price_1LT91PBgPqjmJlMVhayYqoev: { label: '1 Month $24.99', val: 'Monthly' },
   };
 
   React.useEffect(() => {
