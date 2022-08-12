@@ -188,7 +188,7 @@ export const LoginScreen = ({ navigation }) => {
               buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
               cornerRadius={25}
               onPress={signInWithApple}
-              style={{ width: '60%', height: 50 }}
+              style={{ width: '60%', height: 40 }}
             />
           </View>
         )}
