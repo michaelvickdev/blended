@@ -71,12 +71,12 @@ export const MyProfileScreen = ({ navigation }) => {
     updateGalleyImages();
   }, [feedData]);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
       mountedRef.current = false;
-    },
-    []
-  );
+    };
+  }, []);
 
   if (galleryVisible && galleryImages.length) {
     return (

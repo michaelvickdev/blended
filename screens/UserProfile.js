@@ -12,7 +12,6 @@ import { SocialIcon } from 'react-native-elements';
 import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
 import { AuthenticatedUserContext } from '../providers';
-import { getImage } from '../hooks/getImage';
 
 import { Modal } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -30,6 +29,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '../config';
+import { getImage } from '../hooks/getImage';
 
 export const UserProfile = ({ route, navigation }) => {
   const mountedRef = useRef(true);
@@ -158,8 +158,13 @@ export const UserProfile = ({ route, navigation }) => {
     const q = query(docRef, where('uid', '==', route.params.uid), orderBy('uploadDate', 'desc'));
     const docSnap = await getDocs(q);
 
-    const feedRes = await Promise.all(docSnap.docs.filter(async (doc) => !doc.data()?.isVideo));
-    if (mountedRef.current) setFeedData(feedRes);
+    const feedRes = await Promise.all(
+      docSnap.docs.flatMap(async (doc) =>
+        !doc.data()?.isVideo ? [await getImage(doc.data().url)] : []
+      )
+    );
+
+    if (mountedRef.current) setFeedData([].concat(...feedRes));
   };
 
   const updateGalleyImages = async () => {
@@ -180,12 +185,12 @@ export const UserProfile = ({ route, navigation }) => {
     };
   }, [navigation]);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
       mountedRef.current = false;
-    },
-    []
-  );
+    };
+  }, []);
 
   useEffect(() => {
     updateGalleyImages();
@@ -252,6 +257,14 @@ export const UserProfile = ({ route, navigation }) => {
             if (mountedRef.current) setGalleryVisible(false);
           }}
           saveToLocalByLongPress={false}
+          renderHeader={() => (
+            <TouchableOpacity
+              style={{ position: 'absolute', zIndex: 99, top: 38, right: 20 }}
+              onPress={() => mountedRef.current && setGalleryVisible(false)}
+            >
+              <Icon name="close" size={24} color={Colors.white} />
+            </TouchableOpacity>
+          )}
         />
       </Modal>
     );
@@ -276,7 +289,7 @@ export const UserProfile = ({ route, navigation }) => {
             ))}
           </ScrollView>
 
-          {userData && 'socialLinks' in userData && (
+          {userData && 'socialLinks' in userData && friend && (
             <View
               style={{
                 flexDirection: 'row',

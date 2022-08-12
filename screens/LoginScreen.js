@@ -181,6 +181,17 @@ export const LoginScreen = ({ navigation }) => {
             Continue with Facebook
           </Text>
         </Button>
+        {isAppleLoginAvailable && (
+          <View style={{ alignItems: 'center', marginTop: 8 }}>
+            <AppleAuthentication.AppleAuthenticationButton
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+              buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+              cornerRadius={25}
+              onPress={signInWithApple}
+              style={{ width: '60%', height: 50 }}
+            />
+          </View>
+        )}
       </View>
       <View style={styles.footerButtonsContainer}>
         <View>
@@ -203,17 +214,6 @@ export const LoginScreen = ({ navigation }) => {
             title={'Forgot Password?'}
             onPress={() => navigation.navigate('ForgotPassword')}
           />
-          {isAppleLoginAvailable && (
-            <View style={{ alignItems: 'center' }}>
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-                cornerRadius={25}
-                onPress={() => console.log('Works...')}
-                style={{ width: '60%', height: 50 }}
-              />
-            </View>
-          )}
         </View>
       </View>
       <View style={styles.footer}>
