@@ -8,7 +8,7 @@ export default {
     scheme: 'com.blended-mates.app',
     privacy: 'unlisted',
     platforms: ['ios', 'android'],
-    version: '0.0.15',
+    version: '0.0.16',
     orientation: 'portrait',
     icon: './assets/icon.png',
     splash: {
