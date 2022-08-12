@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, ScrollView, Dimensions, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
@@ -15,6 +15,7 @@ import { uploadImage } from '../hooks/uploadImage';
 
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export const EditProfileScreen = () => {
   const mountedRef = useRef(true);
@@ -109,7 +110,8 @@ export const EditProfileScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
         style={styles.container}
         automaticallyAdjustsScrollIndicatorInsets={false}
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
@@ -381,7 +383,7 @@ export const EditProfileScreen = () => {
             </View>
           </View>
         </View>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <LinearGradient
         style={styles.gradient}
         colors={[Colors.mainFirst, Colors.mainSecond]}

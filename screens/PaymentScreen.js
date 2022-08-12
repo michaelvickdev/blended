@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Icon, Text, View } from '../components';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { useConfirmPayment, CardField, initStripe } from '@stripe/stripe-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -100,7 +100,7 @@ export const PaymentScreen = ({ setMember }) => {
           </Text>
         </View>
         <View style={styles.form}>
-          <KeyboardAvoidingView>
+          <KeyboardAvoidingView style={{ flex: 1 }}>
             <TextInput
               mode="outlined"
               placeholder="Name on card"
