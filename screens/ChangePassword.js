@@ -50,7 +50,11 @@ export const ChangePassword = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         <Formik
           initialValues={{
             oldPassword: '',

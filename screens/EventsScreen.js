@@ -29,7 +29,11 @@ export const EventsScreen = () => {
   }, []);
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         {events.length > 0 &&
           events.map((event, index) => (
             <SingleEvent

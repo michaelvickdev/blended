@@ -6,7 +6,7 @@ import { View } from './View';
 import { Colors } from '../config';
 import { Text } from './Text';
 
-export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, free }) => {
+export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, free, video }) => {
   const pickImage = async (handleChange) => {
     const { granted } = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -14,14 +14,17 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, 
       alert('Please allow permission to continue uploading the image.');
       return;
     }
-    const imgOptions = free ? {} : { aspect: [4, 4] };
+    const imgOptions = {
+      ...(free && { aspect: [4, 4] }),
+      ...(video && { mediaTypes: ImagePicker.MediaTypeOptions.All }),
+    };
 
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       ...imgOptions,
     });
     if (!result.cancelled) {
-      handleChange(result.uri);
+      handleChange(result.uri, result.type);
     }
   };
   return (

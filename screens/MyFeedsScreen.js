@@ -77,7 +77,11 @@ const MyFeeds = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         {posts.map((post, index) => (
           <Post key={index} navigation={navigation} post={post} />
         ))}
@@ -101,15 +105,16 @@ const AddFeed = () => {
       const feedRef = await addDoc(docRef, {
         uid: user.uid,
         title: values.title,
+        isVideo: values.image.type == 'video',
         likes: [],
         comments: [],
         reported: [],
         uploadDate: new Date(),
       });
 
-      if (values.image) {
+      if (values.image?.url) {
         const imageName = user.uid + '_' + feedRef.id;
-        await uploadImage(values.image, `feeds/${imageName}`);
+        await uploadImage(values.image.url, `feeds/${imageName}`);
         await setDoc(
           feedRef,
           {
@@ -132,7 +137,7 @@ const AddFeed = () => {
       <Formik
         initialValues={{
           title: '',
-          image: '',
+          image: null,
         }}
         onSubmit={(values, { resetForm }) => uploadFeed(values, resetForm)}
         validationSchema={uploadFeedsSchema}
@@ -149,9 +154,10 @@ const AddFeed = () => {
             <ImageInput
               name="image"
               free={true}
+              video={true}
               leftIconName="attachment"
-              label="*Upload Pic"
-              handleChange={(url) => setFieldValue('image', url)}
+              label="*Upload Media"
+              handleChange={(url, type) => setFieldValue('image', { url, type })}
               onBlur={handleBlur('image')}
             />
             <Button style={styles.button} onPress={handleSubmit} disabled={isLoading}>

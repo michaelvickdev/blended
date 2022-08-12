@@ -158,9 +158,7 @@ export const UserProfile = ({ route, navigation }) => {
     const q = query(docRef, where('uid', '==', route.params.uid), orderBy('uploadDate', 'desc'));
     const docSnap = await getDocs(q);
 
-    const feedRes = await Promise.all(
-      docSnap.docs.map(async (doc) => await getImage(doc.data().url))
-    );
+    const feedRes = await Promise.all(docSnap.docs.filter(async (doc) => !doc.data()?.isVideo));
     if (mountedRef.current) setFeedData(feedRes);
   };
 

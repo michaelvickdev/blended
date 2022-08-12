@@ -3,6 +3,7 @@ import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
 import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
+import { Video } from 'expo-av';
 
 import { Text } from './Text';
 import { Colors } from '../config';
@@ -17,6 +18,8 @@ export const Post = ({ post, navigation, reportPost }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [postImage, setPostImage] = useState(require('../assets/default-post.jpg'));
   const [profileImage, setprofileImage] = useState(require('../assets/default-image.png'));
+  const [play, setPlay] = useState(false);
+  const [mute, setMute] = useState(true);
   const mountedRef = useRef(true);
 
   const goToProfile = () => {
@@ -120,7 +123,37 @@ export const Post = ({ post, navigation, reportPost }) => {
       <View style={styles.postDetails}>
         <View style={styles.imgContainer}>
           <View style={styles.image}>
-            <Image source={postImage} style={styles.postImg} />
+            {post?.isVideo ? (
+              <>
+                <Video
+                  source={postImage}
+                  resizeMode="contain"
+                  useNativeControls={false}
+                  shouldPlay={play}
+                  isLooping={false}
+                  style={styles.postImg}
+                  isMuted={mute}
+                />
+                <TouchableOpacity
+                  onPress={() => setPlay((prev) => !prev)}
+                  style={{ position: 'absolute', bottom: 8, left: 8 }}
+                >
+                  <Icon name={play ? 'pause' : 'play'} size={32} color={Colors.white} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setMute((prev) => !prev)}
+                  style={{ position: 'absolute', bottom: 8, right: 8 }}
+                >
+                  <Icon
+                    name={!mute ? 'volume-high' : 'volume-off'}
+                    size={32}
+                    color={Colors.white}
+                  />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <Image source={postImage} style={styles.postImg} />
+            )}
           </View>
         </View>
         <View style={styles.postInfo}>
@@ -141,7 +174,7 @@ export const Post = ({ post, navigation, reportPost }) => {
               </Text>
             </View>
           </TouchableOpacity>
-          {reportPost && typeof reportPost === 'function' && (
+          {reportPost && typeof reportPost === 'function' && user.uid != post.uid && (
             <TouchableOpacity
               onPress={() => reportPost(post.feedId)}
               style={{ flex: 1, alignItems: 'center' }}

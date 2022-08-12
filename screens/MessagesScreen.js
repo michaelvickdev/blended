@@ -80,8 +80,12 @@ const Messages = ({ navigation }) => {
   }
 
   return (
-    <View style={{ flex: 1, paddingHorizontal: 16 }}>
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         {threads.map((thread) => (
           <SingleThread key={thread} userId={thread} navigation={navigation} selfId={user.uid} />
         ))}
@@ -191,7 +195,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     background: 'transparent',
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
   },
   gradient: {
     position: 'absolute',

@@ -185,9 +185,10 @@ export const ChatScreen = ({ navigation, route }) => {
 
         <ScrollView
           ref={scrollViewRef}
-          style={{ background: 'transparent' }}
+          style={{ background: 'transparent', paddingHorizontal: 16 }}
           onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-          scrollIndicatorInsets={{ right: 0 }}
+          automaticallyAdjustsScrollIndicatorInsets={false}
+          scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
         >
           {chat.map((msg, index) => {
             return (
@@ -259,7 +260,7 @@ export const ChatHeader = ({ name, goBack, isBlocked, setBlock, hasBlocked }) =>
   return (
     <View style={styles.headerContainer}>
       <View style={styles.back}>
-        <TouchableOpacity onPress={goBack} style={{ flex: 1 }}>
+        <TouchableOpacity onPress={goBack} style={{ flex: 1, marginLeft: 16 }}>
           <Icon name="keyboard-backspace" size={32} />
         </TouchableOpacity>
       </View>
@@ -311,6 +312,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: Dimensions.get('window').width,
+    paddingHorizontal: 16,
   },
   header: {
     flex: 1,
@@ -337,7 +339,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     background: 'transparent',
-    paddingHorizontal: 16,
   },
   gradient: {
     position: 'absolute',
@@ -361,6 +362,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   chatBox: {
+    paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

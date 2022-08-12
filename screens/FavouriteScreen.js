@@ -48,7 +48,11 @@ export const FavouriteScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1, paddingHorizontal: 16 }}>
       {users && users.length > 0 && (
-        <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+        <ScrollView
+          style={styles.container}
+          automaticallyAdjustsScrollIndicatorInsets={false}
+          scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        >
           {users.map((user, index) => (
             <SingleProfile
               key={index}

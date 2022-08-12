@@ -109,7 +109,11 @@ export const EditProfileScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         {userData && <ProfileHeader user={userData} noBio={true} />}
         <View style={styles.edit}>
           <Button

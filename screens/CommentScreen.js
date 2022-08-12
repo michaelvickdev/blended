@@ -70,7 +70,8 @@ export const Comments = ({ route, navigation }) => {
           style={styles.container}
           ref={scrollViewRef}
           onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-          scrollIndicatorInsets={{ right: 0 }}
+          automaticallyAdjustsScrollIndicatorInsets={false}
+          scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
         >
           {comments.map((comment, index) => (
             <CommentBubble

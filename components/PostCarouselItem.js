@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Colors } from '../config';
+
 export const ITEM_WIDTH = 95;
 
 export const PostCarouselItem = ({ item, index, openGallery }) => {
@@ -18,6 +19,7 @@ const styles = StyleSheet.create({
     width: ITEM_WIDTH,
     height: ITEM_WIDTH,
     margin: 5,
+    justifyContent: 'center',
     overflow: 'hidden',
   },
   postImg: {
@@ -25,5 +27,9 @@ const styles = StyleSheet.create({
     height: 'auto',
     aspectRatio: 1,
     resizeMode: 'contain',
+  },
+  playIcon: {
+    position: 'absolute',
+    alignSelf: 'center',
   },
 });

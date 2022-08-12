@@ -71,7 +71,7 @@ export const MyFriendsScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <View style={{ flex: 1 }}>
       <View style={styles.tabBar}>
         <TouchableOpacity style={styles.tabItem} onPress={() => setToggle(false)}>
           <Text
@@ -103,7 +103,11 @@ export const MyFriendsScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         {!toggleTab &&
           friends.map((user, index) => (
             <SingleProfile key={index} uid={user} goToProfile={goToProfile} />
@@ -187,7 +191,7 @@ const styles = StyleSheet.create({
     background: 'transparent',
     width: '90%',
     alignSelf: 'center',
-    padding: 16,
+    paddingHorizontal: 32,
   },
   gradient: {
     position: 'absolute',
@@ -203,7 +207,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
     width: '90%',
     alignSelf: 'center',
-    paddingVertical: 4,
+    marginVertical: 16,
+    paddingVertical: 8,
     borderRadius: 15,
   },
   tabItem: {

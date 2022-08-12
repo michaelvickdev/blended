@@ -59,16 +59,21 @@ export const SearchScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={{ flex: 1, paddingHorizontal: 16 }}>
+    <View style={{ flex: 1 }}>
       <TextInput
         mode="outlined"
         value={text}
+        style={{ marginHorizontal: 16 }}
         onChangeText={(text) => setText(text)}
         placeholder="Search for users"
         outlineColor={Colors.lightGray}
         activeOutlineColor={Colors.mediumGray}
       />
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         {text.length > 0 &&
           (searchData.length ? (
             searchData.map((singleUser, index) =>
@@ -145,6 +150,7 @@ const SingleProfile = ({ name, url, location, goToProfile, uid }) => {
 const styles = StyleSheet.create({
   container: {
     background: 'transparent',
+    paddingHorizontal: 16,
   },
   gradient: {
     position: 'absolute',

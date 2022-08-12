@@ -64,6 +64,7 @@ export const Posts = ({ navigation }) => {
   }, [reportCount]);
 
   useEffect(() => {
+    mountedRef.current = true;
     setReportCount(0);
     setLoading(true);
     setShowReport(false);
@@ -106,9 +107,13 @@ export const Posts = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.container} scrollIndicatorInsets={{ right: 0 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+      >
         {posts.map((post) =>
-          post.hidden || post.reported.includes(user.uid) ? null : (
+          post?.hidden || post?.reported.includes(user.uid) ? null : (
             <Post
               key={post.feedId}
               user={post.uid}

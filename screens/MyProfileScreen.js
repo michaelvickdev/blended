@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { StyleSheet, Linking } from 'react-native';
+import { StyleSheet, Linking, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
 import { PostCarouselItem } from '../components/PostCarouselItem';
 import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../components/View';
-import { SocialIcon } from 'react-native-elements';
+import { Icon, SocialIcon } from 'react-native-elements';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 
 import { doc, getDoc } from 'firebase/firestore';
@@ -32,10 +32,12 @@ export const MyProfileScreen = ({ navigation }) => {
     const docSnap = await getDocs(q);
 
     const feedRes = await Promise.all(
-      docSnap.docs.map(async (doc) => await getImage(doc.data().url))
+      docSnap.docs.flatMap(async (doc) =>
+        !doc.data()?.isVideo ? [await getImage(doc.data().url)] : []
+      )
     );
 
-    if (mountedRef.current) setFeedData(feedRes);
+    if (mountedRef.current) setFeedData([].concat(...feedRes));
   };
 
   const getUserData = async () => {
@@ -93,6 +95,14 @@ export const MyProfileScreen = ({ navigation }) => {
           }}
           index={galleryIndex}
           saveToLocalByLongPress={false}
+          renderHeader={() => (
+            <TouchableOpacity
+              style={{ position: 'absolute', zIndex: 99, top: 38, right: 20 }}
+              onPress={() => mountedRef.current && setGalleryVisible(false)}
+            >
+              <Icon name="close" size={24} color={Colors.white} />
+            </TouchableOpacity>
+          )}
         />
       </Modal>
     );
