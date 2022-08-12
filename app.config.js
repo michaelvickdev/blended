@@ -22,6 +22,7 @@ export default {
     assetBundlePatterns: ['**/*'],
     ios: {
       supportsTablet: false,
+      usesAppleSignIn: true,
     },
     extra: {
       apiKey: process.env.API_KEY,
@@ -42,13 +43,5 @@ export default {
     android: {
       package: 'com.blended',
     },
-    plugins: [
-      [
-        'expo-image-picker',
-        {
-          photosPermission: 'The app accesses your photos to let you share them with your friends.',
-        },
-      ],
-    ],
   },
 };

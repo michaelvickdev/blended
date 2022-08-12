@@ -3,10 +3,13 @@ import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import {
   signInWithEmailAndPassword,
+  AppleAuthProvider,
   GoogleAuthProvider,
   signInWithCredential,
   FacebookAuthProvider,
 } from 'firebase/auth';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Crypto from 'expo-crypto';
 import * as Facebook from 'expo-facebook';
 import Constants from 'expo-constants';
 
@@ -25,6 +28,33 @@ export const LoginScreen = ({ navigation }) => {
     clientSecret: Constants.manifest.extra.googleClientSecret,
     expoClientId: Constants.manifest.extra.googleClientId,
   });
+  const [isAppleLoginAvailable, setIsAppleLoginAvailable] = useState(false);
+
+  const signInWithApple = async () => {
+    try {
+      const nonce = Math.random().toString(36).substring(2, 10);
+      const hashedNonce = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        nonce
+      );
+      const appleCredential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+        nonce: hashedNonce,
+      });
+
+      if (appleCredential) {
+        const { identityToken } = appleCredential;
+        const provider = new AppleAuthProvider();
+        const credential = provider.credential(identityToken, nonce);
+        await signInWithCredential(auth, credential);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const signInWithFb = async () => {
     try {
@@ -53,6 +83,10 @@ export const LoginScreen = ({ navigation }) => {
       setIsLoading(false);
     });
   };
+
+  React.useEffect(() => {
+    AppleAuthentication.isAvailableAsync().then(setIsAppleLoginAvailable);
+  }, []);
 
   React.useEffect(() => {
     if (response?.type === 'success') {
@@ -169,6 +203,17 @@ export const LoginScreen = ({ navigation }) => {
             title={'Forgot Password?'}
             onPress={() => navigation.navigate('ForgotPassword')}
           />
+          {isAppleLoginAvailable && (
+            <View style={{ alignItems: 'center' }}>
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+                cornerRadius={25}
+                onPress={() => console.log('Works...')}
+                style={{ width: '60%', height: 50 }}
+              />
+            </View>
+          )}
         </View>
       </View>
       <View style={styles.footer}>
