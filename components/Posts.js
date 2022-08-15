@@ -74,7 +74,7 @@ export const Posts = ({ navigation }) => {
       setShowReport(true);
       const timeout = setTimeout(() => {
         setShowReport(false);
-      }, 2000);
+      }, 3000);
 
       return () => clearTimeout(timeout);
     }
