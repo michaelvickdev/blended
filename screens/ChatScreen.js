@@ -1,12 +1,11 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { BackHandler } from 'react-native';
+import { BackHandler, FlatList } from 'react-native';
 import { Icon, View } from '../components';
 import { Text } from '../components/Text';
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ScrollView } from 'react-native-gesture-handler';
 import { Button, TextInput } from 'react-native-paper';
 
 import {
@@ -20,12 +19,13 @@ import {
   orderBy,
   getDoc,
   arrayRemove,
+  limit,
+  startAfter,
 } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 
 export const ChatScreen = ({ navigation, route }) => {
-  const scrollViewRef = useRef();
   const isMounted = useRef(true);
   const { user } = useContext(AuthenticatedUserContext);
   const [chat, setChat] = useState([]);
@@ -34,6 +34,8 @@ export const ChatScreen = ({ navigation, route }) => {
   const [name, setName] = useState('');
   const [isBlocked, setIsBlocked] = useState(false);
   const [hasBlocked, setHasBlocked] = useState(false);
+  const [lastMsg, setLastMsg] = useState('start');
+  const [loading, setLoading] = useState(true);
 
   const getName = async () => {
     try {
@@ -45,17 +47,29 @@ export const ChatScreen = ({ navigation, route }) => {
     }
   };
 
-  const getChat = async () => {
+  const getChat = async (count = 8) => {
+    if (lastMsg === 'end') return;
     try {
+      setLoading(true);
       const msgId =
         user.uid > route.params.uid
           ? `${user.uid}-${route.params.uid}`
           : `${route.params.uid}-${user.uid}`;
       const msgRef = collection(db, 'messages', msgId, 'thread');
-      const q = query(msgRef, orderBy('timestamp'));
+      const queryArray = [orderBy('timestamp', 'desc'), limit(count)];
+      if (lastMsg !== 'start') {
+        queryArray.push(startAfter(lastMsg));
+      }
+      const q = query(msgRef, ...queryArray);
       const chatSnap = await getDocs(q);
       const chatData = chatSnap.docs.map((doc) => doc.data());
-      if (isMounted.current) setChat(chatData);
+      if (isMounted.current) {
+        setChat((prevChat) => [...prevChat, ...chatData]);
+        chatSnap.size < count
+          ? setLastMsg('end')
+          : setLastMsg(chatSnap.docs[chatSnap.docs.length - 1]);
+        setLoading(false);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -107,6 +121,9 @@ export const ChatScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
+    isMounted.current = true;
+    setChat([]);
+    setLastMsg('start');
     (async () => {
       await checkBlocked();
       await getChat();
@@ -147,7 +164,7 @@ export const ChatScreen = ({ navigation, route }) => {
         });
         if (isMounted.current) setInChat(true);
       }
-      setChat(chat.concat(msg));
+      setChat((prev) => [msg, ...prev]);
     } catch (error) {
       console.log(error);
     }
@@ -182,46 +199,54 @@ export const ChatScreen = ({ navigation, route }) => {
           setBlock={setBlock}
           hasBlocked={hasBlocked}
         />
+        <View style={styles.chatContainer}>
+          {chat.length ? (
+            <FlatList
+              data={chat}
+              style={{ background: 'transparent', paddingHorizontal: 16 }}
+              renderItem={({ item }) => (
+                <ChatBubble
+                  self={item.sentBy === user.uid}
+                  text={item.text}
+                  timestamp={item.timestamp}
+                />
+              )}
+              inverted
+              ListFooterComponent={() =>
+                lastMsg !== 'end' ? (
+                  <View style={styles.loading}>
+                    <ActivityIndicator size="large" color={Colors.secondary} />
+                  </View>
+                ) : null
+              }
+              onEndReached={() => {
+                if (!loading) getChat();
+              }}
+              onEndReachedThreshold={0.1}
+            />
+          ) : null}
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={{ background: 'transparent', paddingHorizontal: 16 }}
-          onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-          automaticallyAdjustsScrollIndicatorInsets={false}
-          scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
-        >
-          {chat.map((msg, index) => {
-            return (
-              <ChatBubble
-                key={index}
-                self={msg.sentBy === user.uid}
-                text={msg.text}
-                timestamp={msg.timestamp}
-              />
-            );
-          })}
-        </ScrollView>
-
-        <View style={styles.chatBox}>
-          <TextInput
-            style={{ flex: 1, marginRight: 16 }}
-            mode="outlined"
-            placeholder="Type Your Message here..."
-            outlineColor={Colors.lightGray}
-            activeOutlineColor={Colors.mediumGray}
-            multiline={true}
-            value={text}
-            onChangeText={(text) => setText(text)}
-            disabled={isLoading || hasBlocked || isBlocked}
-          />
-          <Button
-            mode="contained"
-            color={isLoading || isBlocked ? Colors.lightGray : Colors.white}
-            onPress={sendText}
-            disabled={isLoading || hasBlocked || isBlocked}
-          >
-            {isBlocked || hasBlocked ? 'Blocked' : isLoading ? 'Sending...' : 'Send'}
-          </Button>
+          <View style={styles.chatBox}>
+            <TextInput
+              style={{ flex: 1, marginRight: 16 }}
+              mode="outlined"
+              placeholder="Type Your Message here..."
+              outlineColor={Colors.lightGray}
+              activeOutlineColor={Colors.mediumGray}
+              multiline={true}
+              value={text}
+              onChangeText={(text) => setText(text)}
+              disabled={isLoading || hasBlocked || isBlocked}
+            />
+            <Button
+              mode="contained"
+              color={isLoading || isBlocked ? Colors.lightGray : Colors.white}
+              onPress={sendText}
+              disabled={isLoading || hasBlocked || isBlocked}
+            >
+              {isBlocked || hasBlocked ? 'Blocked' : isLoading ? 'Sending...' : 'Send'}
+            </Button>
+          </View>
         </View>
       </View>
       <LinearGradient
@@ -336,6 +361,10 @@ const styles = StyleSheet.create({
   divider: {
     width: '10%',
   },
+  chatContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
   container: {
     flex: 1,
     background: 'transparent',
@@ -369,5 +398,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: Colors.lightGray,
+  },
+  loading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
   },
 });

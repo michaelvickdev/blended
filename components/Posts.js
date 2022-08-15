@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import { Post } from './Post';
 import { View } from './View';
 import { Text } from './Text';
@@ -18,6 +18,8 @@ import {
   where,
   updateDoc,
   arrayUnion,
+  limit,
+  startAfter,
 } from 'firebase/firestore';
 import { db } from '../config/';
 
@@ -27,9 +29,12 @@ export const Posts = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [reportCount, setReportCount] = useState(0);
   const [showReport, setShowReport] = useState(false);
+  const [lastDoc, setLastDoc] = useState('start');
   const mountedRef = useRef(true);
 
-  const getPosts = async () => {
+  const getPosts = async (count = 3) => {
+    if (lastDoc === 'end') return;
+    setLoading(true);
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
     const reqProfiles = [user.uid];
@@ -39,7 +44,18 @@ export const Posts = ({ navigation }) => {
       }
     }
     const docRef = collection(db, 'feeds');
-    const q = query(docRef, where('uid', 'in', reqProfiles), orderBy('uploadDate', 'desc'));
+
+    const queryArray = [
+      where('uid', 'in', reqProfiles),
+      orderBy('uploadDate', 'desc'),
+      limit(count),
+    ];
+
+    if (lastDoc !== 'start') {
+      queryArray.push(startAfter(lastDoc));
+    }
+
+    const q = query(docRef, ...queryArray);
 
     const docSnap = await getDocs(q);
     const feedData = docSnap.docs.map((doc) => ({
@@ -47,7 +63,8 @@ export const Posts = ({ navigation }) => {
       feedId: doc.id,
     }));
     if (mountedRef.current) {
-      setPosts(feedData);
+      docSnap.size < count ? setLastDoc('end') : setLastDoc(docSnap.docs[docSnap.docs.length - 1]);
+      setPosts((prevPosts) => [...prevPosts, ...feedData]);
       setLoading(false);
     }
   };
@@ -66,6 +83,7 @@ export const Posts = ({ navigation }) => {
   useEffect(() => {
     mountedRef.current = true;
     setReportCount(0);
+    setLastDoc('start');
     setLoading(true);
     setShowReport(false);
     setPosts([]);
@@ -78,6 +96,11 @@ export const Posts = ({ navigation }) => {
     },
     []
   );
+
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+  };
 
   const reportPost = async (feedId) => {
     const docRef = doc(db, 'feeds', feedId);
@@ -111,6 +134,10 @@ export const Posts = ({ navigation }) => {
         style={styles.container}
         automaticallyAdjustsScrollIndicatorInsets={false}
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        onScroll={({ nativeEvent }) => {
+          if (!loading && isCloseToBottom(nativeEvent)) getPosts();
+        }}
+        scrollEventThrottle={400}
       >
         {posts.map((post) =>
           post?.hidden || post?.reported.includes(user.uid) ? null : (
@@ -122,6 +149,11 @@ export const Posts = ({ navigation }) => {
               reportPost={reportPost}
             />
           )
+        )}
+        {lastDoc !== 'end' && (
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color={Colors.secondary} />
+          </View>
         )}
       </ScrollView>
       {showReport && (
@@ -160,5 +192,10 @@ const styles = StyleSheet.create({
   reportText: {
     color: Colors.white,
     fontSize: 16,
+  },
+  loading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
   },
 });

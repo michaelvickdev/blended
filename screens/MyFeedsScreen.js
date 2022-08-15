@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View } from '../components';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -12,7 +12,17 @@ import { Comments } from './CommentScreen';
 import { Text } from '../components/Text';
 import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 
-import { addDoc, collection, setDoc, getDocs, query, orderBy, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  setDoc,
+  getDocs,
+  query,
+  orderBy,
+  where,
+  limit,
+  startAfter,
+} from 'firebase/firestore';
 import { db } from '../config/';
 import { uploadImage } from '../hooks/uploadImage';
 import { uploadFeedsSchema } from '../utils';
@@ -38,10 +48,18 @@ const MyFeeds = ({ navigation }) => {
   const { user, changeCounter } = useContext(AuthenticatedUserContext);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastDoc, setLastDoc] = useState('start');
 
-  const getPosts = async () => {
+  const getPosts = async (count = 2) => {
+    if (lastDoc === 'end') return;
+    setLoading(true);
+
     const docRef = collection(db, 'feeds');
-    const q = query(docRef, where('uid', '==', user.uid), orderBy('uploadDate', 'desc'));
+    const queryArray = [where('uid', '==', user.uid), orderBy('uploadDate', 'desc'), limit(count)];
+    if (lastDoc !== 'start') {
+      queryArray.push(startAfter(lastDoc));
+    }
+    const q = query(docRef, ...queryArray);
     const docSnap = await getDocs(q);
 
     const feedData = docSnap.docs.map((doc) => ({
@@ -50,17 +68,29 @@ const MyFeeds = ({ navigation }) => {
     }));
 
     if (mountedRef.current) {
-      setPosts(feedData);
+      docSnap.size < count ? setLastDoc('end') : setLastDoc(docSnap.docs[docSnap.docs.length - 1]);
+      setPosts((prevPosts) => [...prevPosts, ...feedData]);
       setLoading(false);
     }
   };
 
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+  };
+
   useEffect(() => {
+    setLastDoc('start');
     setLoading(true);
+    setPosts([]);
     getPosts();
   }, [changeCounter]);
 
-  useEffect(() => () => (mountedRef.current = false));
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => (mountedRef.current = false);
+  }, []);
 
   if (!posts.length) {
     return (
@@ -81,10 +111,20 @@ const MyFeeds = ({ navigation }) => {
         style={styles.container}
         automaticallyAdjustsScrollIndicatorInsets={false}
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        onScroll={({ nativeEvent }) => {
+          if (!loading && isCloseToBottom(nativeEvent)) getPosts();
+        }}
+        scrollEventThrottle={400}
       >
         {posts.map((post, index) => (
           <Post key={index} navigation={navigation} post={post} />
         ))}
+
+        {lastDoc !== 'end' && (
+          <View style={styles.loading}>
+            <ActivityIndicator size="large" color={Colors.secondary} />
+          </View>
+        )}
       </ScrollView>
       <LinearGradient
         style={styles.gradient}
@@ -205,5 +245,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     textTransform: 'uppercase',
+  },
+
+  loading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
   },
 });
