@@ -57,7 +57,8 @@ const getTitle = (route) => {
       return 'Help and Support';
     case 'ChangePassword':
       return 'Change Password';
-
+    case 'PaymentScreen':
+      return 'Buy Subscription';
     default:
       return current;
   }

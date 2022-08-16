@@ -72,7 +72,7 @@ export const RootNavigator = () => {
         ) : addDetails ? (
           <AddDetailsScreen showDetails={setAddDetails} />
         ) : (
-          <PaymentScreen setMember={setIsMember} />
+          <PaymentScreen setMember={setIsMember} isSafe={true} />
         )
       ) : (
         <AuthStack />

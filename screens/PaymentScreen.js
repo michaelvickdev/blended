@@ -13,14 +13,15 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
-export const PaymentScreen = ({ setMember }) => {
-  const { user } = React.useContext(AuthenticatedUserContext);
+export const PaymentScreen = ({ setMember, isSafe }) => {
+  const { user, setChangeCounter } = React.useContext(AuthenticatedUserContext);
   const [plan, setPlan] = React.useState('0');
   const [name, setName] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const { confirmPayment, loading } = useConfirmPayment();
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showError, setShowError] = React.useState(false);
+  const cardRef = React.useRef(null);
   const items = {
     price_1LT94EBgPqjmJlMVYhjs57x3: { label: '12 Months $259.99', val: 'Yearly' },
     price_1LT933BgPqjmJlMVzWcTKE1W: { label: '6 Months $139.99', val: 'Half-Yearly' },
@@ -80,6 +81,7 @@ export const PaymentScreen = ({ setMember }) => {
       }
       setName('');
       setPlan('0');
+      cardRef.current.clear();
     } catch (e) {
       console.log(e);
       setShowError(true);
@@ -89,7 +91,7 @@ export const PaymentScreen = ({ setMember }) => {
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      <View isSafe={true} style={{ flex: 1 }}>
+      <View isSafe={!!isSafe} style={{ flex: 1 }}>
         <View style={styles.heading}>
           <Text bold={true} heading={true} style={{ fontSize: 22 }}>
             Enter your payment details
@@ -100,55 +102,55 @@ export const PaymentScreen = ({ setMember }) => {
           </Text>
         </View>
         <View style={styles.form}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-          >
-            <TextInput
-              mode="outlined"
-              placeholder="Name on card"
-              value={name}
-              onChangeText={(text) => setName(text)}
-              outlineColor={Colors.black}
-              activeOutlineColor={Colors.black}
-              style={{ marginVertical: 16, backgroundColor: Colors.white }}
-            />
-            <RNPickerSelect
-              name="plan"
-              useNativeAndroidPickerStyle={false}
-              Icon={() => <Icon name="chevron-down" size={24} color={Colors.black} />}
-              items={Object.keys(items).map((key) => ({
-                label: items[key].label,
-                value: key,
-                key: key,
-              }))}
-              value={plan}
-              placeholder={{ label: 'Select a Plan', value: '0' }}
-              onValueChange={(value) => setPlan(value)}
-              style={customPickerStyles}
-            />
-            <CardField
-              postalCodeEnabled={false}
-              autofocus
-              style={styles.cardField}
-              cardStyle={{
-                backgroundColor: Colors.white,
-                borderRadius: 8,
-                color: Colors.black,
-                borderColor: Colors.black,
-                borderWidth: 1,
-              }}
-            />
-            <Button
-              mode="contained"
-              labelStyle={{ color: Colors.white, fontSize: 16 }}
-              style={{ borderColor: Colors.black }}
-              color={Colors.secondary}
-              onPress={handlePayPress}
-              disabled={plan === '0' || isLoading || loading || name === ''}
-            >
-              Pay
-            </Button>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View style={{ justifyContent: 'flex-end' }}>
+              <TextInput
+                mode="outlined"
+                placeholder="Name on card"
+                value={name}
+                onChangeText={(text) => setName(text)}
+                outlineColor={Colors.black}
+                activeOutlineColor={Colors.black}
+                style={{ marginVertical: 16, backgroundColor: Colors.white }}
+              />
+              <RNPickerSelect
+                name="plan"
+                useNativeAndroidPickerStyle={false}
+                Icon={() => <Icon name="chevron-down" size={24} color={Colors.black} />}
+                items={Object.keys(items).map((key) => ({
+                  label: items[key].label,
+                  value: key,
+                  key: key,
+                }))}
+                value={plan}
+                placeholder={{ label: 'Select a Plan', value: '0' }}
+                onValueChange={(value) => setPlan(value)}
+                style={customPickerStyles}
+              />
+              <CardField
+                postalCodeEnabled={false}
+                ref={cardRef}
+                autofocus
+                style={styles.cardField}
+                cardStyle={{
+                  backgroundColor: Colors.white,
+                  borderRadius: 8,
+                  color: Colors.black,
+                  borderColor: Colors.black,
+                  borderWidth: 1,
+                }}
+              />
+              <Button
+                mode="contained"
+                labelStyle={{ color: Colors.white, fontSize: 16 }}
+                style={{ borderColor: Colors.black }}
+                color={Colors.secondary}
+                onPress={handlePayPress}
+                disabled={plan === '0' || isLoading || loading || name === ''}
+              >
+                Pay
+              </Button>
+            </View>
           </KeyboardAvoidingView>
         </View>
         <AwesomeAlert
@@ -163,7 +165,12 @@ export const PaymentScreen = ({ setMember }) => {
           confirmText="Ok"
           confirmButtonColor={Colors.secondary}
           onConfirmPressed={() => {
-            setMember(true);
+            if (setMember !== undefined) {
+              setMember(true);
+            } else {
+              setShowSuccess(false);
+              setChangeCounter((prev) => prev + 1);
+            }
           }}
         />
 

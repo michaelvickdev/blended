@@ -316,7 +316,7 @@ export const ChatHeader = ({ name, goBack, isBlocked, setBlock, hasBlocked }) =>
                   </Text>
                 </TouchableOpacity>
                 <View style={styles.divider} />
-                <TouchableOpacity style={styles.item}>
+                <TouchableOpacity style={styles.item} onPress={() => console.log('User reported')}>
                   <MaterialIcons name="person" size={12} color={Colors.black} />
                   <Text heading={true} style={{ marginLeft: 5, fontSize: 12, lineHeight: 14 }}>
                     Report User

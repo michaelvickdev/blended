@@ -17,6 +17,7 @@ import { MessagesStack } from '../screens/MessagesScreen';
 import { EventsScreen } from '../screens/EventsScreen';
 import { FriendsStack } from './FriendsStack';
 import { SettingStack } from './SettingStack';
+import { PaymentScreen } from '../screens/PaymentScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -147,6 +148,20 @@ export const AppStack = () => {
           headerShown: getFocusedRouteNameFromRoute(props.route) === 'Chats' ? false : true,
         })}
       />
+
+      <Drawer.Screen
+        name="PaymentScreen"
+        component={PaymentScreen}
+        options={(props) => ({
+          drawerLabel: 'Buy Subscription',
+          drawerIcon: () => (
+            <MaterialCommunityIcons name="wallet-membership" size={24} color={Colors.black} />
+          ),
+          headerTitle: () => <Header {...props} />,
+          headerRight: () => <HeaderRight {...props} />,
+        })}
+      />
+
       <Drawer.Screen
         name="SettingStack"
         component={SettingStack}

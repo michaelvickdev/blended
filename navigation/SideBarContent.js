@@ -22,7 +22,6 @@ export function SideBarContent(props) {
   const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
   const [userDetails, setUserDetails] = useState(null);
   const [cancelAlert, setCancelAlert] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
   const mountedRef = useRef(true);
 
   const signOutHandler = () => {
@@ -63,7 +62,23 @@ export function SideBarContent(props) {
           plan: deleteField(),
           isMember: false,
         });
-        if (mountedRef.current) setShowConfirm(true);
+        Alert.alert(
+          'Unsubscribed',
+          'You have successfully unsubscribed from the membership',
+          [
+            {
+              text: 'Ok',
+              onPress: () => {
+                if (mountedRef.current) {
+                  setPaymentCounter((prev) => prev + 1);
+                }
+              },
+            },
+          ],
+          {
+            cancelable: false,
+          }
+        );
       }
     } catch (err) {
       console.log(err);
@@ -179,23 +194,6 @@ export function SideBarContent(props) {
         onConfirmPressed={() => {
           cancelSub();
           setCancelAlert(false);
-        }}
-      />
-      <AwesomeAlert
-        show={showConfirm}
-        showProgress={false}
-        title="Unsubscribed"
-        message="You have successfully unsubscribed from the plan."
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
-        showCancelButton={false}
-        showConfirmButton={true}
-        confirmText="Ok"
-        confirmButtonColor={Colors.secondary}
-        animatedValue={0}
-        onConfirmPressed={() => {
-          setShowConfirm(false);
-          setPaymentCounter((prev) => prev + 1);
         }}
       />
     </LinearGradient>
