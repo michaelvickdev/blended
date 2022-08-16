@@ -8,7 +8,6 @@ export const uploadImage = async (uri, imageName, isVideo = false) => {
     uri = compressed.uri;
   }
   const response = await fetch(uri);
-  console.log(JSON.stringify(response));
   const blob = await response.blob();
 
   const storageRef = ref(storage, `images/${imageName}`);

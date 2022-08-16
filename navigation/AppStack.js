@@ -155,7 +155,11 @@ export const AppStack = () => {
         options={(props) => ({
           drawerLabel: 'Buy Subscription',
           drawerIcon: () => (
-            <MaterialCommunityIcons name="wallet-membership" size={24} color={Colors.black} />
+            <MaterialCommunityIcons
+              name="card-account-details-star"
+              size={24}
+              color={Colors.black}
+            />
           ),
           headerTitle: () => <Header {...props} />,
           headerRight: () => <HeaderRight {...props} />,
