@@ -38,6 +38,7 @@ const getIcon = (route) => {
     case 'Favourite':
     case 'SupportScreen':
     case 'ChangePassword':
+    case 'Notification':
       return 'close';
     case 'Profile':
     case 'ProfileStack':
@@ -77,6 +78,7 @@ const getPressFunction = (route, navigation, setFeedReload) => {
     case 'Favourite':
     case 'SupportScreen':
     case 'ChangePassword':
+    case 'Notification':
       return () => navigation.navigate('Settings');
     default:
       return () => {};

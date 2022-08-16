@@ -100,7 +100,10 @@ export const PaymentScreen = ({ setMember }) => {
           </Text>
         </View>
         <View style={styles.form}>
-          <KeyboardAvoidingView style={{ flex: 1 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+          >
             <TextInput
               mode="outlined"
               placeholder="Name on card"

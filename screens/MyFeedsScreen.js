@@ -154,7 +154,7 @@ const AddFeed = () => {
 
       if (values.image?.url) {
         const imageName = user.uid + '_' + feedRef.id;
-        await uploadImage(values.image.url, `feeds/${imageName}`);
+        await uploadImage(values.image.url, `feeds/${imageName}`, values.image.type == 'video');
         await setDoc(
           feedRef,
           {

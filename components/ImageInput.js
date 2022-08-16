@@ -15,8 +15,11 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, 
       return;
     }
     const imgOptions = {
-      ...(free && { aspect: [4, 4] }),
-      ...(video && { mediaTypes: ImagePicker.MediaTypeOptions.All }),
+      ...(!free && { aspect: [4, 4] }),
+      ...(video && {
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        videoQuality: ImagePicker.UIImagePickerControllerQualityType.Low,
+      }),
     };
 
     let result = await ImagePicker.launchImageLibraryAsync({
