@@ -56,7 +56,7 @@ const getAge = (dateString) => {
 const styles = StyleSheet.create({
   top: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   userInfo: {
     paddingLeft: 16,
@@ -68,6 +68,6 @@ const styles = StyleSheet.create({
     borderRadius: 85 / 2,
   },
   status: {
-    marginVertical: 20,
+    marginVertical: 8,
   },
 });

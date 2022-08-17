@@ -36,6 +36,27 @@ export const ChatScreen = ({ navigation, route }) => {
   const [hasBlocked, setHasBlocked] = useState(false);
   const [lastMsg, setLastMsg] = useState('start');
   const [loading, setLoading] = useState(true);
+  const [showReport, setShowReport] = useState(false);
+
+  const reportUser = async () => {
+    const docRef = doc(db, 'users', route.params.uid);
+    await updateDoc(docRef, {
+      reports: arrayUnion({
+        uid: user.uid,
+        date: new Date(),
+      }),
+    });
+    setShowReport(true);
+  };
+
+  useEffect(() => {
+    if (showReport) {
+      const timeOut = setTimeout(() => {
+        setShowReport(false);
+      }, 3000);
+      return () => clearTimeout(timeOut);
+    }
+  }, [showReport]);
 
   const getName = async () => {
     try {
@@ -198,6 +219,7 @@ export const ChatScreen = ({ navigation, route }) => {
           isBlocked={isBlocked}
           setBlock={setBlock}
           hasBlocked={hasBlocked}
+          reportUser={reportUser}
         />
         <View style={styles.chatContainer}>
           {chat.length ? (
@@ -253,6 +275,13 @@ export const ChatScreen = ({ navigation, route }) => {
         style={styles.gradient}
         colors={[Colors.mainFirst, Colors.mainSecond]}
       ></LinearGradient>
+      {showReport && (
+        <View style={styles.report}>
+          <Text style={styles.reportText}>
+            Your report has been submitted and we will check the user status manually.
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -281,7 +310,7 @@ const ChatBubble = ({ self, text, timestamp }) => {
   );
 };
 
-export const ChatHeader = ({ name, goBack, isBlocked, setBlock, hasBlocked }) => {
+export const ChatHeader = ({ name, goBack, isBlocked, setBlock, hasBlocked, reportUser }) => {
   return (
     <View style={styles.headerContainer}>
       <View style={styles.back}>
@@ -316,7 +345,7 @@ export const ChatHeader = ({ name, goBack, isBlocked, setBlock, hasBlocked }) =>
                   </Text>
                 </TouchableOpacity>
                 <View style={styles.divider} />
-                <TouchableOpacity style={styles.item} onPress={() => console.log('User reported')}>
+                <TouchableOpacity style={styles.item} onPress={reportUser}>
                   <MaterialIcons name="person" size={12} color={Colors.black} />
                   <Text heading={true} style={{ marginLeft: 5, fontSize: 12, lineHeight: 14 }}>
                     Report User
@@ -403,5 +432,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: 16,
+  },
+  report: {
+    position: 'absolute',
+    bottom: '40%',
+    left: 16,
+    right: 16,
+    zIndex: 9,
+    backgroundColor: Colors.black,
+    padding: 16,
+    borderRadius: 12,
+  },
+  reportText: {
+    color: Colors.white,
+    fontSize: 16,
   },
 });

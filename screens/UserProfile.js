@@ -1,5 +1,6 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { StyleSheet, TouchableOpacity, Share } from 'react-native';
+import * as Linking from 'expo-linking';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
@@ -44,6 +45,7 @@ export const UserProfile = ({ route, navigation }) => {
   const [galleryVisible, setGalleryVisible] = useState(false);
   const [galleryImages, setGalleryImages] = useState([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [showReport, setShowReport] = useState(false);
 
   const removeFriend = async () => {
     const requester = doc(db, 'users', user.uid);
@@ -84,6 +86,38 @@ export const UserProfile = ({ route, navigation }) => {
 
     setFriend(true);
   };
+
+  const shareUrl = async () => {
+    const url = Linking.createURL('UserProfile', {
+      queryParams: {
+        uid: userData.uid,
+      },
+    });
+    console.log(url);
+    await Share.share({
+      message: url,
+    });
+  };
+
+  const reportUser = async () => {
+    const docRef = doc(db, 'users', userData.uid);
+    await updateDoc(docRef, {
+      reports: arrayUnion({
+        uid: user.uid,
+        date: new Date(),
+      }),
+    });
+    setShowReport(true);
+  };
+
+  useEffect(() => {
+    if (showReport) {
+      const timeOut = setTimeout(() => {
+        setShowReport(false);
+      }, 3000);
+      return () => clearTimeout(timeOut);
+    }
+  }, [showReport]);
 
   const cancelReq = async () => {
     const requester = doc(db, 'users', user.uid);
@@ -275,6 +309,20 @@ export const UserProfile = ({ route, navigation }) => {
       {!isBlocked && userData && <ProfileHeader user={{ ...userData }} />}
       {!isBlocked && (
         <View>
+          {friend && (
+            <View
+              style={{
+                flexDirection: 'row',
+                marginVertical: 20,
+              }}
+            >
+              <Text bold={true} style={{ fontSize: 18 }}>
+                Contact details:
+              </Text>
+
+              <Text style={{ fontSize: 18 }}>{userData?.phone}</Text>
+            </View>
+          )}
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {feedData.map((post, index) => (
               <PostCarouselItem
@@ -328,6 +376,12 @@ export const UserProfile = ({ route, navigation }) => {
               <MaterialIcons name="person" size={12} color={Colors.black} />
               <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
             </TouchableOpacity>
+
+            <TouchableOpacity style={styles.item} onPress={reportUser}>
+              <MaterialIcons name="report" size={12} color={Colors.black} />
+              <Text style={{ marginLeft: 5, fontSize: 12 }}>Report User</Text>
+            </TouchableOpacity>
+
             <TouchableOpacity style={styles.item} onPress={setFavourite}>
               <Icon name={isFav ? 'heart' : 'heart-outline'} size={12} color={Colors.black} />
               <Text style={{ marginLeft: 5, fontSize: 12 }}>
@@ -377,9 +431,25 @@ export const UserProfile = ({ route, navigation }) => {
             >
               Send Message
             </Button>
+            <Button
+              mode="contained"
+              onPress={userData && shareUrl}
+              style={styles.button}
+              color={Colors.white}
+              textColor={Colors.black}
+            >
+              Share Profile
+            </Button>
           </>
         )}
       </View>
+      {showReport && (
+        <View style={styles.report}>
+          <Text style={styles.reportText}>
+            Your report has been submitted and we will check the user status manually.
+          </Text>
+        </View>
+      )}
     </LinearGradient>
   );
 };
@@ -393,10 +463,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    paddingBottom: 16,
-    marginTop: 20,
     borderBottomWidth: 1,
     borderBottomColor: Colors.lightGray,
+    paddingVertical: 16,
   },
   item: {
     flexDirection: 'row',
@@ -412,5 +481,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     padding: 4,
     borderRadius: 12,
+  },
+  report: {
+    backgroundColor: Colors.black,
+    padding: 16,
+    borderRadius: 12,
+  },
+  reportText: {
+    color: Colors.white,
+    fontSize: 16,
   },
 });
