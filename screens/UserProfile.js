@@ -93,7 +93,6 @@ export const UserProfile = ({ route, navigation }) => {
         uid: userData.uid,
       },
     });
-    console.log(url);
     await Share.share({
       message: url,
     });

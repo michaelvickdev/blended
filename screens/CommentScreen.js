@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, FlatList } from 'react-native';
 import { View } from '../components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../config';
@@ -14,7 +14,6 @@ import { Icon } from 'react-native-elements';
 
 export const Comments = ({ route, navigation }) => {
   const mountedRef = useRef(true);
-  const scrollViewRef = useRef();
   const { user, setChangeCounter } = useContext(AuthenticatedUserContext);
   const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -66,22 +65,17 @@ export const Comments = ({ route, navigation }) => {
     <View style={{ flex: 1 }}>
       <View isSafe style={{ flex: 1 }}>
         <CommentHeader commentLength={comments.length} navigation={navigation} />
-        <ScrollView
-          style={styles.container}
-          ref={scrollViewRef}
-          onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })}
-          automaticallyAdjustsScrollIndicatorInsets={false}
-          scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
-        >
-          {comments.map((comment, index) => (
+        <FlatList
+          data={comments}
+          renderItem={({ item }) => (
             <CommentBubble
-              key={index}
-              text={comment.text}
-              timestamp={comment.timestamp}
-              user={comment.sentBy == user.uid ? 'self' : comment.sentBy}
+              text={item.text}
+              timestamp={item.timestamp}
+              user={item.sentBy == user.uid ? 'self' : item.sentBy}
             />
-          ))}
-        </ScrollView>
+          )}
+          style={styles.container}
+        />
 
         <View style={styles.commentBox}>
           <TextInput

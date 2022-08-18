@@ -5,11 +5,12 @@ import * as Location from 'expo-location';
 import { UserProfile } from '../screens/UserProfile';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Comments } from './CommentScreen';
+import * as Linking from 'expo-linking';
 
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config';
 
-export const HomeScreen = () => {
+export const HomeScreen = ({ navigation }) => {
   const { user } = useContext(AuthenticatedUserContext);
   const Stack = createStackNavigator();
 
@@ -29,6 +30,26 @@ export const HomeScreen = () => {
       },
     });
   };
+
+  useEffect(() => {
+    (async () => {
+      const initialRoute = await Linking.getInitialURL();
+      if (initialRoute) {
+        const { path, queryParams } = Linking.parse(initialRoute);
+        if (path === 'UserProfile' && !!queryParams.uid) {
+          navigation.navigate('UserProfile', { uid: queryParams.uid });
+        }
+      }
+    })();
+
+    Linking.addEventListener('url', (url) => {
+      const { path, queryParams } = Linking.parse(url);
+      if (path === 'UserProfile' && !!queryParams.uid) {
+        navigation.navigate('UserProfile', { uid: queryParams.uid });
+      }
+    });
+  }, []);
+
   useEffect(() => {
     getCurrentLoc();
   }, []);
