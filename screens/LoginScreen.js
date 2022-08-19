@@ -24,7 +24,7 @@ export const LoginScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { passwordVisibility, handlePasswordVisibility, rightIcon } = useTogglePasswordVisibility();
-  const [request, response, promptAsync] = Google.useAuthRequest({
+  const [, response, promptAsync] = Google.useAuthRequest({
     clientSecret: Constants.manifest.extra.googleClientSecret,
     expoClientId: Constants.manifest.extra.googleClientId,
   });
@@ -79,6 +79,7 @@ export const LoginScreen = ({ navigation }) => {
     setIsLoading(true);
     const { email, password } = values;
     signInWithEmailAndPassword(auth, email, password).catch((error) => {
+      console.log(error);
       setErrorState('Invalid email or password');
       setIsLoading(false);
     });
@@ -93,6 +94,7 @@ export const LoginScreen = ({ navigation }) => {
       const { idToken, accessToken } = response.authentication;
       const credential = GoogleAuthProvider.credential(idToken, accessToken);
       signInWithCredential(auth, credential).catch((error) => {
+        console.log(error);
         setErrorState('Google login failed');
       });
     }

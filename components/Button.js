@@ -6,7 +6,6 @@ import { Text } from './Text';
 
 export const Button = ({
   children,
-  bold,
   onPress,
   activeOpacity = 0.3,
   borderless = false,

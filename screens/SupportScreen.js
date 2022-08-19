@@ -8,7 +8,7 @@ import { Formik } from 'formik';
 import { Text } from '../components/Text';
 import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
 import { supportSchema } from '../utils';
-import { addDoc, collection, doc } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Icon } from '../components';
 

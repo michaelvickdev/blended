@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-// import { Picker } from '@react-native-picker/picker';
 import RNPickerSelect from 'react-native-picker-select';
 
 import { Text } from './Text';
@@ -47,29 +46,6 @@ export const SelectInput = ({ leftIconName, options, label, ...otherProps }) => 
           key: option.id.toString(),
         }))}
       />
-      {/*<Picker
-        style={[
-          {
-            flex: 1,
-            width: '100%',
-            fontSize: 16,
-            color: Colors.black,
-          },
-          selectInputStyles,
-        ]}
-        selectedValue={otherProps.value}
-        onValueChange={otherProps.onSelect}
-      >
-        {options.map((option) => {
-          return (
-            <Picker.Item
-              label={option.name.toString()}
-              value={option.id.toString()}
-              key={option.id.toString()}
-            />
-          );
-        })}
-      </Picker>*/}
     </View>
   );
 };

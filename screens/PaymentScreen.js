@@ -68,6 +68,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
         billingDetails: {
           email: user.email,
         },
+        paymentMethodType: 'Card',
       });
       if (error) {
         throw error;
@@ -83,6 +84,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
       setPlan('0');
       cardRef.current.clear();
     } catch (e) {
+      console.log('From here:');
       console.log(e);
       setShowError(true);
     }

@@ -57,6 +57,7 @@ exports.sendMail = functions.https.onRequest((req, res) => {
       if (erro) {
         return res.send(erro.toString());
       }
+      console.log('Message sent: ', info);
       return res.send('Sent');
     });
   });
@@ -150,6 +151,7 @@ exports.forgotPassword = functions.https.onRequest((req, res) => {
         if (erro) {
           return res.send({ status: 'error', message: erro.toString() });
         }
+        console.log('Message sent: ', info);
         return res.send({ status: 'success', message: 'Message Sent' });
       });
     } catch (error) {
