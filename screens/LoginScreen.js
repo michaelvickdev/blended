@@ -71,7 +71,6 @@ export const LoginScreen = ({ navigation }) => {
         throw new Error('Something went wrong');
       }
     } catch (error) {
-      console.error(error);
       setErrorState('There was a problem signing in with Facebook');
     }
   };

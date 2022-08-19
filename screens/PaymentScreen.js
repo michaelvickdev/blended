@@ -104,94 +104,95 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
           </Text>
         </View>
         <View style={styles.form}>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <View style={{ justifyContent: 'flex-start' }}>
-              <TextInput
-                mode="outlined"
-                placeholder="Name on card"
-                value={name}
-                onChangeText={(text) => setName(text)}
-                outlineColor={Colors.black}
-                activeOutlineColor={Colors.black}
-                style={{ marginVertical: 16, backgroundColor: Colors.white }}
-              />
-              <RNPickerSelect
-                name="plan"
-                useNativeAndroidPickerStyle={false}
-                Icon={() => <Icon name="chevron-down" size={24} color={Colors.black} />}
-                items={Object.keys(items).map((key) => ({
-                  label: items[key].label,
-                  value: key,
-                  key: key,
-                }))}
-                value={plan}
-                placeholder={{ label: 'Select a Plan', value: '0' }}
-                onValueChange={(value) => setPlan(value)}
-                style={customPickerStyles}
-              />
-              <CardField
-                postalCodeEnabled={false}
-                ref={cardRef}
-                autofocus
-                style={styles.cardField}
-                cardStyle={{
-                  backgroundColor: Colors.white,
-                  borderRadius: 8,
-                  color: Colors.black,
-                  borderColor: Colors.black,
-                  borderWidth: 1,
-                }}
-              />
-              <Button
-                mode="contained"
-                labelStyle={{ color: Colors.white, fontSize: 16 }}
-                style={{ borderColor: Colors.black }}
-                color={Colors.secondary}
-                onPress={handlePayPress}
-                disabled={plan === '0' || isLoading || loading || name === ''}
-              >
-                Pay
-              </Button>
-            </View>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+          >
+            <TextInput
+              mode="outlined"
+              placeholder="Name on card"
+              value={name}
+              onChangeText={(text) => setName(text)}
+              outlineColor={Colors.black}
+              activeOutlineColor={Colors.black}
+              style={{ marginVertical: 16, backgroundColor: Colors.white }}
+            />
+            <RNPickerSelect
+              name="plan"
+              useNativeAndroidPickerStyle={false}
+              Icon={() => <Icon name="chevron-down" size={24} color={Colors.black} />}
+              items={Object.keys(items).map((key) => ({
+                label: items[key].label,
+                value: key,
+                key: key,
+              }))}
+              value={plan}
+              placeholder={{ label: 'Select a Plan', value: '0' }}
+              onValueChange={(value) => setPlan(value)}
+              style={customPickerStyles}
+            />
+            <CardField
+              postalCodeEnabled={false}
+              ref={cardRef}
+              autofocus
+              style={styles.cardField}
+              cardStyle={{
+                backgroundColor: Colors.white,
+                borderRadius: 8,
+                color: Colors.black,
+                borderColor: Colors.black,
+                borderWidth: 1,
+              }}
+            />
+            <Button
+              mode="contained"
+              labelStyle={{ color: Colors.white, fontSize: 16 }}
+              style={{ borderColor: Colors.black }}
+              color={Colors.secondary}
+              onPress={handlePayPress}
+              disabled={plan === '0' || isLoading || loading || name === ''}
+            >
+              Pay
+            </Button>
           </KeyboardAvoidingView>
         </View>
-        <AwesomeAlert
-          show={showSuccess}
-          showProgress={false}
-          title="Success"
-          message="Payment succeeded, press 'Ok' to continue."
-          closeOnTouchOutside={false}
-          closeOnHardwareBackPress={false}
-          showCancelButton={false}
-          showConfirmButton={true}
-          confirmText="Ok"
-          confirmButtonColor={Colors.secondary}
-          onConfirmPressed={() => {
-            if (setMember !== undefined) {
-              setMember(true);
-            } else {
-              setShowSuccess(false);
-              setChangeCounter((prev) => prev + 1);
-            }
-          }}
-        />
-
-        <AwesomeAlert
-          show={showError}
-          showProgress={false}
-          title="Failed"
-          message="Payment did not succeed. Please try again."
-          closeOnTouchOutside={false}
-          closeOnHardwareBackPress={false}
-          showCancelButton={false}
-          showConfirmButton={true}
-          confirmText="Ok"
-          confirmButtonColor={Colors.secondary}
-          onConfirmPressed={() => {
-            setShowError(false);
-          }}
-        />
       </View>
+      <AwesomeAlert
+        show={showSuccess}
+        showProgress={false}
+        title="Success"
+        message="Payment succeeded, press 'Ok' to continue."
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="Ok"
+        confirmButtonColor={Colors.secondary}
+        onConfirmPressed={() => {
+          if (setMember !== undefined) {
+            setMember(true);
+          } else {
+            setShowSuccess(false);
+            setChangeCounter((prev) => prev + 1);
+          }
+        }}
+      />
+
+      <AwesomeAlert
+        show={showError}
+        showProgress={false}
+        title="Failed"
+        message="Payment did not succeed. Please try again."
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="Ok"
+        confirmButtonColor={Colors.secondary}
+        onConfirmPressed={() => {
+          setShowError(false);
+        }}
+      />
     </LinearGradient>
   );
 };
@@ -210,7 +211,6 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    justifyContent: 'center',
   },
 });
 
