@@ -62,7 +62,7 @@ export const LoginScreen = ({ navigation }) => {
         appId: Constants.manifest.extra.fbAppId,
       });
       const { type, token } = await Facebook.logInWithReadPermissionsAsync({
-        permissions: ['public_profile'],
+        permissions: ['public_profile', 'email'],
       });
       if (type === 'success') {
         const credential = FacebookAuthProvider.credential(token);
@@ -70,7 +70,8 @@ export const LoginScreen = ({ navigation }) => {
       } else {
         throw new Error('Something went wrong');
       }
-    } catch ({ message }) {
+    } catch (error) {
+      console.error(error);
       setErrorState('There was a problem signing in with Facebook');
     }
   };
@@ -121,7 +122,7 @@ export const LoginScreen = ({ navigation }) => {
             <TextInput
               name="email"
               leftIconName="email"
-              placeholder="Email Address / Username"
+              placeholder="Email Address"
               autoCapitalize="none"
               keyboardType="email-address"
               textContentType="emailAddress"

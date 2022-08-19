@@ -42,8 +42,8 @@ export const HomeScreen = ({ navigation }) => {
       }
     })();
 
-    Linking.addEventListener('url', (url) => {
-      const { path, queryParams } = Linking.parse(url);
+    Linking.addEventListener('url', (event) => {
+      const { path, queryParams } = Linking.parse(event.url);
       if (path === 'UserProfile' && !!queryParams.uid) {
         navigation.navigate('UserProfile', { uid: queryParams.uid });
       }

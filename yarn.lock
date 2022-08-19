@@ -4062,7 +4062,7 @@ expo-error-recovery@~3.2.0:
   resolved "https://registry.yarnpkg.com/expo-error-recovery/-/expo-error-recovery-3.2.0.tgz#3a4543382904a5e70829cb41d7fc0f022c2bef6e"
   integrity sha512-XZ630ks5HNxa9oc2Ya1hEn1ez031Cy4VnyxerPC2o9fKNKSrD/64cRqGF9NkGM3X2uf8+PCB9adxVflAIXBf6w==
 
-expo-facebook@~12.2.0:
+expo-facebook@^12.2.0:
   version "12.2.0"
   resolved "https://registry.yarnpkg.com/expo-facebook/-/expo-facebook-12.2.0.tgz#7d552d18620c5070e3061747ab8e8940953d85a5"
   integrity sha512-goW+s2tyzAxo2EX6Qp0vML8fjb25TE8ZzpmjGdwh3FvapIBzcY3AKpiAyjH/1sGMvadtbgfy2ApiMKNIom6aTA==

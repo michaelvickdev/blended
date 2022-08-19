@@ -105,7 +105,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
         </View>
         <View style={styles.form}>
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <View style={{ justifyContent: 'flex-end' }}>
+            <View style={{ justifyContent: 'flex-start' }}>
               <TextInput
                 mode="outlined"
                 placeholder="Name on card"
