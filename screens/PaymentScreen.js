@@ -9,7 +9,7 @@ import { Colors } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 import { KeyboardAvoidingView } from 'react-native';
 import Constants from 'expo-constants';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '../config';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
@@ -77,6 +77,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
         await updateDoc(userRef, {
           isMember: true,
           plan: { description: items[plan].val, id: subscriptionId },
+          trial: deleteField(),
         });
         setShowSuccess(true);
       }

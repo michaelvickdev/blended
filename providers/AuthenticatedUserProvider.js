@@ -1,4 +1,4 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, createContext, useRef } from 'react';
 
 export const AuthenticatedUserContext = createContext({});
 
@@ -8,6 +8,8 @@ export const AuthenticatedUserProvider = ({ children }) => {
   const [changeCounter, setChangeCounter] = useState(0);
   const [feedReload, setFeedReload] = useState(0);
   const [paymentCounter, setPaymentCounter] = useState(0);
+  const [signUpCounter, setSignUpCounter] = useState(0);
+  const unsubscribe = useRef(null);
   return (
     <AuthenticatedUserContext.Provider
       value={{
@@ -21,6 +23,9 @@ export const AuthenticatedUserProvider = ({ children }) => {
         setFeedReload,
         paymentCounter,
         setPaymentCounter,
+        unsubscribe,
+        signUpCounter,
+        setSignUpCounter,
       }}
     >
       {children}

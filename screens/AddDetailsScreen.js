@@ -45,6 +45,7 @@ export const AddDetailsScreen = ({ showDetails }) => {
         friends: [],
         requests: [],
         uid: user.uid,
+        trial: true,
         dateCreated: new Date(),
       });
 

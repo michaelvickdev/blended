@@ -136,7 +136,11 @@ export function SideBarContent(props) {
                 </View>
                 <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                   <Text bold={true} heading={true} style={{ fontSize: 14 }}>
-                    {userDetails ? userDetails?.plan?.description + ' Plan' : ''}
+                    {userDetails
+                      ? userDetails?.trial
+                        ? 'Free trial'
+                        : userDetails?.plan?.description + ' Plan'
+                      : ''}
                   </Text>
                   <Button
                     color={Colors.white}

@@ -21,7 +21,7 @@ import Constants from 'expo-constants';
 export const SignupScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { setRegCompleted } = useContext(AuthenticatedUserContext);
+  const { unsubscribe, setSignUpCounter } = useContext(AuthenticatedUserContext);
   const [showAlert, setShowAlert] = useState(false);
 
   //firestore check username already exists
@@ -35,7 +35,6 @@ export const SignupScreen = ({ navigation }) => {
 
   const handleSignup = async (values) => {
     setIsLoading(true);
-    setRegCompleted(false);
     const { email, image, username } = values;
     const usernameExists = await checkUsername(username);
     if (usernameExists) {
@@ -48,6 +47,7 @@ export const SignupScreen = ({ navigation }) => {
 
     ['image'].forEach((key) => delete values[key]);
     try {
+      if (unsubscribe.current) unsubscribe.current();
       const res = await createUserWithEmailAndPassword(auth, email, password);
       const user = res.user;
       const docRef = doc(db, 'users', user.uid);
@@ -57,6 +57,7 @@ export const SignupScreen = ({ navigation }) => {
         friends: [],
         requests: [],
         uid: user.uid,
+        trial: true,
         dateCreated: new Date(),
       });
 
@@ -87,7 +88,6 @@ export const SignupScreen = ({ navigation }) => {
       alert(err.message);
     }
     setIsLoading(false);
-    setRegCompleted(true);
   };
 
   return (
@@ -272,7 +272,6 @@ export const SignupScreen = ({ navigation }) => {
             borderless
             borderlessTitleStyle={{ fontSize: 16 }}
             title={'Login'}
-            onPress={() => navigation.navigate('Login')}
           />
         </View>
       </KeyboardAwareScrollView>
@@ -289,6 +288,7 @@ export const SignupScreen = ({ navigation }) => {
         confirmText="Ok"
         confirmButtonColor={Colors.secondary}
         onConfirmPressed={() => {
+          setSignUpCounter((prev) => prev + 1);
           navigation.navigate('Login');
         }}
       />
