@@ -59,6 +59,8 @@ const getTitle = (route) => {
       return 'Change Password';
     case 'PaymentScreen':
       return 'Buy Subscription';
+    case 'SettingStack':
+      return 'Settings';
     default:
       return current;
   }

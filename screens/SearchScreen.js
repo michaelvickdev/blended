@@ -35,11 +35,10 @@ export const SearchScreen = ({ navigation }) => {
       collection(db, 'users'),
       where('username', '>=', text.toLowerCase()),
       where('username', '<=', text.toLowerCase() + '\uf8ff'),
-      limit(25)
+      limit(5)
     );
     const usersSnapshot = await getDocs(usersQuery);
     const usersData = usersSnapshot.docs.map((doc) => doc.data());
-    console.log(mountedRef.current);
     if (mountedRef.current) {
       setSearchData(usersData);
     }

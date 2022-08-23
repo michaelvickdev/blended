@@ -185,7 +185,6 @@ export const EditProfileScreen = () => {
                             leftIconName="information"
                             placeholder="*Full Name"
                             autoCapitalize="none"
-                            autoFocus={true}
                             value={values.fullname}
                             onChangeText={handleChange('fullname')}
                             onBlur={handleBlur('fullname')}

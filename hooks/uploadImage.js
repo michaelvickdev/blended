@@ -12,6 +12,5 @@ export const uploadImage = async (uri, imageName, isVideo = false) => {
 
   const storageRef = ref(storage, `images/${imageName}`);
 
-  // 'file' comes from the Blob or File API
   await uploadBytesResumable(storageRef, blob);
 };

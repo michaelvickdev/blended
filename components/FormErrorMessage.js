@@ -9,7 +9,11 @@ export const FormErrorMessage = ({ error, visible }) => {
     return null;
   }
 
-  return <Text style={styles.errorText}>{error}</Text>;
+  return (
+    <Text bold={true} style={styles.errorText}>
+      {error}
+    </Text>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -18,6 +22,5 @@ const styles = StyleSheet.create({
     color: Colors.red,
     fontSize: 14,
     marginBottom: 5,
-    fontWeight: '600',
   },
 });

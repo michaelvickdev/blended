@@ -63,7 +63,7 @@ export function SideBarContent(props) {
           isMember: false,
         });
         Alert.alert(
-          'Unsubscribed',
+          'Unsubscribed!',
           'You have successfully unsubscribed from the membership',
           [
             {

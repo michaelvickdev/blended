@@ -28,8 +28,4 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     resizeMode: 'contain',
   },
-  playIcon: {
-    position: 'absolute',
-    alignSelf: 'center',
-  },
 });

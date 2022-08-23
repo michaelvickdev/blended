@@ -39,7 +39,6 @@ export const ForgotPasswordScreen = ({ navigation }) => {
     <View isSafe style={styles.container}>
       <View style={styles.innerContainer}>
         <Logo uri={Images.logo} />
-        {/*<Text style={styles.screenTitle}>Reset your password</Text>*/}
       </View>
       <Formik
         initialValues={{ email: '' }}
@@ -48,7 +47,6 @@ export const ForgotPasswordScreen = ({ navigation }) => {
       >
         {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
           <>
-            {/* Email input field */}
             <TextInput
               name="email"
               leftIconName="email"
@@ -61,16 +59,16 @@ export const ForgotPasswordScreen = ({ navigation }) => {
               onBlur={handleBlur('email')}
             />
             <FormErrorMessage error={errors.email} visible={touched.email} />
-            {/* Display Screen Error Mesages */}
+
             {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
-            {/* Password Reset Send Email  button */}
+
             <Button disabled={loading} style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>{loading ? 'Resetting' : 'Reset Password'}</Text>
             </Button>
           </>
         )}
       </Formik>
-      {/* Button to navigate to Login screen */}
+
       <View style={styles.footerButtonsContainer}>
         <Text style={styles.boldText}>Not a Member yet?</Text>
         <Button
@@ -109,12 +107,6 @@ const styles = StyleSheet.create({
   innerContainer: {
     alignItems: 'center',
   },
-  // screenTitle: {
-  //   fontSize: 32,
-  //   fontWeight: '700',
-  //   color: Colors.black,
-  //   paddingTop: 20
-  // },
   button: {
     width: '100%',
     justifyContent: 'center',

@@ -12,6 +12,7 @@ import { getDoc, doc, query, orderBy, limit, collection, getDocs } from 'firebas
 import { getImage } from '../hooks/getImage';
 import { AuthenticatedUserContext } from '../providers';
 import { db } from '../config';
+import { Icon } from '../components';
 
 const Stack = createStackNavigator();
 
@@ -181,11 +182,14 @@ const SingleThread = ({ navigation, userId, selfId }) => {
           <Text heading={true} style={{ fontSize: 18 }}>
             {data.name}
           </Text>
-          <Text numberOfLines={1} heading={true} style={{ fontSize: 12, width: 100 }}>
-            {msgData?.text}
-          </Text>
+          <View style={{ flexDirection: 'row' }}>
+            <Text numberOfLines={1} heading={true} style={{ fontSize: 12, width: 100 }}>
+              {msgData?.text}
+            </Text>
+            {msgData?.sentBy == selfId && <Icon name="check" size={14} color={Colors.mediumGray} />}
+          </View>
         </View>
-        <Text>{new Date(msgData.timestamp).toLocaleTimeString()}</Text>
+        <Text>{new Date(msgData?.timestamp).toLocaleTimeString()}</Text>
       </View>
     </TouchableOpacity>
   );

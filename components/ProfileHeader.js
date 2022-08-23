@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   avatarImage: {
     width: 95,
     height: 95,
-    borderRadius: 85 / 2,
+    borderRadius: 95 / 2,
   },
   status: {
     marginVertical: 8,
