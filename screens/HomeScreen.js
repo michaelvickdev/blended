@@ -9,10 +9,36 @@ import * as Linking from 'expo-linking';
 
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config';
+import generatePushNotificationsToken from '../utils/generatePushNotificationsToken';
+import usePushNotifications from '../hooks/usePushNotifications';
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useContext(AuthenticatedUserContext);
   const Stack = createStackNavigator();
+
+  const setNotifications = async () => {
+    const userRef = doc(db, 'users', user.uid);
+    try {
+      const token = await generatePushNotificationsToken();
+      if (!token) {
+        return;
+      }
+
+      await updateDoc(userRef, {
+        pushToken: token,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    setNotifications();
+  }, []);
+
+  const { notification } = usePushNotifications((response) => console.log(response));
+
+  console.log({ notification });
 
   const getCurrentLoc = async () => {
     let { status } = await Location.getForegroundPermissionsAsync();
