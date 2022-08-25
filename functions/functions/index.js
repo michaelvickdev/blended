@@ -7,6 +7,8 @@ const stripe = require('stripe')(
 );
 admin.initializeApp();
 
+const db = admin.firestore();
+
 exports.sendMail = functions.https.onRequest((req, res) => {
   cors(req, res, () => {
     const transporter = nodemailer.createTransport({
@@ -159,3 +161,135 @@ exports.forgotPassword = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+exports.userNotification = functions.firestore
+  .document('users/{userId}')
+  .onWrite((change, context) => {
+    const data = change.after.data();
+    const previousData = change.before.data();
+
+    functions.logger.log('data before: ', previousData);
+    functions.logger.log('data after: ', data);
+
+    data.friends
+      .filter((uid) => !previousData.friends.includes(uid))
+      .forEach((friend) => {
+        if (previousData.requests.includes(friend)) {
+          db.doc('users/' + data.uid)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                db.doc('users/' + friend).update({
+                  notifications: admin.firestore.FieldValue.arrayUnion(
+                    doc.data().username + ' accepted you friend request.'
+                  ),
+                });
+              }
+            });
+        }
+      });
+
+    data.requests
+      .filter((uid) => !previousData.requests.includes(uid))
+      .forEach((request) => {
+        db.doc('users/' + request)
+          .get()
+          .then((doc) => {
+            if (doc.exists) {
+              db.doc('users/' + data.uid).update({
+                notifications: admin.firestore.FieldValue.arrayUnion(
+                  doc.data().username + ' sent you a friend request'
+                ),
+              });
+            }
+          });
+      });
+
+    previousData.requests
+      .filter((uid) => !data.requests.includes(uid))
+      .forEach((uid) => {
+        if (!data.friends.includes(uid)) {
+          db.doc('users/' + uid)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                db.doc('users/' + data.uid).update({
+                  notifications: admin.firestore.FieldValue.arrayRemove(
+                    doc.data().username + ' sent you a friend request'
+                  ),
+                });
+              }
+            });
+        }
+      });
+  });
+
+exports.feedsNotification = functions.firestore
+  .document('feeds/{feedId}')
+  .onWrite((change, context) => {
+    const data = change.after.data();
+    const previousData = change.before.data();
+
+    functions.logger.log('data before: ', previousData);
+    functions.logger.log('data after: ', data);
+
+    data.likes
+      .filter((user) => !previousData.likes.includes(user))
+      .forEach((user) => {
+        functions.logger.log('1. coming here... ', user, data.uid);
+        if (user != data.uid) {
+          db.doc('users/' + user)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                db.doc('users/' + data.uid).update({
+                  notifications: admin.firestore.FieldValue.arrayUnion(
+                    doc.data().username + ` liked your feed: '${data.title}'`
+                  ),
+                });
+              }
+            });
+        }
+      });
+
+    previousData.likes
+      .filter((user) => !data.likes.includes(user))
+      .forEach((user) => {
+        if (user != data.uid) {
+          db.doc('users/' + user)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                db.doc('users/' + data.uid).update({
+                  notifications: admin.firestore.FieldValue.arrayRemove(
+                    doc.data().username + ` liked your feed: '${data.title}'`
+                  ),
+                });
+              }
+            });
+        }
+      });
+
+    data.comments
+      .filter((comment) =>
+        previousData.comments.some(
+          (oldComment) => JSON.stringify(oldComment) !== JSON.stringify(comment)
+        )
+      )
+      .forEach((comment) => {
+        functions.logger.log('1. coming here... ', comment.sentBy, data.uid);
+        if (comment.sentBy != data.uid) {
+          db.doc('users/' + comment.sentBy)
+            .get()
+            .then((doc) => {
+              if (doc.exists) {
+                db.doc('users/' + data.uid).update({
+                  notifications: admin.firestore.FieldValue.arrayUnion(
+                    doc.data().username + ` commented on your feed: '${data.title}'`
+                  ),
+                });
+              }
+            });
+        }
+      });
+  });

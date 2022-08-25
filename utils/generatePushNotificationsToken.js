@@ -9,7 +9,8 @@ import { Alert } from 'react-native';
 
 const generatePushNotificationsToken = async () => {
   if (!isDevice) {
-    throw new Error('Sorry, Push Notifications are only supported on physical devices.');
+    console.log('Sorry, Push Notifications are only supported on physical devices.');
+    return null;
   }
 
   const { status: existingStatus } = await getPermissionsAsync();

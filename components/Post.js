@@ -72,9 +72,7 @@ export const Post = ({ post, navigation, reportPost }) => {
 
   const setLike = async () => {
     const feedRef = doc(db, 'feeds', post.feedId);
-    const updateObj = isLiked
-      ? { likes: arrayRemove(userInfo.uid) }
-      : { likes: arrayUnion(userInfo.uid) };
+    const updateObj = isLiked ? { likes: arrayRemove(user.uid) } : { likes: arrayUnion(user.uid) };
     if (mountedRef.current) {
       setLikeCount((prev) => (isLiked ? (prev != 0 ? prev - 1 : prev) : prev + 1));
       setIsLiked((prev) => !prev);
