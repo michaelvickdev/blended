@@ -15,6 +15,7 @@ import usePushNotifications from '../hooks/usePushNotifications';
 export const HomeScreen = ({ navigation }) => {
   const { user } = useContext(AuthenticatedUserContext);
   const Stack = createStackNavigator();
+  usePushNotifications((response) => console.log(response));
 
   const setNotifications = async () => {
     const userRef = doc(db, 'users', user.uid);
@@ -25,7 +26,7 @@ export const HomeScreen = ({ navigation }) => {
       }
 
       await updateDoc(userRef, {
-        pushToken: token,
+        expoPushToken: token,
       });
     } catch (error) {
       console.log(error);
@@ -35,10 +36,6 @@ export const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     setNotifications();
   }, []);
-
-  const { notification } = usePushNotifications((response) => console.log(response));
-
-  console.log({ notification });
 
   const getCurrentLoc = async () => {
     let { status } = await Location.getForegroundPermissionsAsync();

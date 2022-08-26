@@ -40,7 +40,6 @@ const generatePushNotificationsToken = async () => {
   }
 
   const { data } = await getExpoPushTokenAsync();
-  console.log(data);
 
   return data;
 };
