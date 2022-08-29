@@ -13,4 +13,5 @@ export const Colors = {
   mainSecond: '#e5dcfb',
   darkRed: '#960300',
   skyBlue: '#17A9FD',
+  yellowishGray: '#E7E7DA',
 };

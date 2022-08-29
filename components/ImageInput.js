@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { TouchableHighlight } from 'react-native';
+import { TouchableHighlight, Image } from 'react-native';
 import { Icon } from './Icon';
 import { View } from './View';
 import { Colors } from '../config';
 import { Text } from './Text';
 
 export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, free, video }) => {
+  const [imageUrl, setImageUrl] = useState(null);
   const pickImage = async (handleChange) => {
     const { granted } = await ImagePicker.requestCameraPermissionsAsync();
 
@@ -28,6 +29,7 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, 
     });
     if (!result.cancelled) {
       handleChange(result.uri, result.type);
+      setImageUrl(result.uri);
     }
   };
   return (
@@ -67,6 +69,14 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, 
             {label}
           </Text>
         </TouchableHighlight>
+      )}
+
+      {imageUrl && (
+        <Image
+          source={{ uri: imageUrl }}
+          resizeMode="contain"
+          style={{ width: 32, marginLeft: 'auto', borderRadius: 5 }}
+        />
       )}
     </View>
   );

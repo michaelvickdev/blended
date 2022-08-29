@@ -19,7 +19,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: Colors.skyBlue,
     fontSize: 18,
-    fontWeight: '200',
   },
 });
 

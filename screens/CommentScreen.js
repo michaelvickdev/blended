@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { StyleSheet, Dimensions, FlatList } from 'react-native';
+import { StyleSheet, Dimensions, ScrollView } from 'react-native';
 import { View } from '../components';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../config';
@@ -18,6 +18,7 @@ export const Comments = ({ route, navigation }) => {
   const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [comments, setComments] = useState([]);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -25,7 +26,7 @@ export const Comments = ({ route, navigation }) => {
         const feedRef = doc(db, 'feeds', route.params.postId);
         const feedData = await getDoc(feedRef);
         if (mountedRef.current && feedData.data().comments.length)
-          setComments(feedData.data().comments);
+          setComments(feedData.data().comments.reverse());
       } catch (error) {
         console.log(error);
       }
@@ -38,6 +39,7 @@ export const Comments = ({ route, navigation }) => {
   const addComment = async () => {
     if (!text) return;
     setIsLoading(true);
+    setInitialLoad(false);
     try {
       const feedRef = doc(db, 'feeds', route.params.postId);
 
@@ -51,7 +53,7 @@ export const Comments = ({ route, navigation }) => {
       });
       if (mountedRef.current) {
         setChangeCounter((prev) => prev + 1);
-        setComments((prev) => [...prev, comment]);
+        setComments((prev) => [{ ...comment, new: true }, ...prev]);
       }
     } catch (error) {
       console.log(error);
@@ -65,17 +67,23 @@ export const Comments = ({ route, navigation }) => {
     <View style={{ flex: 1 }}>
       <View isSafe style={{ flex: 1 }}>
         <CommentHeader commentLength={comments.length} navigation={navigation} />
-        <FlatList
-          data={comments}
-          renderItem={({ item }) => (
-            <CommentBubble
-              text={item.text}
-              timestamp={item.timestamp}
-              user={item.sentBy == user.uid ? 'self' : item.sentBy}
-            />
-          )}
+
+        <ScrollView
           style={styles.container}
-        />
+          automaticallyAdjustsScrollIndicatorInsets={false}
+          scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        >
+          {comments.map((comment, index) => (
+            <CommentBubble
+              key={index + comment.timestamp + ''}
+              text={comment.text}
+              timestamp={comment.timestamp}
+              user={comment.sentBy == user.uid ? 'self' : comment.sentBy}
+              initialLoad={initialLoad}
+              index={index}
+            />
+          ))}
+        </ScrollView>
 
         <View style={styles.commentBox}>
           <TextInput
@@ -106,8 +114,21 @@ export const Comments = ({ route, navigation }) => {
   );
 };
 
-const CommentBubble = ({ text, timestamp, user }) => {
+const CommentBubble = ({ text, timestamp, user, initialLoad, index }) => {
   const [username, setUsername] = useState('');
+  const [backgroundColor, setBackgroundColor] = useState(Colors.lightGray);
+  useEffect(() => {
+    if (!initialLoad && index === 0) {
+      setBackgroundColor(Colors.yellowishGray);
+      const timeout = setTimeout(() => {
+        setBackgroundColor(Colors.lightGray);
+      }, 1000);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -127,7 +148,7 @@ const CommentBubble = ({ text, timestamp, user }) => {
     };
   }, []);
   return (
-    <View style={[styles.commentBubble]}>
+    <View style={[styles.commentBubble, { backgroundColor: backgroundColor }]}>
       <View style={styles.commentBubbleText}>
         <Text style={{ fontSize: 16, marginBottom: 5 }} heading={true} bold={true}>
           {username}
@@ -179,7 +200,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 10,
-    backgroundColor: Colors.lightGray,
   },
   commentBubbleText: {
     flex: 1,
