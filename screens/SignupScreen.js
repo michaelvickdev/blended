@@ -95,6 +95,7 @@ export const SignupScreen = ({ navigation }) => {
       <KeyboardAwareScrollView
         contentContainerStyle={styles.contentContainerStyle}
         enableOnAndroid={true}
+        keyboardShouldPersistTaps="handled"
       >
         {/* LogoContainer: consits app logo and screen title */}
         <View style={styles.logoContainer}>

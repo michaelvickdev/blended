@@ -102,8 +102,14 @@ export const LoginScreen = ({ navigation }) => {
   }, [response]);
 
   return (
-    <View isSafe style={styles.container}>
-      <KeyboardAwareScrollView enableOnAndroid={true} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScrollView
+      style={styles.container}
+      enableOnAndroid={true}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={{ flex: 1 }} isSafe>
         {/* LogoContainer: consits app logo and screen title */}
         <View style={styles.logoContainer}>
           <Logo uri={Images.logo} />
@@ -228,14 +234,13 @@ export const LoginScreen = ({ navigation }) => {
             Blended Mates Social App v{Constants.manifest.version}
           </Text>
         </View>
-      </KeyboardAwareScrollView>
-    </View>
+      </View>
+    </KeyboardAwareScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: Colors.white,
     paddingHorizontal: 16,
   },
