@@ -14,6 +14,7 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
   return (
     <View
       style={{
+        flex: 1,
         flexWrap: 'wrap',
         borderBottomWidth: 1,
         borderColor: Colors.black,
@@ -44,12 +45,14 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
           setShowDatePicker(true);
         }}
         underlayColor="white"
+        style={{ width: '100%' }}
       >
         <TextInput
           editable={false}
           pointerEvents="none"
           style={[
             {
+              flex: 1,
               fontSize: 16,
               color: Colors.black,
               padding: 12,
