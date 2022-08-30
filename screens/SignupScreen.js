@@ -272,6 +272,9 @@ export const SignupScreen = ({ navigation }) => {
             borderless
             borderlessTitleStyle={{ fontSize: 16 }}
             title={'Login'}
+            onPress={() => {
+              navigation.navigate('Login');
+            }}
           />
         </View>
       </KeyboardAwareScrollView>

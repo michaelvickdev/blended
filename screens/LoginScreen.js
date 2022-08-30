@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Formik } from 'formik';
 import {
   signInWithEmailAndPassword,
@@ -102,127 +103,132 @@ export const LoginScreen = ({ navigation }) => {
 
   return (
     <View isSafe style={styles.container}>
-      {/* LogoContainer: consits app logo and screen title */}
-      <View style={styles.logoContainer}>
-        <Logo uri={Images.logo} />
-        {/*<Text style={styles.screenTitle}>Welcome back!</Text>*/}
-      </View>
-      <Formik
-        initialValues={{
-          email: '',
-          password: '',
-        }}
-        validationSchema={loginValidationSchema}
-        onSubmit={(values) => handleLogin(values)}
-      >
-        {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
-          <>
-            {/* Input fields */}
-            <TextInput
-              name="email"
-              leftIconName="email"
-              placeholder="Email Address"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              autoFocus={true}
-              value={values.email}
-              onChangeText={handleChange('email')}
-              onBlur={handleBlur('email')}
-            />
-            <FormErrorMessage error={errors.email} visible={touched.email} />
-            <TextInput
-              name="password"
-              leftIconName="key-variant"
-              placeholder="Password"
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry={passwordVisibility}
-              textContentType="password"
-              rightIcon={rightIcon}
-              handlePasswordVisibility={handlePasswordVisibility}
-              value={values.password}
-              onChangeText={handleChange('password')}
-              onBlur={handleBlur('password')}
-            />
-            <FormErrorMessage error={errors.password} visible={touched.password} />
-            {/* Display Screen Error Mesages */}
-            {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
-            {/* Login button */}
-            <Button style={styles.button} onPress={handleSubmit} disabled={isLoading}>
-              <Text
-                bold={true}
-                style={[styles.buttonText, { color: isLoading ? Colors.lightGray : Colors.white }]}
-              >
-                {isLoading ? 'Logging in...' : 'Login'}
-              </Text>
-            </Button>
-          </>
-        )}
-      </Formik>
-      {/* Button to navigate to SignupScreen to create a new account */}
-      <View style={styles.socialSignIn}>
-        <Button
-          style={[styles.button, { flexDirection: 'row', width: '60%' }]}
-          onPress={() => promptAsync()}
-          disabled={isLoading}
+      <KeyboardAwareScrollView enableOnAndroid={true} showsVerticalScrollIndicator={false}>
+        {/* LogoContainer: consits app logo and screen title */}
+        <View style={styles.logoContainer}>
+          <Logo uri={Images.logo} />
+          {/*<Text style={styles.screenTitle}>Welcome back!</Text>*/}
+        </View>
+        <Formik
+          initialValues={{
+            email: '',
+            password: '',
+          }}
+          validationSchema={loginValidationSchema}
+          onSubmit={(values) => handleLogin(values)}
         >
-          <Icon name="google" size={20} color={Colors.white} style={{ marginRight: 8 }} />
-          <Text bold={true} style={[styles.buttonText, { color: Colors.white }]}>
-            Continue with Google
-          </Text>
-        </Button>
+          {({ values, touched, errors, handleChange, handleSubmit, handleBlur }) => (
+            <>
+              {/* Input fields */}
+              <TextInput
+                name="email"
+                leftIconName="email"
+                placeholder="Email Address"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                textContentType="emailAddress"
+                autoFocus={true}
+                value={values.email}
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+              />
+              <FormErrorMessage error={errors.email} visible={touched.email} />
+              <TextInput
+                name="password"
+                leftIconName="key-variant"
+                placeholder="Password"
+                autoCapitalize="none"
+                autoCorrect={false}
+                secureTextEntry={passwordVisibility}
+                textContentType="password"
+                rightIcon={rightIcon}
+                handlePasswordVisibility={handlePasswordVisibility}
+                value={values.password}
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+              />
+              <FormErrorMessage error={errors.password} visible={touched.password} />
+              {/* Display Screen Error Mesages */}
+              {errorState !== '' ? <FormErrorMessage error={errorState} visible={true} /> : null}
+              {/* Login button */}
+              <Button style={styles.button} onPress={handleSubmit} disabled={isLoading}>
+                <Text
+                  bold={true}
+                  style={[
+                    styles.buttonText,
+                    { color: isLoading ? Colors.lightGray : Colors.white },
+                  ]}
+                >
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </Text>
+              </Button>
+            </>
+          )}
+        </Formik>
+        {/* Button to navigate to SignupScreen to create a new account */}
+        <View style={styles.socialSignIn}>
+          <Button
+            style={[styles.button, { flexDirection: 'row', width: '60%' }]}
+            onPress={() => promptAsync()}
+            disabled={isLoading}
+          >
+            <Icon name="google" size={20} color={Colors.white} style={{ marginRight: 8 }} />
+            <Text bold={true} style={[styles.buttonText, { color: Colors.white }]}>
+              Continue with Google
+            </Text>
+          </Button>
 
-        <Button
-          style={[styles.button, { flexDirection: 'row', width: '60%' }]}
-          onPress={signInWithFb}
-          disabled={isLoading}
-        >
-          <Icon name="facebook" size={20} color={Colors.white} style={{ marginRight: 8 }} />
-          <Text bold={true} style={[styles.buttonText, { color: Colors.white }]}>
-            Continue with Facebook
-          </Text>
-        </Button>
-        {isAppleLoginAvailable && (
-          <View style={{ alignItems: 'center', marginTop: 8 }}>
-            <AppleAuthentication.AppleAuthenticationButton
-              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
-              buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-              cornerRadius={25}
-              onPress={signInWithApple}
-              style={{ width: '60%', height: 40 }}
+          <Button
+            style={[styles.button, { flexDirection: 'row', width: '60%' }]}
+            onPress={signInWithFb}
+            disabled={isLoading}
+          >
+            <Icon name="facebook" size={20} color={Colors.white} style={{ marginRight: 8 }} />
+            <Text bold={true} style={[styles.buttonText, { color: Colors.white }]}>
+              Continue with Facebook
+            </Text>
+          </Button>
+          {isAppleLoginAvailable && (
+            <View style={{ alignItems: 'center', marginTop: 8 }}>
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE_OUTLINE}
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
+                cornerRadius={25}
+                onPress={signInWithApple}
+                style={{ width: '60%', height: 40 }}
+              />
+            </View>
+          )}
+        </View>
+        <View style={styles.footerButtonsContainer}>
+          <View>
+            <Text heading={true} bold={true}>
+              Not a Member yet?
+            </Text>
+          </View>
+          <View style={styles.buttonsContainer}>
+            <Button
+              style={styles.borderlessButtonContainer}
+              borderless
+              borderlessTitleStyle={styles.borderlessTitleStyle}
+              title={'Join Now Free'}
+              onPress={() => navigation.navigate('Signup')}
+            />
+            <Button
+              style={styles.borderlessButtonRightContainer}
+              borderless
+              borderlessTitleStyle={styles.borderlessTitleStyle}
+              title={'Forgot Password?'}
+              onPress={() => navigation.navigate('ForgotPassword')}
             />
           </View>
-        )}
-      </View>
-      <View style={styles.footerButtonsContainer}>
-        <View>
-          <Text heading={true} bold={true}>
-            Not a Member yet?
+        </View>
+        <View style={styles.footer}>
+          <Text heading={true} bold={true} style={styles.footerText}>
+            Blended Mates Social App v{Constants.manifest.version}
           </Text>
         </View>
-        <View style={styles.buttonsContainer}>
-          <Button
-            style={styles.borderlessButtonContainer}
-            borderless
-            borderlessTitleStyle={styles.borderlessTitleStyle}
-            title={'Join Now Free'}
-            onPress={() => navigation.navigate('Signup')}
-          />
-          <Button
-            style={styles.borderlessButtonRightContainer}
-            borderless
-            borderlessTitleStyle={styles.borderlessTitleStyle}
-            title={'Forgot Password?'}
-            onPress={() => navigation.navigate('ForgotPassword')}
-          />
-        </View>
-      </View>
-      <View style={styles.footer}>
-        <Text heading={true} bold={true} style={styles.footerText}>
-          Blended Mates Social App v{Constants.manifest.version}
-        </Text>
-      </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 };

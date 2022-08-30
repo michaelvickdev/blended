@@ -14,6 +14,7 @@ import { Icon } from 'react-native-elements';
 
 export const Comments = ({ route, navigation }) => {
   const mountedRef = useRef(true);
+  const scrollRef = useRef(null);
   const { user, setChangeCounter } = useContext(AuthenticatedUserContext);
   const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +62,10 @@ export const Comments = ({ route, navigation }) => {
     if (mountedRef.current) {
       setIsLoading(false);
       setText('');
+      scrollRef.current?.scrollTo({
+        y: 0,
+        animated: true,
+      });
     }
   };
   return (
@@ -72,6 +77,7 @@ export const Comments = ({ route, navigation }) => {
           style={styles.container}
           automaticallyAdjustsScrollIndicatorInsets={false}
           scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+          ref={scrollRef}
         >
           {comments.map((comment, index) => (
             <CommentBubble

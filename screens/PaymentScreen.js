@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Icon, Text, View } from '../components';
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { useConfirmPayment, CardField, initStripe } from '@stripe/stripe-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import RNPickerSelect from 'react-native-picker-select';
 import { Colors } from '../config';
 import { AuthenticatedUserContext } from '../providers';
-import { KeyboardAvoidingView } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Constants from 'expo-constants';
 import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '../config';
@@ -94,21 +94,18 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      <View isSafe={!!isSafe} style={{ flex: 1 }}>
-        <View style={styles.heading}>
-          <Text bold={true} heading={true} style={{ fontSize: 22 }}>
-            Enter your payment details
-          </Text>
-          <Text heading={true} style={{ fontSize: 18 }}>
-            Please enter your card details. You will be only charged after 10 days and you can
-            always cancel you subscription before that.
-          </Text>
-        </View>
-        <View style={styles.form}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={{ flex: 1 }}
-          >
+      <KeyboardAwareScrollView enableOnAndroid={true} showsVerticalScrollIndicator={false}>
+        <View isSafe={!!isSafe} style={{ flex: 1, justifyContent: 'space-between' }}>
+          <View style={styles.heading}>
+            <Text bold={true} heading={true} style={{ fontSize: 22 }}>
+              Enter your payment details
+            </Text>
+            <Text heading={true} style={{ fontSize: 18 }}>
+              Please enter your card details. You will be only charged after 10 days and you can
+              always cancel you subscription before that.
+            </Text>
+          </View>
+          <View style={styles.form}>
             <TextInput
               mode="outlined"
               placeholder="Name on card"
@@ -155,45 +152,45 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
             >
               Pay
             </Button>
-          </KeyboardAvoidingView>
+          </View>
         </View>
-      </View>
-      <AwesomeAlert
-        show={showSuccess}
-        showProgress={false}
-        title="Success"
-        message="Payment succeeded, press 'Ok' to continue."
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
-        showCancelButton={false}
-        showConfirmButton={true}
-        confirmText="Ok"
-        confirmButtonColor={Colors.secondary}
-        onConfirmPressed={() => {
-          if (setMember !== undefined) {
-            setMember(true);
-          } else {
-            setShowSuccess(false);
-            setChangeCounter((prev) => prev + 1);
-          }
-        }}
-      />
+        <AwesomeAlert
+          show={showSuccess}
+          showProgress={false}
+          title="Success"
+          message="Payment succeeded, press 'Ok' to continue."
+          closeOnTouchOutside={false}
+          closeOnHardwareBackPress={false}
+          showCancelButton={false}
+          showConfirmButton={true}
+          confirmText="Ok"
+          confirmButtonColor={Colors.secondary}
+          onConfirmPressed={() => {
+            if (setMember !== undefined) {
+              setMember(true);
+            } else {
+              setShowSuccess(false);
+              setChangeCounter((prev) => prev + 1);
+            }
+          }}
+        />
 
-      <AwesomeAlert
-        show={showError}
-        showProgress={false}
-        title="Failed"
-        message="Payment did not succeed. Please try again."
-        closeOnTouchOutside={false}
-        closeOnHardwareBackPress={false}
-        showCancelButton={false}
-        showConfirmButton={true}
-        confirmText="Ok"
-        confirmButtonColor={Colors.secondary}
-        onConfirmPressed={() => {
-          setShowError(false);
-        }}
-      />
+        <AwesomeAlert
+          show={showError}
+          showProgress={false}
+          title="Failed"
+          message="Payment did not succeed. Please try again."
+          closeOnTouchOutside={false}
+          closeOnHardwareBackPress={false}
+          showCancelButton={false}
+          showConfirmButton={true}
+          confirmText="Ok"
+          confirmButtonColor={Colors.secondary}
+          onConfirmPressed={() => {
+            setShowError(false);
+          }}
+        />
+      </KeyboardAwareScrollView>
     </LinearGradient>
   );
 };
@@ -212,6 +209,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
+    justifyContent: 'flex-end',
   },
 });
 
