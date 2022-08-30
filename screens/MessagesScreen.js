@@ -104,7 +104,11 @@ const SingleThread = ({ navigation, userId, selfId }) => {
   const [avatar, setAvatar] = useState(require('../assets/default-image.png'));
   const [msgData, setMsgData] = useState(null);
   const navigate = () => {
-    navigation.navigate('Chats', { uid: userId });
+    navigation.navigate('MessagesStack', {
+      screen: 'Chats',
+      initial: false,
+      params: { uid: userId },
+    });
   };
 
   useEffect(() => {
@@ -178,18 +182,25 @@ const SingleThread = ({ navigation, userId, selfId }) => {
           alignItems: 'center',
         }}
       >
-        <View>
+        <View style={{ flex: 3 }}>
           <Text heading={true} style={{ fontSize: 18 }}>
             {data.name}
           </Text>
           <View style={{ flexDirection: 'row' }}>
-            <Text numberOfLines={1} heading={true} style={{ fontSize: 12, width: 100 }}>
+            <Text numberOfLines={1} heading={true} style={{ fontSize: 12 }}>
               {msgData?.text}
             </Text>
-            {msgData?.sentBy == selfId && <Icon name="check" size={14} color={Colors.mediumGray} />}
+            {msgData?.sentBy == selfId && (
+              <Icon
+                name="check"
+                size={14}
+                color={Colors.mediumGray}
+                style={{ marginLeft: 5, alignSelf: 'center' }}
+              />
+            )}
           </View>
         </View>
-        <Text>{new Date(msgData?.timestamp).toLocaleTimeString()}</Text>
+        <Text style={{ flex: 1 }}>{new Date(msgData?.timestamp).toLocaleTimeString()}</Text>
       </View>
     </TouchableOpacity>
   );

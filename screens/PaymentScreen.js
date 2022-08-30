@@ -94,8 +94,13 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      <KeyboardAwareScrollView enableOnAndroid={true} showsVerticalScrollIndicator={false}>
-        <View isSafe={!!isSafe} style={{ flex: 1, justifyContent: 'space-between' }}>
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View isSafe={!!isSafe} style={{ flex: 1 }}>
           <View style={styles.heading}>
             <Text bold={true} heading={true} style={{ fontSize: 22 }}>
               Enter your payment details
@@ -209,7 +214,7 @@ const styles = StyleSheet.create({
   },
   form: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
 });
 

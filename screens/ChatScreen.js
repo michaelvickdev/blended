@@ -196,11 +196,11 @@ export const ChatScreen = ({ navigation, route }) => {
   };
 
   function handleBackButtonClick() {
-    navigation.navigate('MessagesStack');
+    navigation.navigate('MessagesStack', { screen: 'Messages' });
   }
 
   function goBack() {
-    navigation.popToTop(null);
+    navigation.navigate('MessagesStack', { screen: 'Messages' });
   }
 
   useEffect(() => {

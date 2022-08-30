@@ -14,4 +14,5 @@ export const Colors = {
   darkRed: '#960300',
   skyBlue: '#17A9FD',
   yellowishGray: '#E7E7DA',
+  link: '#0000EE',
 };

@@ -122,7 +122,7 @@ export function SideBarContent(props) {
             }}
           >
             <View style={{ alignItems: 'center' }}>
-              <Avatar.Image source={imgUrl} size={65} />
+              <Avatar.Image source={imgUrl} size={90} />
             </View>
             <View style={{ flexDirection: 'column' }}>
               <View style={{ alignItems: 'center', justifyContent: 'center', marginVertical: 15 }}>

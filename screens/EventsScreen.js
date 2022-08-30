@@ -54,13 +54,13 @@ export const EventsScreen = () => {
 
 const SingleEvent = ({ title, url, uploadDate }) => (
   <View style={styles.event}>
-    <Text bold={true} heading={true} style={{ fontSize: 18 }}>
+    <Text bold={true} heading={true} style={{ fontSize: 16 }}>
       {title}
     </Text>
-    <Text style={{ color: 'blue', fontSize: 16 }} onPress={() => Linking.openURL(url)}>
+    <Text style={{ color: Colors.link, fontSize: 16 }} onPress={() => Linking.openURL(url)}>
       {url}
     </Text>
-    <Text style={{ textAlign: 'right', color: Colors.mediumGray }}>
+    <Text style={{ textAlign: 'right', color: Colors.mediumGray, marginTop: 8 }}>
       Uploaded {new Date(uploadDate.toDate()).toLocaleDateString()}
     </Text>
   </View>
@@ -80,8 +80,10 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   event: {
-    paddingVertical: 16,
+    padding: 16,
     borderColor: Colors.lightGray,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderRadius: 18,
+    backgroundColor: Colors.lightGray,
+    marginBottom: 16,
   },
 });

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DateTimePickerModal as DateTimePicker } from 'react-native-modal-datetime-picker';
-import { TextInput, TouchableHighlight } from 'react-native';
+import { TextInput, TouchableOpacity } from 'react-native';
 
 import { View } from './View';
 import { Icon } from './Icon';
@@ -40,7 +40,7 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
         <Icon name={leftIconName} size={22} color={Colors.black} style={{ marginRight: 10 }} />
       ) : null}
 
-      <TouchableHighlight
+      <TouchableOpacity
         onPress={() => {
           setShowDatePicker(true);
         }}
@@ -61,7 +61,7 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
           placeholderTextColor={Colors.mediumGray}
           {...otherProps}
         />
-      </TouchableHighlight>
+      </TouchableOpacity>
 
       <DateTimePicker
         isDarkModeEnabled={true}

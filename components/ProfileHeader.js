@@ -14,7 +14,7 @@ export const ProfileHeader = ({ user, noBio }) => {
         setImgUrl(image);
       }
     })();
-  }, []);
+  }, [user]);
 
   return (
     <View style={styles.container}>

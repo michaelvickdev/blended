@@ -23,23 +23,25 @@ export const EditProfileScreen = () => {
   const [toggleTab, setToggle] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState(null);
-  const { user, changeCounter, setChangeCounter } = useContext(AuthenticatedUserContext);
+  const { user, setChangeCounter } = useContext(AuthenticatedUserContext);
+
+  const getUserData = async () => {
+    const docRef = doc(db, 'users', user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists() && mountedRef.current) {
+      setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
+    } else {
+      console.log('No such document!');
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      const docRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists() && mountedRef.current) {
-        setUserData({ ...docSnap.data(), avatar: docSnap.data().avatar });
-      } else {
-        console.log('No such document!');
-      }
-    })();
+    getUserData();
     return () => {
       mountedRef.current = false;
     };
-  }, [changeCounter]);
+  }, []);
 
   const handleSignup = async (values) => {
     setIsLoading(true);
@@ -53,6 +55,7 @@ export const EditProfileScreen = () => {
         { merge: true }
       );
       setChangeCounter((prev) => prev + 1);
+      getUserData();
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -90,7 +93,10 @@ export const EditProfileScreen = () => {
       return;
     }
 
-    let result = await ImagePicker.launchImageLibraryAsync();
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 4],
+    });
     if (!result.cancelled) {
       const imageUri = result.uri;
       const imageName = user.uid;
@@ -104,6 +110,7 @@ export const EditProfileScreen = () => {
         { merge: true }
       );
       setChangeCounter((prev) => prev + 1);
+      await getUserData();
     }
     setIsLoading(false);
   };
@@ -115,6 +122,7 @@ export const EditProfileScreen = () => {
         style={styles.container}
         automaticallyAdjustsScrollIndicatorInsets={false}
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        keyboardShouldPersistTaps="handled"
       >
         {userData && <ProfileHeader user={userData} noBio={true} />}
         <View style={styles.edit}>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { TouchableHighlight, Image } from 'react-native';
+import { TouchableOpacity, Image } from 'react-native';
 import { Icon } from './Icon';
 import { View } from './View';
 import { Colors } from '../config';
@@ -41,22 +41,23 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, 
         width,
       }}
     >
-      {leftIconName ? (
-        <Icon
-          name={leftIconName}
-          size={22}
-          color={Colors.black}
-          style={{ marginRight: 10, marginVertical: 4 }}
-        />
-      ) : null}
-
       {label && (
-        <TouchableHighlight
+        <TouchableOpacity
           onPress={() => {
             pickImage(handleChange);
           }}
           underlayColor="white"
+          style={{ flex: 1, flexDirection: 'row' }}
         >
+          {leftIconName ? (
+            <Icon
+              name={leftIconName}
+              size={22}
+              color={Colors.black}
+              style={{ marginRight: 10, marginVertical: 4 }}
+            />
+          ) : null}
+
           <Text
             bold={true}
             heading={true}
@@ -68,7 +69,7 @@ export const ImageInput = ({ width = '100%', leftIconName, handleChange, label, 
           >
             {label}
           </Text>
-        </TouchableHighlight>
+        </TouchableOpacity>
       )}
 
       {imageUrl && (
