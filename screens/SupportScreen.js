@@ -12,6 +12,8 @@ import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Icon } from '../components';
 
+const CHAR_LIMIT = 250;
+
 export const SupportScreen = () => {
   const { user } = useContext(AuthenticatedUserContext);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +36,7 @@ export const SupportScreen = () => {
 
   return (
     <LinearGradient style={{ flex: 1, padding: 16 }} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      <Text>If you have anyquestions or comments, please leave below.</Text>
+      <Text>If you have any questions or comments, please leave below. </Text>
       <View style={{ marginTop: 24, paddingHorizontal: 16 }}>
         <Formik
           initialValues={{
@@ -68,7 +70,18 @@ export const SupportScreen = () => {
                 onBlur={handleBlur('comment')}
                 multiline
                 numberOfLines={3}
+                maxLength={CHAR_LIMIT}
               />
+              <Text
+                style={{
+                  alignSelf: 'flex-end',
+                  marginVertical: 12,
+                  color: Colors.mediumGray,
+                  fontSize: 14,
+                }}
+              >
+                Limit: {values.comment.length} / {CHAR_LIMIT}
+              </Text>
               <FormErrorMessage error={errors.fullname} visible={touched.fullname} />
 
               <Button style={styles.button} onPress={handleSubmit} disabled={isLoading}>

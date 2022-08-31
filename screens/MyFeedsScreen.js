@@ -27,6 +27,8 @@ import { db } from '../config/';
 import { uploadImage } from '../hooks/uploadImage';
 import { uploadFeedsSchema } from '../utils';
 
+const POST_PER_PAGE = 10;
+
 const Stack = createStackNavigator();
 export const MyFeedsScreen = () => {
   return (
@@ -45,12 +47,13 @@ export const MyFeedsScreen = () => {
 
 const MyFeeds = ({ navigation }) => {
   const mountedRef = useRef(true);
-  const { user, changeCounter } = useContext(AuthenticatedUserContext);
+  const { user, changeCounter, firstMounted } = useContext(AuthenticatedUserContext);
+
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastDoc, setLastDoc] = useState('start');
 
-  const getPosts = async (count = 2) => {
+  const getPosts = async (count = POST_PER_PAGE) => {
     if (lastDoc === 'end') return;
     setLoading(true);
 
@@ -120,11 +123,15 @@ const MyFeeds = ({ navigation }) => {
           <Post key={index} navigation={navigation} post={post} />
         ))}
 
-        {lastDoc !== 'end' && (
-          <View style={styles.loading}>
+        <View style={styles.loading}>
+          {lastDoc !== 'end' ? (
             <ActivityIndicator size="large" color={Colors.secondary} />
-          </View>
-        )}
+          ) : (
+            <View style={styles.loading}>
+              <Text>All feeds loaded</Text>
+            </View>
+          )}
+        </View>
       </ScrollView>
       <LinearGradient
         style={styles.gradient}

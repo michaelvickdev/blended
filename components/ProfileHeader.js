@@ -3,6 +3,7 @@ import { StyleSheet, Image } from 'react-native';
 import { View } from './View';
 import { Text } from './Text';
 import { getImage } from '../hooks/getImage';
+import Lightbox from 'react-native-lightbox-v2';
 
 export const ProfileHeader = ({ user, noBio }) => {
   const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
@@ -19,7 +20,17 @@ export const ProfileHeader = ({ user, noBio }) => {
   return (
     <View style={styles.container}>
       <View style={styles.top}>
-        <Image source={imgUrl} style={styles.avatarImage} />
+        <Lightbox
+          swipeToDismiss={false}
+          activeProps={{
+            style: {
+              flex: 1,
+              resizeMode: 'contain',
+            },
+          }}
+        >
+          <Image source={imgUrl} style={styles.avatarImage} />
+        </Lightbox>
         <View style={styles.userInfo}>
           <Text bold={true} heading={true} style={{ fontSize: 18 }}>
             {user.fullname}

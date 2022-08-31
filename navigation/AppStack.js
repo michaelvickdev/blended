@@ -55,6 +55,7 @@ export const AppStack = () => {
         name="Home"
         component={HomeScreen}
         options={(props) => ({
+          unmountOnBlur: false,
           drawerIcon: () => <MaterialIcons name="rss-feed" size={24} color={Colors.black} />,
           headerTitle: () => <Header {...props} />,
           headerRight: () => <HeaderRight {...props} />,

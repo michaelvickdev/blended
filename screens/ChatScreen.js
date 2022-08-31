@@ -246,7 +246,11 @@ export const ChatScreen = ({ navigation, route }) => {
               }}
               onEndReachedThreshold={0.1}
             />
-          ) : null}
+          ) : loading ? (
+            <Text>Loading...</Text>
+          ) : (
+            <Text>No chat yet!</Text>
+          )}
 
           <View style={styles.chatBox}>
             <TextInput
@@ -447,4 +451,19 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,
   },
+  // placeholder: {
+  //   width: '100%',
+  // },
+  // sentPlaceholder: {
+  //   alignSelf: 'flex-start',
+  //   width: '70%',
+  //   marginVertical: 8,
+  //   borderRadius: 10,
+  // },
+  // receivedPlaceholder: {
+  //   alignSelf: 'flex-end',
+  //   width: '70%,',
+  //   marginVertical: 8,
+  //   borderRadius: 10,
+  // },
 });

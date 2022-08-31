@@ -70,7 +70,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
       </Formik>
 
       <View style={styles.footerButtonsContainer}>
-        <Text style={styles.boldText}>Not a Member yet?</Text>
+        <Text bold={true}>Not a Member yet?</Text>
         <Button
           style={styles.borderlessButtonContainer}
           borderless
@@ -135,10 +135,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 20,
     justifyContent: 'center',
-  },
-  boldText: {
-    fontWeight: '700',
-    textAlign: 'center',
-    color: Colors.black,
   },
 });
