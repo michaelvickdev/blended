@@ -78,12 +78,18 @@ export const Posts = ({ navigation }) => {
   };
 
   const initializeFeeds = async () => {
-    lastDoc.current = 'start';
-    setReportCount(0);
-    setLoading(true);
-    setShowReport(false);
-    setPosts([]);
-    getPosts();
+    try {
+      lastDoc.current = 'start';
+      setReportCount(0);
+      setLoading(true);
+      setShowReport(false);
+      setPosts([]);
+      getPosts();
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+      lastDoc.current = 'end';
+    }
   };
 
   useEffect(() => {
@@ -163,15 +169,17 @@ export const Posts = ({ navigation }) => {
             />
           )
         )}
-        <View style={styles.loading}>
-          {lastDoc.current !== 'end' ? (
-            <ActivityIndicator size="large" color={Colors.secondary} />
-          ) : (
-            <View style={styles.loading}>
-              <Text>All feeds loaded</Text>
-            </View>
-          )}
-        </View>
+        {posts.length ? (
+          <View style={styles.loading}>
+            {lastDoc.current !== 'end' ? (
+              <ActivityIndicator size="large" color={Colors.secondary} />
+            ) : (
+              <View style={styles.loading}>
+                <Text>All feeds loaded</Text>
+              </View>
+            )}
+          </View>
+        ) : null}
       </ScrollView>
       {showReport && (
         <View style={styles.report}>

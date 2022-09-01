@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, Share } from 'react-native';
+import { StyleSheet, TouchableOpacity, Share, Alert } from 'react-native';
 import * as Linking from 'expo-linking';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -13,6 +13,7 @@ import { SocialIcon } from 'react-native-elements';
 import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
 import { AuthenticatedUserContext } from '../providers';
+import { Facebook } from 'react-content-loader';
 
 import { Modal } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -48,17 +49,32 @@ export const UserProfile = ({ route, navigation }) => {
   const [showReport, setShowReport] = useState(false);
 
   const removeFriend = async () => {
-    const requester = doc(db, 'users', user.uid);
-    const requestee = doc(db, 'users', userData.uid);
+    Alert.alert(
+      'Remove Friend',
+      'Are you sure you want to remove this user as friend?',
+      [
+        {
+          text: 'Yes',
+          onPress: async () => {
+            const requester = doc(db, 'users', user.uid);
+            const requestee = doc(db, 'users', userData.uid);
 
-    await updateDoc(requester, {
-      friends: arrayRemove(requestee.id),
-    });
-    await updateDoc(requestee, {
-      friends: arrayRemove(requester.id),
-    });
+            await updateDoc(requester, {
+              friends: arrayRemove(requestee.id),
+            });
+            await updateDoc(requestee, {
+              friends: arrayRemove(requester.id),
+            });
 
-    setFriend(false);
+            setFriend(false);
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      {
+        cancelable: false,
+      }
+    );
   };
 
   const addFriend = async () => {
@@ -99,14 +115,29 @@ export const UserProfile = ({ route, navigation }) => {
   };
 
   const reportUser = async () => {
-    const docRef = doc(db, 'users', userData.uid);
-    await updateDoc(docRef, {
-      reports: arrayUnion({
-        uid: user.uid,
-        date: new Date(),
-      }),
-    });
-    setShowReport(true);
+    Alert.alert(
+      'Report User',
+      'Are you sure you want to report this user?',
+      [
+        {
+          text: 'Yes',
+          onPress: async () => {
+            const docRef = doc(db, 'users', userData.uid);
+            await updateDoc(docRef, {
+              reports: arrayUnion({
+                uid: user.uid,
+                date: new Date(),
+              }),
+            });
+            setShowReport(true);
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      {
+        cancelable: false,
+      }
+    );
   };
 
   useEffect(() => {
@@ -208,10 +239,14 @@ export const UserProfile = ({ route, navigation }) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      await checkBlocked();
-      await getUserData();
-      await getFeed();
-      await getStatus();
+      try {
+        await checkBlocked();
+        await getUserData();
+        await getFeed();
+        await getStatus();
+      } catch (e) {
+        console.log(e);
+      }
     });
     return () => {
       unsubscribe();
@@ -239,26 +274,43 @@ export const UserProfile = ({ route, navigation }) => {
   };
 
   const setBlocked = async () => {
-    const docRef = doc(db, 'users', user.uid);
-    const updateObj = isBlocked
-      ? { blockList: arrayRemove(route.params.uid) }
-      : {
-          blockList: arrayUnion(route.params.uid),
-          favourites: arrayRemove(route.params.uid),
-          friends: arrayRemove(route.params.uid),
-          requests: arrayRemove(route.params.uid),
-        };
-    await updateDoc(docRef, updateObj);
-    if (!isBlocked) {
-      updateDoc(doc(db, 'users', route.params.uid), {
-        friends: arrayRemove(user.uid),
-        favourites: arrayRemove(user.uid),
-        requests: arrayRemove(user.uid),
-      });
-    } else {
-      await getUserData();
-    }
-    setIsBlocked((prev) => !prev);
+    const status = isBlocked ? 'UNBLOCK' : 'BLOCK';
+
+    Alert.alert(
+      `${status} User`,
+      `Are you sure you want to ${status} this user?`,
+      [
+        {
+          text: 'Yes',
+          onPress: async () => {
+            const docRef = doc(db, 'users', user.uid);
+            const updateObj = isBlocked
+              ? { blockList: arrayRemove(route.params.uid) }
+              : {
+                  blockList: arrayUnion(route.params.uid),
+                  favourites: arrayRemove(route.params.uid),
+                  friends: arrayRemove(route.params.uid),
+                  requests: arrayRemove(route.params.uid),
+                };
+            await updateDoc(docRef, updateObj);
+            if (!isBlocked) {
+              updateDoc(doc(db, 'users', route.params.uid), {
+                friends: arrayRemove(user.uid),
+                favourites: arrayRemove(user.uid),
+                requests: arrayRemove(user.uid),
+              });
+            } else {
+              await getUserData();
+            }
+            setIsBlocked((prev) => !prev);
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      {
+        cancelable: false,
+      }
+    );
   };
 
   const getUserData = async () => {
@@ -305,7 +357,14 @@ export const UserProfile = ({ route, navigation }) => {
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      {!isBlocked && userData && <ProfileHeader user={{ ...userData }} />}
+      {!isBlocked &&
+        (userData ? (
+          <ProfileHeader user={{ ...userData }} />
+        ) : (
+          <View>
+            <Facebook />
+          </View>
+        ))}
       {!isBlocked && (
         <View>
           {friend && (

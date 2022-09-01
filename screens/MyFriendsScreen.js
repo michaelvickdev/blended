@@ -19,16 +19,20 @@ export const MyFriendsScreen = ({ navigation }) => {
   const { user } = useContext(AuthenticatedUserContext);
 
   const getFriendData = async () => {
-    const docRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(docRef);
+    try {
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists() && mountedRef.current) {
-      if (docSnap.data().friends.length) {
-        setFriends(docSnap.data().friends);
+      if (docSnap.exists() && mountedRef.current) {
+        if (docSnap.data().friends.length) {
+          setFriends(docSnap.data().friends);
+        }
+        if (docSnap.data().requests.length) {
+          setPending(docSnap.data().requests);
+        }
       }
-      if (docSnap.data().requests.length) {
-        setPending(docSnap.data().requests);
-      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -135,20 +139,26 @@ export const MyFriendsScreen = ({ navigation }) => {
 const SingleProfile = ({ uid, pending, goToProfile, cancelReq, approveReq }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [image, setImage] = useState(require('../assets/default-image.png'));
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
     (async () => {
       const docRef = doc(db, 'users', uid);
       const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
+      if (docSnap.exists() && isMounted.current) {
         setUserInfo(docSnap.data());
         const imgRes = await getImage(docSnap.data().avatar);
-        if (imgRes) {
+        if (imgRes && isMounted.current) {
           setImage(imgRes);
         }
       }
     })();
+
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   return (

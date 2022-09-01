@@ -13,11 +13,15 @@ export const EventsScreen = () => {
   const [events, setEvents] = React.useState([]);
 
   const getEvents = async () => {
-    const eventsQuery = collection(db, 'events');
-    const eventsSnapshot = await getDocs(eventsQuery);
-    const eventsData = eventsSnapshot.docs.map((doc) => doc.data());
-    if (mountedRef.current) {
-      setEvents(eventsData);
+    try {
+      const eventsQuery = collection(db, 'events');
+      const eventsSnapshot = await getDocs(eventsQuery);
+      const eventsData = eventsSnapshot.docs.map((doc) => doc.data());
+      if (mountedRef.current) {
+        setEvents(eventsData);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 

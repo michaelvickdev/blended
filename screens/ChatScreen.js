@@ -2,11 +2,12 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { BackHandler, FlatList } from 'react-native';
 import { Icon, View } from '../components';
 import { Text } from '../components/Text';
-import { Dimensions, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Dimensions, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, TextInput } from 'react-native-paper';
+import ContentLoader, { Rect } from 'react-content-loader/native';
 
 import {
   collection,
@@ -39,14 +40,29 @@ export const ChatScreen = ({ navigation, route }) => {
   const [showReport, setShowReport] = useState(false);
 
   const reportUser = async () => {
-    const docRef = doc(db, 'users', route.params.uid);
-    await updateDoc(docRef, {
-      reports: arrayUnion({
-        uid: user.uid,
-        date: new Date(),
-      }),
-    });
-    setShowReport(true);
+    Alert.alert(
+      'Report User',
+      'Are you sure you want to report this user?',
+      [
+        {
+          text: 'Yes',
+          onPress: async () => {
+            const docRef = doc(db, 'users', route.params.uid);
+            await updateDoc(docRef, {
+              reports: arrayUnion({
+                uid: user.uid,
+                date: new Date(),
+              }),
+            });
+            setShowReport(true);
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      {
+        cancelable: false,
+      }
+    );
   };
 
   useEffect(() => {
@@ -121,24 +137,41 @@ export const ChatScreen = ({ navigation, route }) => {
   };
 
   const setBlock = async () => {
-    const docRef = doc(db, 'users', user.uid);
-    const updateObj = isBlocked
-      ? { blockList: arrayRemove(route.params.uid) }
-      : {
-          blockList: arrayUnion(route.params.uid),
-          favourites: arrayRemove(route.params.uid),
-          friends: arrayRemove(route.params.uid),
-          requests: arrayRemove(route.params.uid),
-        };
-    await updateDoc(docRef, updateObj);
-    if (!isBlocked) {
-      updateDoc(doc(db, 'users', route.params.uid), {
-        friends: arrayRemove(user.uid),
-        favourites: arrayRemove(user.uid),
-        requests: arrayRemove(user.uid),
-      });
-    }
-    setIsBlocked((prev) => !prev);
+    const status = isBlocked ? 'UNBLOCK' : 'BLOCK';
+
+    Alert.alert(
+      `${status} User`,
+      `Are you sure you want to ${status} this user?`,
+      [
+        {
+          text: 'Yes',
+          onPress: async () => {
+            const docRef = doc(db, 'users', user.uid);
+            const updateObj = isBlocked
+              ? { blockList: arrayRemove(route.params.uid) }
+              : {
+                  blockList: arrayUnion(route.params.uid),
+                  favourites: arrayRemove(route.params.uid),
+                  friends: arrayRemove(route.params.uid),
+                  requests: arrayRemove(route.params.uid),
+                };
+            await updateDoc(docRef, updateObj);
+            if (!isBlocked) {
+              updateDoc(doc(db, 'users', route.params.uid), {
+                friends: arrayRemove(user.uid),
+                favourites: arrayRemove(user.uid),
+                requests: arrayRemove(user.uid),
+              });
+            }
+            setIsBlocked((prev) => !prev);
+          },
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      {
+        cancelable: false,
+      }
+    );
   };
 
   useEffect(() => {
@@ -247,9 +280,16 @@ export const ChatScreen = ({ navigation, route }) => {
               onEndReachedThreshold={0.1}
             />
           ) : loading ? (
-            <Text>Loading...</Text>
+            <View>
+              <ContentLoader viewBox="0 0 380 70">
+                <Rect x="2%" y="0" rx="25" ry="25" width="70%" height="80" />
+                <Rect x="28%" y="90" rx="25" ry="25" width="70%" height="80" />
+                <Rect x="2%" y="180" rx="25" ry="25" width="70%" height="80" />
+                <Rect x="28%" y="270" rx="25" ry="25" width="70%" height="80" />
+              </ContentLoader>
+            </View>
           ) : (
-            <Text>No chat yet!</Text>
+            <Text style={{ textAlign: 'center', fontSize: 18 }}>Please begin the chat!</Text>
           )}
 
           <View style={styles.chatBox}>

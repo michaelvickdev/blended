@@ -47,33 +47,45 @@ export const MyFeedsScreen = () => {
 
 const MyFeeds = ({ navigation }) => {
   const mountedRef = useRef(true);
-  const { user, changeCounter, firstMounted } = useContext(AuthenticatedUserContext);
+  const { user, changeCounter } = useContext(AuthenticatedUserContext);
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lastDoc, setLastDoc] = useState('start');
 
   const getPosts = async (count = POST_PER_PAGE) => {
-    if (lastDoc === 'end') return;
-    setLoading(true);
+    try {
+      if (lastDoc === 'end') return;
+      setLoading(true);
 
-    const docRef = collection(db, 'feeds');
-    const queryArray = [where('uid', '==', user.uid), orderBy('uploadDate', 'desc'), limit(count)];
-    if (lastDoc !== 'start') {
-      queryArray.push(startAfter(lastDoc));
-    }
-    const q = query(docRef, ...queryArray);
-    const docSnap = await getDocs(q);
+      const docRef = collection(db, 'feeds');
+      const queryArray = [
+        where('uid', '==', user.uid),
+        orderBy('uploadDate', 'desc'),
+        limit(count),
+      ];
+      if (lastDoc !== 'start') {
+        queryArray.push(startAfter(lastDoc));
+      }
+      const q = query(docRef, ...queryArray);
+      const docSnap = await getDocs(q);
 
-    const feedData = docSnap.docs.map((doc) => ({
-      ...doc.data(),
-      feedId: doc.id,
-    }));
+      const feedData = docSnap.docs.map((doc) => ({
+        ...doc.data(),
+        feedId: doc.id,
+      }));
 
-    if (mountedRef.current) {
-      docSnap.size < count ? setLastDoc('end') : setLastDoc(docSnap.docs[docSnap.docs.length - 1]);
-      setPosts((prevPosts) => [...prevPosts, ...feedData]);
+      if (mountedRef.current) {
+        docSnap.size < count
+          ? setLastDoc('end')
+          : setLastDoc(docSnap.docs[docSnap.docs.length - 1]);
+        setPosts((prevPosts) => [...prevPosts, ...feedData]);
+        setLoading(false);
+      }
+    } catch (e) {
+      console.log(e);
       setLoading(false);
+      setLastDoc('end');
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { View } from './View';
 import { Text } from './Text';
@@ -7,14 +7,20 @@ import Lightbox from 'react-native-lightbox-v2';
 
 export const ProfileHeader = ({ user, noBio }) => {
   const [imgUrl, setImgUrl] = useState(require('../assets/default-image.png'));
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
     (async () => {
       const image = await getImage(user.avatar);
-      if (image) {
+      if (image && isMounted) {
         setImgUrl(image);
       }
     })();
+
+    return () => {
+      isMounted.current = false;
+    };
   }, [user]);
 
   return (

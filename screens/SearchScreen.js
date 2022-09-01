@@ -1,14 +1,24 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { View, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { TextInput } from 'react-native-paper';
 import { Text } from '../components/Text';
 
-import { collection, query, getDocs, limit, orderBy, where } from 'firebase/firestore';
+import { collection, query, getDocs, limit, orderBy, where, startAfter } from 'firebase/firestore';
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 import { getImage } from '../hooks/getImage';
+
+const USERS_PER_SCREEN = 10;
 
 export const SearchScreen = ({ navigation }) => {
   const mountedRef = useRef(true);
@@ -16,17 +26,37 @@ export const SearchScreen = ({ navigation }) => {
   const [users, setUsers] = useState([]);
   const [searchData, setSearchData] = useState([]);
   const [text, setText] = React.useState('');
+  const [loading, setLoading] = useState(true);
+  const lastDoc = useRef('start');
 
   const goToProfile = (uid) => {
     navigation.navigate('UserProfile', { uid: uid });
   };
 
-  const setUserData = async () => {
-    const usersQuery = query(collection(db, 'users'), orderBy('dateCreated', 'desc'), limit(25));
+  const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+  };
+
+  const setUserData = async (count = USERS_PER_SCREEN) => {
+    if (lastDoc.current === 'end' || users.length >= 100) {
+      lastDoc.current = 'end';
+      return;
+    }
+    const queryArray = [orderBy('dateCreated', 'desc'), limit(count)];
+
+    if (lastDoc.current !== 'start') {
+      queryArray.push(startAfter(lastDoc.current));
+    }
+
+    const usersQuery = query(collection(db, 'users'), ...queryArray);
     const usersSnapshot = await getDocs(usersQuery);
     const usersData = usersSnapshot.docs.map((doc) => doc.data());
     if (mountedRef.current) {
-      setUsers(usersData);
+      lastDoc.current =
+        usersSnapshot.size < count ? 'end' : usersSnapshot.docs[usersSnapshot.docs.length - 1];
+      setUsers((prevData) => [...prevData, ...usersData]);
+      setLoading(false);
     }
   };
 
@@ -72,6 +102,10 @@ export const SearchScreen = ({ navigation }) => {
         style={styles.container}
         automaticallyAdjustsScrollIndicatorInsets={false}
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        onScroll={({ nativeEvent }) => {
+          if (!loading && isCloseToBottom(nativeEvent)) setUserData();
+        }}
+        scrollEventThrottle={400}
       >
         {text.length > 0 &&
           (searchData.length ? (
@@ -106,6 +140,18 @@ export const SearchScreen = ({ navigation }) => {
               />
             ) : null
           )}
+
+        {users.length && !text.length ? (
+          <View style={styles.loading}>
+            {lastDoc.current !== 'end' ? (
+              <ActivityIndicator size="large" color={Colors.secondary} />
+            ) : (
+              <View style={styles.loading}>
+                <Text>All new have been users loaded</Text>
+              </View>
+            )}
+          </View>
+        ) : null}
       </ScrollView>
       <LinearGradient
         style={styles.gradient}
@@ -173,5 +219,11 @@ const styles = StyleSheet.create({
   },
   textGrp: {
     marginLeft: 16,
+  },
+
+  loading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
   },
 });

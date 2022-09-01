@@ -8,6 +8,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../components/View';
 import { Icon, SocialIcon } from 'react-native-elements';
 import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { Facebook } from 'react-content-loader/native';
 
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
@@ -110,7 +111,13 @@ export const MyProfileScreen = ({ navigation }) => {
 
   return (
     <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      {userData && <ProfileHeader user={{ ...userData, uid: '' }} />}
+      {userData ? (
+        <ProfileHeader user={{ ...userData, uid: '' }} />
+      ) : (
+        <View>
+          <Facebook />
+        </View>
+      )}
       <View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           {feedData.map((post, index) => (
