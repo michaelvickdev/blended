@@ -15,12 +15,13 @@ import usePushNotifications from '../hooks/usePushNotifications';
 export const HomeScreen = ({ navigation }) => {
   const { user } = useContext(AuthenticatedUserContext);
   const Stack = createStackNavigator();
-  usePushNotifications((response) => console.log(response));
+  usePushNotifications((response) => console.log('push notifs: ', response));
 
   const setNotifications = async () => {
     const userRef = doc(db, 'users', user.uid);
     try {
       const token = await generatePushNotificationsToken();
+      console.log('token: ', token);
       if (!token) {
         return;
       }

@@ -1,11 +1,18 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, Share, Alert } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Share,
+  Alert,
+  Dimensions,
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
 import * as Linking from 'expo-linking';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { Colors } from '../config';
 import { PostCarouselItem } from '../components/PostCarouselItem';
-import { ScrollView } from 'react-native-gesture-handler';
 import { View } from '../components/View';
 import { Icon } from '../components';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -13,7 +20,7 @@ import { SocialIcon } from 'react-native-elements';
 import { Text } from '../components/Text';
 import { Button } from 'react-native-paper';
 import { AuthenticatedUserContext } from '../providers';
-import { Facebook } from 'react-content-loader';
+import { Facebook } from 'react-content-loader/native';
 
 import { Modal } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -47,6 +54,7 @@ export const UserProfile = ({ route, navigation }) => {
   const [galleryImages, setGalleryImages] = useState([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [showReport, setShowReport] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const removeFriend = async () => {
     Alert.alert(
@@ -237,17 +245,19 @@ export const UserProfile = ({ route, navigation }) => {
     }
   };
 
+  const initializeUser = async () => {
+    try {
+      await checkBlocked();
+      await getUserData();
+      await getFeed();
+      await getStatus();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', async () => {
-      try {
-        await checkBlocked();
-        await getUserData();
-        await getFeed();
-        await getStatus();
-      } catch (e) {
-        console.log(e);
-      }
-    });
+    const unsubscribe = navigation.addListener('focus', initializeUser);
     return () => {
       unsubscribe();
     };
@@ -356,167 +366,199 @@ export const UserProfile = ({ route, navigation }) => {
   }
 
   return (
-    <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
-      {!isBlocked &&
-        (userData ? (
-          <ProfileHeader user={{ ...userData }} />
-        ) : (
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={styles.container}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        scrollEventThrottle={400}
+        contentContainerStyle={{ flexGrow: 1 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={async () => {
+              setRefreshing(true);
+              await initializeUser();
+              setRefreshing(false);
+            }}
+          />
+        }
+      >
+        {!isBlocked &&
+          (userData ? (
+            <ProfileHeader user={{ ...userData }} />
+          ) : (
+            <View>
+              <Facebook />
+            </View>
+          ))}
+        {!isBlocked && (
           <View>
-            <Facebook />
-          </View>
-        ))}
-      {!isBlocked && (
-        <View>
-          {friend && (
-            <View
-              style={{
-                flexDirection: 'row',
-                marginVertical: 20,
-              }}
-            >
-              <Text bold={true} style={{ fontSize: 18 }}>
-                Contact details:
-              </Text>
-
-              <Text style={{ fontSize: 18 }}>{userData?.phone}</Text>
-            </View>
-          )}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {feedData.map((post, index) => (
-              <PostCarouselItem
-                item={post}
-                index={index}
-                key={index}
-                openGallery={(index) => {
-                  setGalleryVisible(true);
-                  setGalleryIndex(index);
+            {friend && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginVertical: 20,
                 }}
-              />
-            ))}
-          </ScrollView>
+              >
+                <Text bold={true} style={{ fontSize: 18 }}>
+                  Contact details:
+                </Text>
 
-          {userData && 'socialLinks' in userData && friend && (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: 16,
-              }}
-            >
-              {userData.socialLinks.facebook !== '' && (
-                <SocialIcon
-                  type="facebook"
-                  onPress={() => Linking.openURL(userData.socialLinks.facebook)}
+                <Text style={{ fontSize: 18 }}>{userData?.phone}</Text>
+              </View>
+            )}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {feedData.map((post, index) => (
+                <PostCarouselItem
+                  item={post}
+                  index={index}
+                  key={index}
+                  openGallery={(index) => {
+                    setGalleryVisible(true);
+                    setGalleryIndex(index);
+                  }}
                 />
-              )}
-              {userData.socialLinks.twitter !== '' && (
-                <SocialIcon
-                  type="twitter"
-                  onPress={() => Linking.openURL(userData.socialLinks.twitter)}
-                />
-              )}
-              {userData.socialLinks.instagram !== '' && (
-                <SocialIcon
-                  type="instagram"
-                  onPress={() => Linking.openURL(userData.socialLinks.instagram)}
-                />
-              )}
-              {userData.socialLinks.linkedin !== '' && (
-                <SocialIcon
-                  type="linkedin"
-                  onPress={() => Linking.openURL(userData.socialLinks.linkedin)}
-                />
-              )}
+              ))}
+            </ScrollView>
+
+            {userData && 'socialLinks' in userData && friend && (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  marginTop: 16,
+                }}
+              >
+                {userData.socialLinks.facebook !== '' && (
+                  <SocialIcon
+                    type="facebook"
+                    onPress={() => Linking.openURL(userData.socialLinks.facebook)}
+                  />
+                )}
+                {userData.socialLinks.twitter !== '' && (
+                  <SocialIcon
+                    type="twitter"
+                    onPress={() => Linking.openURL(userData.socialLinks.twitter)}
+                  />
+                )}
+                {userData.socialLinks.instagram !== '' && (
+                  <SocialIcon
+                    type="instagram"
+                    onPress={() => Linking.openURL(userData.socialLinks.instagram)}
+                  />
+                )}
+                {userData.socialLinks.linkedin !== '' && (
+                  <SocialIcon
+                    type="linkedin"
+                    onPress={() => Linking.openURL(userData.socialLinks.linkedin)}
+                  />
+                )}
+              </View>
+            )}
+            <View style={styles.action}>
+              <TouchableOpacity style={styles.item} onPress={setBlocked}>
+                <MaterialIcons name="person" size={12} color={Colors.black} />
+                <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.item} onPress={reportUser}>
+                <MaterialIcons name="report" size={12} color={Colors.black} />
+                <Text style={{ marginLeft: 5, fontSize: 12 }}>Report User</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.item} onPress={setFavourite}>
+                <Icon name={isFav ? 'heart' : 'heart-outline'} size={12} color={Colors.black} />
+                <Text style={{ marginLeft: 5, fontSize: 12 }}>
+                  {isFav ? 'Remove from Favorites' : 'Add to Favorite'}
+                </Text>
+              </TouchableOpacity>
             </View>
-          )}
-          <View style={styles.action}>
-            <TouchableOpacity style={styles.item} onPress={setBlocked}>
-              <MaterialIcons name="person" size={12} color={Colors.black} />
-              <Text style={{ marginLeft: 5, fontSize: 12 }}>Block User</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.item} onPress={reportUser}>
-              <MaterialIcons name="report" size={12} color={Colors.black} />
-              <Text style={{ marginLeft: 5, fontSize: 12 }}>Report User</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.item} onPress={setFavourite}>
-              <Icon name={isFav ? 'heart' : 'heart-outline'} size={12} color={Colors.black} />
-              <Text style={{ marginLeft: 5, fontSize: 12 }}>
-                {isFav ? 'Remove from Favorites' : 'Add to Favorite'}
-              </Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      )}
-      <View style={styles.footer}>
-        {isBlocked && (
-          <Button
-            mode="contained"
-            onPress={setBlocked}
-            style={styles.button}
-            color={Colors.white}
-            labelStyle={{ color: Colors.black }}
-          >
-            Unblock User
-          </Button>
         )}
-        {isBlocked || (
-          <>
+        <View style={styles.footer}>
+          {isBlocked && (
             <Button
               mode="contained"
-              onPress={
-                friend ? removeFriend : reqRcvd ? approveReq : reqSent ? cancelReq : addFriend
-              }
+              onPress={setBlocked}
               style={styles.button}
               color={Colors.white}
               labelStyle={{ color: Colors.black }}
             >
-              {friend
-                ? 'Remove Friend'
-                : reqRcvd
-                ? 'Approve'
-                : reqSent
-                ? 'Cancel Request'
-                : 'Add Friend'}
+              Unblock User
             </Button>
-            <Button
-              mode="contained"
-              onPress={userData && goToChats}
-              style={styles.button}
-              color={Colors.white}
-              textColor={Colors.black}
-            >
-              Send Message
-            </Button>
-            <Button
-              mode="contained"
-              onPress={userData && shareUrl}
-              style={styles.button}
-              color={Colors.white}
-              textColor={Colors.black}
-            >
-              Share Profile
-            </Button>
-          </>
-        )}
-      </View>
-      {showReport && (
-        <View style={styles.report}>
-          <Text style={styles.reportText}>
-            Your report has been submitted and we will check the user status manually.
-          </Text>
+          )}
+          {isBlocked || (
+            <>
+              <Button
+                mode="contained"
+                onPress={
+                  friend ? removeFriend : reqRcvd ? approveReq : reqSent ? cancelReq : addFriend
+                }
+                style={styles.button}
+                color={Colors.white}
+                labelStyle={{ color: Colors.black }}
+              >
+                {friend
+                  ? 'Remove Friend'
+                  : reqRcvd
+                  ? 'Approve'
+                  : reqSent
+                  ? 'Cancel Request'
+                  : 'Add Friend'}
+              </Button>
+              <Button
+                mode="contained"
+                onPress={userData && goToChats}
+                style={styles.button}
+                color={Colors.white}
+                textColor={Colors.black}
+              >
+                Send Message
+              </Button>
+              <Button
+                mode="contained"
+                onPress={userData && shareUrl}
+                style={styles.button}
+                color={Colors.white}
+                textColor={Colors.black}
+              >
+                Share Profile
+              </Button>
+            </>
+          )}
         </View>
-      )}
-    </LinearGradient>
+        {showReport && (
+          <View style={styles.report}>
+            <Text style={styles.reportText}>
+              Your report has been submitted and we will check the user status manually.
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+      <LinearGradient
+        style={styles.gradient}
+        colors={[Colors.mainFirst, Colors.mainSecond]}
+      ></LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    background: 'transparent',
     padding: 16,
   },
+  gradient: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+    zIndex: -1,
+  },
+
   action: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',

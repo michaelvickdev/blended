@@ -4,6 +4,7 @@ import { arrayRemove, arrayUnion, doc, getDoc, updateDoc } from 'firebase/firest
 import { db } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 import { Video } from 'expo-av';
+import Lightbox from 'react-native-lightbox-v2';
 
 import { Text } from './Text';
 import { Colors } from '../config';
@@ -150,7 +151,16 @@ export const Post = ({ post, navigation, reportPost }) => {
                 </TouchableOpacity>
               </>
             ) : (
-              <Image source={postImage} style={styles.postImg} />
+              <Lightbox
+                activeProps={{
+                  style: {
+                    flex: 1,
+                    resizeMode: 'contain',
+                  },
+                }}
+              >
+                <Image source={postImage} style={styles.postImg} />
+              </Lightbox>
             )}
           </View>
         </View>

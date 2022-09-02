@@ -162,16 +162,18 @@ const SingleProfile = ({ uid, pending, goToProfile, cancelReq, approveReq }) => 
   }, []);
 
   return (
-    <TouchableOpacity style={styles.profileContainer} onPress={() => goToProfile(uid)}>
-      <View style={styles.profile}>
-        <Image source={image} style={styles.image} />
-        <View style={styles.textGrp}>
-          <Text bold={true} heading={true} style={{ fontSize: 18 }}>
-            {userInfo?.username}
-          </Text>
-          <Text heading={true}>{userInfo?.city}</Text>
+    <View style={styles.profileContainer}>
+      <TouchableOpacity style={{ flex: 1 }} onPress={() => goToProfile(uid)}>
+        <View style={styles.profile}>
+          <Image source={image} style={styles.image} />
+          <View style={styles.textGrp}>
+            <Text bold={true} heading={true} style={{ fontSize: 18 }}>
+              {userInfo?.username}
+            </Text>
+            <Text heading={true}>{userInfo?.city}</Text>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
       {pending && (
         <View style={styles.actionBtn}>
           <Button
@@ -192,7 +194,7 @@ const SingleProfile = ({ uid, pending, goToProfile, cancelReq, approveReq }) => 
           </Button>
         </View>
       )}
-    </TouchableOpacity>
+    </View>
   );
 };
 
