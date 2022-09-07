@@ -39,6 +39,7 @@ export default {
       googleClientId: process.env.GOOGLE_CLIENT_ID,
       googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
       fbAppId: process.env.FB_APP_ID,
+      checkMemberUrl: process.env.CHECK_MEMBER_URL,
     },
     android: {
       package: 'com.blended',

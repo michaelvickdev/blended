@@ -60,7 +60,6 @@ export function SideBarContent(props) {
         const docRef = doc(db, 'users', user.uid);
         await updateDoc(docRef, {
           plan: deleteField(),
-          isMember: false,
         });
         Alert.alert(
           'Unsubscribed!',

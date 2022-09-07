@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Icon, Text, View } from '../components';
 import { StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
-import { useConfirmPayment, CardField, initStripe } from '@stripe/stripe-react-native';
+import { CardField, initStripe, useConfirmSetupIntent } from '@stripe/stripe-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import RNPickerSelect from 'react-native-picker-select';
 import { Colors } from '../config';
 import { AuthenticatedUserContext } from '../providers';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Constants from 'expo-constants';
-import { doc, updateDoc, deleteField } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config';
 import AwesomeAlert from 'react-native-awesome-alerts';
 
@@ -18,7 +18,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
   const [plan, setPlan] = React.useState('0');
   const [name, setName] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
-  const { confirmPayment, loading } = useConfirmPayment();
+  const { confirmSetupIntent, loading } = useConfirmSetupIntent();
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [showError, setShowError] = React.useState(false);
   const cardRef = React.useRef(null);
@@ -43,11 +43,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        priceId: info.priceId,
-        email: info.email,
-        name: info.name,
-      }),
+      body: JSON.stringify(info),
     });
     const res = await response.json();
     return res;
@@ -63,7 +59,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
         name: name,
       });
 
-      const { error } = await confirmPayment(clientSecret, {
+      const { error } = await confirmSetupIntent(clientSecret, {
         type: 'Card',
         billingDetails: {
           email: user.email,
@@ -75,9 +71,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
       } else {
         const userRef = doc(db, 'users', user.uid);
         await updateDoc(userRef, {
-          isMember: true,
           plan: { description: items[plan].val, id: subscriptionId },
-          trial: deleteField(),
         });
         setShowSuccess(true);
       }
@@ -85,7 +79,6 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
       setPlan('0');
       cardRef.current.clear();
     } catch (e) {
-      console.log('From here:');
       console.log(e);
       setShowError(true);
     }

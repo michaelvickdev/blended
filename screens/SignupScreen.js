@@ -57,7 +57,6 @@ export const SignupScreen = ({ navigation }) => {
         friends: [],
         requests: [],
         uid: user.uid,
-        trial: true,
         dateCreated: new Date(),
       });
 

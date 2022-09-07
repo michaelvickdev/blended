@@ -64,7 +64,7 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
       </TouchableOpacity>
 
       <DateTimePicker
-        isDarkModeEnabled={true}
+        isDarkModeEnabled={false}
         isVisible={showDatePicker}
         textColor={Colors.black}
         mode="date"

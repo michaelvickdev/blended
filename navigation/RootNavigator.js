@@ -14,14 +14,14 @@ import { PaymentScreen } from '../screens/PaymentScreen';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config';
 import { AddDetailsScreen } from '../screens/AddDetailsScreen';
+import Constants from 'expo-constants';
+
 const customFonts = {
   poppinsLight: require('../assets/fonts/Poppins-Light.ttf'),
   poppinsBold: require('../assets/fonts/Poppins-Bold.ttf'),
   futura: require('../assets/fonts/Futura.ttf'),
   futuraBold: require('../assets/fonts/Futura-Bold.ttf'),
 };
-
-const TRIAL_PERIOD = 10;
 
 export const RootNavigator = () => {
   const { user, setUser, unsubscribe, paymentCounter, signUpCounter } =
@@ -40,25 +40,17 @@ export const RootNavigator = () => {
       setIsLoading(false);
       return;
     }
-    const diff = await updateTrial();
-    if (
-      ('isMember' in userDoc.data() && userDoc.data().isMember) ||
-      ('trial' in userDoc.data() && diff <= TRIAL_PERIOD)
-    ) {
-      setIsMember(true);
+    if ('plan' in userDoc.data()) {
+      const res = await fetch(Constants.manifest.extra.checkMemberUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subscriptionId: userDoc.data().plan.id,
+        }),
+      });
+      const info = await res.json();
+      setIsMember(info.isMember);
     }
-  };
-
-  const updateTrial = async () => {
-    const userRef = doc(db, 'users', user.uid);
-    const userDoc = await getDoc(userRef);
-    if ('trial' in userDoc.data()) {
-      const dateCreated = userDoc.data().dateCreated.toDate();
-      const date = new Date();
-      const diff = parseInt((date - dateCreated) / (1000 * 60 * 60 * 24), 10);
-      return diff;
-    }
-    return TRIAL_PERIOD + 1;
   };
 
   const updateStatus = async () => {

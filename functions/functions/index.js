@@ -96,6 +96,23 @@ exports.sendMail = functions.https.onRequest((req, res) => {
   });
 });
 
+exports.checkIsMember = functions.https.onRequest(async (req, res) => {
+  let isMember = false;
+  try {
+    functions.logger.log('sub id', req.body);
+    const subscription = await stripe.subscriptions.retrieve(req.body.subscriptionId);
+    functions.logger.log('sub details', subscription);
+    if (subscription.status == 'active' || subscription.status == 'trialing') {
+      isMember = true;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  res.send({
+    isMember: isMember,
+  });
+});
+
 exports.payWithStripe = functions.https.onRequest(async (req, res) => {
   try {
     const customer = await stripe.customers.create({
@@ -112,12 +129,12 @@ exports.payWithStripe = functions.https.onRequest(async (req, res) => {
       ],
       payment_behavior: 'default_incomplete',
       payment_settings: { save_default_payment_method: 'on_subscription' },
-      expand: ['latest_invoice.payment_intent'],
+      expand: ['pending_setup_intent'],
+      trial_period_days: 10,
     });
-
     res.send({
       subscriptionId: subscription.id,
-      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+      clientSecret: subscription.pending_setup_intent.client_secret,
     });
   } catch (error) {
     res.send(error);
