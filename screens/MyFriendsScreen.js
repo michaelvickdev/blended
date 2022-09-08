@@ -113,19 +113,31 @@ export const MyFriendsScreen = ({ navigation }) => {
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
       >
         {!toggleTab &&
-          friends.map((user, index) => (
-            <SingleProfile key={index} uid={user} goToProfile={goToProfile} />
+          (friends.length ? (
+            friends.map((user, index) => (
+              <SingleProfile key={index} uid={user} goToProfile={goToProfile} />
+            ))
+          ) : (
+            <Text style={{ textAlign: 'center', padding: 16, fontSize: 16 }}>
+              There are no friends.
+            </Text>
           ))}
         {toggleTab &&
-          pending.map((user, index) => (
-            <SingleProfile
-              key={index}
-              uid={user}
-              pending={true}
-              goToProfile={goToProfile}
-              cancelReq={cancelReq}
-              approveReq={approveReq}
-            />
+          (pending.length ? (
+            pending.map((user, index) => (
+              <SingleProfile
+                key={index}
+                uid={user}
+                pending={true}
+                goToProfile={goToProfile}
+                cancelReq={cancelReq}
+                approveReq={approveReq}
+              />
+            ))
+          ) : (
+            <Text style={{ textAlign: 'center', padding: 16, fontSize: 16 }}>
+              There are no pending requests.
+            </Text>
           ))}
       </ScrollView>
       <LinearGradient

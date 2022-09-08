@@ -52,7 +52,7 @@ export const Post = ({ post, navigation, reportPost }) => {
 
   const getLikeInfo = async () => {
     if (!userInfo) return;
-    if (mountedRef.current && post.likes.length && post.likes.includes(userInfo.uid)) {
+    if (mountedRef.current && post.likes.length && post.likes.includes(user.uid)) {
       setIsLiked(true);
     }
     const feedRef = doc(db, 'feeds', post.feedId);
@@ -129,26 +129,25 @@ export const Post = ({ post, navigation, reportPost }) => {
                   resizeMode="contain"
                   useNativeControls={false}
                   shouldPlay={play}
-                  isLooping={false}
+                  isLooping
                   style={styles.postImg}
                   isMuted={mute}
                 />
-                <TouchableOpacity
-                  onPress={() => setPlay((prev) => !prev)}
-                  style={{ position: 'absolute', bottom: 8, left: 8 }}
-                >
-                  <Icon name={play ? 'pause' : 'play'} size={32} color={Colors.white} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => setMute((prev) => !prev)}
-                  style={{ position: 'absolute', bottom: 8, right: 8 }}
-                >
-                  <Icon
-                    name={!mute ? 'volume-high' : 'volume-off'}
-                    size={32}
-                    color={Colors.white}
-                  />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', position: 'absolute', bottom: 8, left: 8 }}>
+                  <TouchableOpacity onPress={() => setPlay((prev) => !prev)}>
+                    <Icon name={play ? 'pause' : 'play'} size={32} color={Colors.white} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setMute((prev) => !prev)}
+                    style={{ marginLeft: 8 }}
+                  >
+                    <Icon
+                      name={!mute ? 'volume-high' : 'volume-off'}
+                      size={32}
+                      color={Colors.white}
+                    />
+                  </TouchableOpacity>
+                </View>
               </>
             ) : (
               <Lightbox

@@ -33,6 +33,7 @@ export const Comments = ({ route, navigation }) => {
       }
     })();
     return () => {
+      setChangeCounter((prev) => prev + 1);
       mountedRef.current = false;
     };
   }, []);
@@ -53,7 +54,6 @@ export const Comments = ({ route, navigation }) => {
         comments: arrayUnion(comment),
       });
       if (mountedRef.current) {
-        setChangeCounter((prev) => prev + 1);
         setComments((prev) => [{ ...comment, new: true }, ...prev]);
       }
     } catch (error) {

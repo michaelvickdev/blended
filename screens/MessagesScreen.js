@@ -1,9 +1,17 @@
 import React, { useEffect, useContext, useState, useRef } from 'react';
 import { View } from '../components';
-import { StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Text } from '../components/Text';
+import ContentLoader, { Rect, Circle } from 'react-content-loader/native';
 
 import { createStackNavigator } from '@react-navigation/stack';
 import { ChatScreen } from './ChatScreen';
@@ -86,6 +94,16 @@ const Messages = ({ navigation }) => {
         style={styles.container}
         automaticallyAdjustsScrollIndicatorInsets={false}
         scrollIndicatorInsets={{ right: Number.MIN_VALUE }}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={async () => {
+              setLoading(true);
+              setThreads([]);
+              getThreads();
+            }}
+          />
+        }
       >
         {threads.map((thread) => (
           <SingleThread key={thread} userId={thread} navigation={navigation} selfId={user.uid} />
@@ -112,14 +130,19 @@ const SingleThread = ({ navigation, userId, selfId }) => {
   };
 
   useEffect(() => {
+    let mountedRef = true;
     if (data) {
       (async () => {
         const image = await getImage(data.avatar);
-        if (image) {
+        if (image && mountedRef) {
           setAvatar(image);
         }
       })();
     }
+
+    return () => {
+      mountedRef = false;
+    };
   }, [data]);
 
   const getData = async () => {
@@ -165,7 +188,14 @@ const SingleThread = ({ navigation, userId, selfId }) => {
   if (!data || !msgData) {
     return (
       <View style={styles.threadContainer}>
-        <Text>Loading...</Text>
+        <ContentLoader viewBox="0 0 400 70" height={70} width={400}>
+          <Rect x="110" y="21" rx="4" ry="4" width="254" height="6" />
+          <Rect x="111" y="41" rx="3" ry="3" width="185" height="7" />
+          <Rect x="304" y="-46" rx="3" ry="3" width="350" height="6" />
+          <Rect x="371" y="-45" rx="3" ry="3" width="380" height="6" />
+          <Rect x="484" y="-45" rx="3" ry="3" width="201" height="6" />
+          <Circle cx="32" cy="32" r="32" />
+        </ContentLoader>
       </View>
     );
   }

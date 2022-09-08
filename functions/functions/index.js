@@ -11,7 +11,7 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-const sendPushNotification = async ({ uid, message }) => {
+const sendPushNotification = async (uid, message) => {
   const messages = [];
   const data = await db.doc('users/' + uid).get();
   if (!data.exists || typeof data.data()?.expoPushToken !== 'string') {

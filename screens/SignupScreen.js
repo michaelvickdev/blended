@@ -207,9 +207,11 @@ export const SignupScreen = ({ navigation }) => {
               <SelectInput
                 name="interested"
                 options={[
-                  { name: 'Select Interest', id: '' },
-                  { name: 'Male', id: 'male' },
-                  { name: 'Female', id: 'female' },
+                  ...(!values.gender
+                    ? [{ name: 'Please select gender first', id: '' }]
+                    : [{ name: 'Select Interest', id: '' }]),
+                  ...(values.gender == 'male' ? [{ name: 'Female', id: 'female' }] : []),
+                  ...(values.gender == 'female' ? [{ name: 'Male', id: 'male' }] : []),
                 ]}
                 value={values.interested}
                 label="*Interested"
