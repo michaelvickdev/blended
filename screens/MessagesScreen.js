@@ -122,10 +122,8 @@ const SingleThread = ({ navigation, userId, selfId }) => {
   const [avatar, setAvatar] = useState(require('../assets/default-image.png'));
   const [msgData, setMsgData] = useState(null);
   const navigate = () => {
-    navigation.navigate('MessagesStack', {
-      screen: 'Chats',
-      initial: false,
-      params: { uid: userId },
+    navigation.navigate('Chats', {
+      uid: userId,
     });
   };
 

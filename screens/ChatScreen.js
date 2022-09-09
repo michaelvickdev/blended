@@ -229,11 +229,12 @@ export const ChatScreen = ({ navigation, route }) => {
   };
 
   function handleBackButtonClick() {
-    navigation.navigate('MessagesStack', { screen: 'Messages' });
+    navigation.goBack();
+    return true;
   }
 
   function goBack() {
-    navigation.navigate('MessagesStack', { screen: 'Messages' });
+    navigation.goBack();
   }
 
   useEffect(() => {
@@ -303,12 +304,18 @@ export const ChatScreen = ({ navigation, route }) => {
               value={text}
               onChangeText={(text) => setText(text)}
               disabled={isLoading || hasBlocked || isBlocked}
+              theme={{
+                roundness: 16,
+              }}
             />
             <Button
               mode="contained"
               color={isLoading || isBlocked ? Colors.lightGray : Colors.white}
               onPress={sendText}
               disabled={isLoading || hasBlocked || isBlocked}
+              theme={{
+                roundness: 16,
+              }}
             >
               {isBlocked || hasBlocked ? 'Blocked' : isLoading ? 'Sending...' : 'Send'}
             </Button>

@@ -132,6 +132,9 @@ export const EditProfileScreen = () => {
             style={styles.button}
             color={Colors.secondary}
             labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
+            theme={{
+              roundness: 16,
+            }}
           >
             {isLoading ? 'Uploading...' : 'Upload Photo'}
           </Button>
@@ -141,7 +144,6 @@ export const EditProfileScreen = () => {
                 mode="contained"
                 compact
                 onPress={() => setToggle(true)}
-                style={styles.button}
                 color={!toggleTab ? Colors.white : Colors.lightGray}
                 textColor={Colors.white}
                 labelStyle={{ color: Colors.black }}
@@ -152,7 +154,6 @@ export const EditProfileScreen = () => {
                 mode="contained"
                 compact
                 onPress={() => setToggle(false)}
-                style={styles.button}
                 color={toggleTab ? Colors.white : Colors.lightGray}
                 labelStyle={{ color: Colors.black }}
               >
@@ -298,6 +299,9 @@ export const EditProfileScreen = () => {
                             onPress={handleSubmit}
                             color={Colors.secondary}
                             labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
+                            theme={{
+                              roundness: 16,
+                            }}
                           >
                             {isLoading ? 'Updating...' : 'Update'}
                           </Button>
@@ -378,6 +382,9 @@ export const EditProfileScreen = () => {
                             onPress={handleSubmit}
                             color={Colors.secondary}
                             labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
+                            theme={{
+                              roundness: 16,
+                            }}
                           >
                             {isLoading ? 'Updating...' : 'Update'}
                           </Button>
@@ -420,7 +427,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    borderColor: Colors.black,
+    width: '70%',
+    alignSelf: 'center',
   },
   edit: {
     flex: 1,

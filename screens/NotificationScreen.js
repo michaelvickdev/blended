@@ -47,7 +47,7 @@ export const NotificationScreen = () => {
       >
         {notifications.map((notification, index) => (
           <View key={index} style={styles.notification}>
-            <Text style={{ fontSize: 20 }}>{notification}</Text>
+            <Text style={{ fontSize: 18 }}>{notification}</Text>
           </View>
         ))}
       </ScrollView>

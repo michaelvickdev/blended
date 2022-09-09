@@ -101,12 +101,18 @@ export const Comments = ({ route, navigation }) => {
             multiline={true}
             value={text}
             onChangeText={(text) => setText(text)}
+            theme={{
+              roundness: 16,
+            }}
           />
           <Button
             mode="contained"
             color={isLoading ? Colors.lightGray : Colors.white}
             onPress={addComment}
             disabled={isLoading}
+            theme={{
+              roundness: 16,
+            }}
           >
             {isLoading ? 'Sending...' : 'Send'}
           </Button>
@@ -205,7 +211,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 8,
-    borderRadius: 10,
+    borderRadius: 16,
   },
   commentBubbleText: {
     flex: 1,

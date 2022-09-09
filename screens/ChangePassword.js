@@ -124,6 +124,9 @@ export const ChangePassword = () => {
                 onPress={handleSubmit}
                 color={Colors.secondary}
                 labelStyle={{ color: isLoading ? Colors.lightGray : Colors.white }}
+                theme={{
+                  roundness: 16,
+                }}
               >
                 {isLoading ? 'Updating...' : 'Update'}
               </Button>
@@ -160,7 +163,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   button: {
-    borderColor: Colors.black,
+    width: '70%',
+    alignSelf: 'center',
   },
   edit: {
     flex: 1,

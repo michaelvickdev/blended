@@ -7,6 +7,7 @@ import { Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Dimensions } from 'react-native';
 import { AuthenticatedUserContext } from '../providers/AuthenticatedUserProvider';
+import NetInfo from '@react-native-community/netinfo';
 
 import {
   doc,
@@ -31,6 +32,7 @@ export const Posts = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [reportCount, setReportCount] = useState(0);
   const [showReport, setShowReport] = useState(false);
+  const [isConnected, setIsConnected] = useState(true);
   const lastDoc = useRef('start');
   const mountedRef = useRef(true);
 
@@ -78,17 +80,22 @@ export const Posts = ({ navigation }) => {
   };
 
   const initializeFeeds = async () => {
-    try {
-      lastDoc.current = 'start';
-      setReportCount(0);
-      setLoading(true);
-      setShowReport(false);
-      setPosts([]);
-      getPosts();
-    } catch (e) {
-      console.log(e);
-      setLoading(false);
-      lastDoc.current = 'end';
+    const state = await NetInfo.fetch();
+    if (state.isInternetReachable) {
+      try {
+        lastDoc.current = 'start';
+        setReportCount(0);
+        setLoading(true);
+        setShowReport(false);
+        setPosts([]);
+        getPosts();
+      } catch (e) {
+        console.log(e);
+        setLoading(false);
+        lastDoc.current = 'end';
+      }
+    } else {
+      setIsConnected(false);
     }
   };
 
@@ -104,6 +111,7 @@ export const Posts = ({ navigation }) => {
   }, [reportCount]);
 
   useEffect(() => {
+    setIsConnected(true);
     mountedRef.current = true;
     initializeFeeds();
   }, [feedReload]);
@@ -140,7 +148,11 @@ export const Posts = ({ navigation }) => {
     return (
       <LinearGradient style={styles.container} colors={[Colors.mainFirst, Colors.mainSecond]}>
         <Text style={{ fontSize: 16, textAlign: 'center' }}>
-          {loading ? 'Loading...' : 'No feeds to show'}
+          {!isConnected
+            ? 'Please check your connection'
+            : loading
+            ? 'Loading...'
+            : 'No feeds to show'}
         </Text>
       </LinearGradient>
     );

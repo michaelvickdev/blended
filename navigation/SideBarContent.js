@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon';
 import { auth, Colors } from '../config';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button } from 'react-native-paper';
+import NetInfo from '@react-native-community/netinfo';
 
 import { getImage } from '../hooks/getImage';
 import { Avatar, Drawer } from 'react-native-paper';
@@ -85,19 +86,23 @@ export function SideBarContent(props) {
   };
 
   useEffect(() => {
-    (async () => {
-      mountedRef.current = true;
-      const docRef = doc(db, 'users', user.uid);
-      const docSnap = await getDoc(docRef);
+    const unsubscribe = NetInfo.addEventListener(async (state) => {
+      if (state.isInternetReachable) {
+        mountedRef.current = true;
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        if (mountedRef.current) setUserDetails({ ...docSnap.data() });
-        const image = await getImage(docSnap.data().avatar);
-        if (image && mountedRef.current) {
-          setImgUrl(image);
+        if (docSnap.exists()) {
+          if (mountedRef.current) setUserDetails({ ...docSnap.data() });
+          const image = await getImage(docSnap.data().avatar);
+          if (image && mountedRef.current) {
+            setImgUrl(image);
+          }
         }
       }
-    })();
+    });
+
+    return unsubscribe;
   }, [changeCounter, user]);
 
   useEffect(
@@ -147,9 +152,12 @@ export function SideBarContent(props) {
                     mode="contained"
                     uppercase={false}
                     compact
-                    style={{ marginTop: 10, alignSelf: 'center', borderRadius: 10 }}
-                    labelStyle={{ marginVertical: 5, marginHorizontal: 6 }}
+                    style={{ marginTop: 10, alignSelf: 'center' }}
+                    labelStyle={{ marginHorizontal: 12, marginVertical: 6 }}
                     onPress={() => setCancelAlert(true)}
+                    theme={{
+                      roundness: 16,
+                    }}
                   >
                     Cancel Subscription
                   </Button>

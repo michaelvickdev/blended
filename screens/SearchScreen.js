@@ -97,6 +97,9 @@ export const SearchScreen = ({ navigation }) => {
         placeholder="Search for users"
         outlineColor={Colors.lightGray}
         activeOutlineColor={Colors.mediumGray}
+        theme={{
+          roundness: 16,
+        }}
       />
       <ScrollView
         style={styles.container}

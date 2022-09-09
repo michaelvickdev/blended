@@ -26,7 +26,6 @@ export const HomeScreen = ({ navigation }) => {
     const userRef = doc(db, 'users', user.uid);
     try {
       const token = await generatePushNotificationsToken();
-      console.log('token: ', token);
       if (!token) {
         return;
       }
