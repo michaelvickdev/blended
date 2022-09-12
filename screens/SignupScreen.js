@@ -199,7 +199,10 @@ export const SignupScreen = ({ navigation }) => {
                 ]}
                 value={values.gender}
                 label="*Gender"
-                onSelect={handleChange('gender')}
+                onSelect={(val) => {
+                  setFieldValue('interested', val == 'male' ? 'female' : 'male');
+                  handleChange('gender')(val);
+                }}
                 onBlur={handleBlur('gender')}
               />
               <FormErrorMessage error={errors.gender} visible={touched.gender} />

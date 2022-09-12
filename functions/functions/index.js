@@ -131,6 +131,7 @@ exports.payWithStripe = functions.https.onRequest(async (req, res) => {
       payment_settings: { save_default_payment_method: 'on_subscription' },
       expand: ['pending_setup_intent'],
       trial_period_days: 10,
+      ...(req.body.coupon && { coupon: req.body.coupon }),
     });
     res.send({
       subscriptionId: subscription.id,

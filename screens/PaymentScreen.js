@@ -17,6 +17,7 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
   const { user, setChangeCounter } = React.useContext(AuthenticatedUserContext);
   const [plan, setPlan] = React.useState('0');
   const [name, setName] = React.useState('');
+  const [coupon, setCoupon] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const { confirmSetupIntent, loading } = useConfirmSetupIntent();
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -53,11 +54,14 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
     if (plan === '0') return;
     try {
       setIsLoading(true);
-      const { clientSecret, subscriptionId } = await fetchPaymentIntentClientSecret({
+      const { clientSecret, subscriptionId, statusCode } = await fetchPaymentIntentClientSecret({
         email: user.email,
         priceId: plan,
         name: name,
+        coupon: coupon ? coupon : false,
       });
+
+      if (statusCode === 400) throw error;
 
       const { error } = await confirmSetupIntent(clientSecret, {
         type: 'Card',
@@ -106,7 +110,16 @@ export const PaymentScreen = ({ setMember, isSafe }) => {
           <View style={styles.form}>
             <TextInput
               mode="outlined"
-              placeholder="Name on card"
+              placeholder="Add a Promo Coupon"
+              value={coupon}
+              onChangeText={(text) => setCoupon(text)}
+              outlineColor={Colors.black}
+              activeOutlineColor={Colors.black}
+              style={{ backgroundColor: Colors.white }}
+            />
+            <TextInput
+              mode="outlined"
+              placeholder="*Name on card"
               value={name}
               onChangeText={(text) => setName(text)}
               outlineColor={Colors.black}
