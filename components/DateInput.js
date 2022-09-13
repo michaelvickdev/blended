@@ -8,6 +8,8 @@ import { Text } from './Text';
 
 import { Colors } from '../config';
 
+const MIN_AGE = 21;
+
 export const DateInput = ({ leftIconName, label, ...otherProps }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -68,8 +70,8 @@ export const DateInput = ({ leftIconName, label, ...otherProps }) => {
         isVisible={showDatePicker}
         textColor={Colors.black}
         mode="date"
-        value={new Date()}
-        maximumDate={new Date()}
+        value={new Date(new Date().setFullYear(new Date().getFullYear() - MIN_AGE))}
+        maximumDate={new Date(new Date().setFullYear(new Date().getFullYear() - MIN_AGE))}
         minimumDate={new Date(1900, 0, 1)}
         onConfirm={(e) => {
           const date =
