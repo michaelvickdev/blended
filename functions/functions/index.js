@@ -40,6 +40,18 @@ const sendPushNotification = async (uid, message) => {
   }
 };
 
+exports.deleteUser = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      await db.collection('users').doc(req.body.uid).delete();
+      await admin.auth().deleteUser(req.body.uid);
+      res.send({ status: 200, msg: 'User deleted successfully' });
+    } catch (error) {
+      res.send(error);
+    }
+  });
+});
+
 exports.sendMail = functions.https.onRequest((req, res) => {
   cors(req, res, () => {
     const transporter = nodemailer.createTransport({
