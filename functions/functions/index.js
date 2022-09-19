@@ -10,6 +10,7 @@ const expo = new Expo({ accessToken: process.env.EXPO_ACCESS_TOKEN });
 admin.initializeApp();
 
 const db = admin.firestore();
+const storage = admin.storage();
 
 const sendPushNotification = async (uid, message) => {
   const messages = [];
@@ -40,14 +41,37 @@ const sendPushNotification = async (uid, message) => {
   }
 };
 
+//We define an async function
+async function isFriendOrReq(uid) {
+  const inReq = db.collection('users').where('requests', 'array-contains', uid);
+  const isFriend = db.collection('users').where('friends', 'array-contains', uid);
+
+  const [inReqSnap, isFriendSnap] = await Promise.all([inReq, isFriend]);
+  const users = inReqSnap.docs.concat(isFriendSnap.docs);
+  return users;
+}
+
 exports.deleteUser = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     try {
-      await db.collection('users').doc(req.body.uid).delete();
       await admin.auth().deleteUser(req.body.uid);
-      res.send({ status: 200, msg: 'User deleted successfully' });
+      await db.collection('users').doc(req.body.uid).delete();
+      const feeds = await db.collection('feeds').where('uid', '==', req.body.uid).get();
+      feeds.forEach((feed) => {
+        feed.ref.delete();
+        storage.bucket().file(`images/${feed.data().url}`).delete();
+      });
+      const users = await isFriendOrReq(req.body.uid);
+      users.forEach((user) => {
+        user.ref.update({
+          requests: admin.firestore.FieldValue.arrayRemove(req.body.uid),
+          friends: admin.firestore.FieldValue.arrayRemove(req.body.uid),
+        });
+      });
+
+      res.send({ success: true, msg: 'User deleted successfully' });
     } catch (error) {
-      res.send(error);
+      res.send({ success: false, msg: error });
     }
   });
 });
