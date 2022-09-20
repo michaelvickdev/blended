@@ -75,6 +75,61 @@ exports.deleteUser = functions.https.onRequest((req, res) => {
     }
   });
 });
+exports.deleteFeed = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      await db.collection('feeds').doc(req.body.feed.id).delete();
+
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.office365.com',
+        port: 587,
+        secureConnection: false,
+        secure: false,
+        requireTLS: true,
+        auth: {
+          user: 'support@blendedmates.com',
+          pass: 'WealthG#22',
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+
+      const username = req.body.feed.username;
+      const email = req.body.feed.email;
+
+      const mailOptions = {
+        from: 'Blended Mates <support@blendedmates.com>',
+        to: email,
+        subject: 'Your feed has been deleted', // email subject
+        html: `
+              <h2>Hello ${username}</h2>
+              <br />
+              <p>You feed with title ${req.body.feed.title} does not meet our Community Guidelines.</p>
+              <br />
+              <p>Following it, we have deleted your feed and also all the associated likes and comments with it..</p>  
+              <br />
+              <br />
+              <br />
+              <p>Blended Mates Support Team</p>
+              <a href="www.blendedmates.com">www.blendedmates.com</a>
+              <p>Source: App</p>
+              `,
+      };
+
+      // returning result
+      return transporter.sendMail(mailOptions, (erro, info) => {
+        if (erro) {
+          return res.send({ success: false, msg: erro.toString() });
+        }
+        console.log('Message sent: ', info);
+        return res.send({ success: true, msg: 'Feed deleted successfully' });
+      });
+    } catch (error) {
+      res.send({ success: false, msg: error });
+    }
+  });
+});
 
 exports.sendMail = functions.https.onRequest((req, res) => {
   cors(req, res, () => {
