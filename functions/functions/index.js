@@ -75,6 +75,62 @@ exports.deleteUser = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+exports.sendMsg = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.office365.com',
+        port: 587,
+        secureConnection: false,
+        secure: false,
+        requireTLS: true,
+        auth: {
+          user: 'support@blendedmates.com',
+          pass: 'WealthG#22',
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+
+      const username = req.body.username;
+      const user = await admin.auth().getUser(req.body.uid);
+      const email = user.email;
+      const msg = req.body.msg;
+
+      const mailOptions = {
+        from: 'Blended Mates <support@blendedmates.com>',
+        to: email,
+        subject: 'Message from the admin.', // email subject
+        html: `
+              <h2>Hello ${username}</h2>
+              <br />
+              <p>${msg}</p>
+              <br />
+              <br />
+              <br />
+              <br />
+              <p>Blended Mates Support Team</p>
+              <a href="www.blendedmates.com">www.blendedmates.com</a>
+              <p>Source: App</p>
+              `,
+      };
+
+      // returning result
+      return transporter.sendMail(mailOptions, (erro, info) => {
+        if (erro) {
+          return res.send({ success: false, msg: erro.toString() });
+        }
+        console.log('Message sent: ', info);
+        return res.send({ success: true, msg: 'Message sent successfully' });
+      });
+    } catch (error) {
+      res.send({ success: false, msg: error });
+    }
+  });
+});
+
 exports.deleteFeed = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     try {
@@ -96,7 +152,8 @@ exports.deleteFeed = functions.https.onRequest((req, res) => {
       });
 
       const username = req.body.feed.username;
-      const email = req.body.feed.email;
+      const user = await admin.auth().getUser(req.body.feed.uid);
+      const email = user.email;
 
       const mailOptions = {
         from: 'Blended Mates <support@blendedmates.com>',
